@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Header
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 import time
@@ -17,6 +17,7 @@ from tool.classDb import HttpStatus
 from tool.statusTool import EXPIRE_TIME
 from tool.dbRedis import RedisDB
 from config.api_descriptions import ApiDescriptions
+from config.user_constants import UserIdentifier
 
 redis_db = RedisDB()
 userApp = APIRouter()
@@ -264,61 +265,84 @@ def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
         db.rollback()
         return HttpStatus.server_error()
 
-@userApp.get('/info', description="获取用户信息", summary="获取用户信息")
-async def get_user_info(user_id: int = Depends(createToken.parse_token), db: Session = Depends(getDbSession)):
+@userApp.get(
+    '/info/{user_id}',
+    description=ApiDescriptions.GET_USER_INFO.description,
+    summary=ApiDescriptions.GET_USER_INFO.summary
+)
+async def get_user_info(
+    user_id: int,
+    current_user_id: int = Depends(createToken.parse_token_optional),
+    db: Session = Depends(getDbSession)
+):
     """
     获取用户信息
-    - 优先从 Redis 缓存获取
-    - 如果缓存不存在，从数据库获取并更新缓存
+    - 如果提供了有效的token，current_user_id 将是当前登录用户的ID
+    - 如果没有提供token或token无效，current_user_id 将是 None
+    - 如果 current_user_id 与请求的 user_id 相同，表示用户在查看自己的信息
     """
     try:
-        if not user_id:
-            return HttpStatus.unauthorized(
-                message=Message.unauthorized("用户未登录")["msg"],)
-            
-        # 查找用户
-        current_user = db.query(UserInputs).filter(UserInputs.id == user_id).first()
-        if not current_user:
-            return HttpStatus.error(message=Message.get(MsgCode.USER_NOT_FOUND.value)["msg"])
-            
-        # 尝试从缓存获取用户信息
-        account = current_user.email if current_user.login_type == LoginType.EMAIL else current_user.username
-        cached_user = redis_db.get_user_info(account, current_user.login_type)
-        
-        if cached_user:
-            # 从缓存获取登录记录
-            login_record = redis_db.get_login_record(current_user.id)
-            if login_record:
-                cached_user['continuous_days'] = login_record['continuous_days']
-            
-            # 删除敏感信息
-            del cached_user['password']
-            return HttpStatus.success(message=Message.success()["msg"])
+        # 查询用户信息
+        user = db.query(UserInputs).filter(UserInputs.id == user_id).first()
+        if not user:
+            return HttpStatus.error(
+                message=Message.get(MsgCode.USER_NOT_FOUND.value)["msg"]
+            )
 
-        
-        # 如果缓存不存在，从数据库获取
-        login_record = db.query(UserLoginRecord).filter(
-            UserLoginRecord.user_id == current_user.id
-        ).order_by(UserLoginRecord.login_date.desc()).first()
-        
-        continuous_days = login_record.continuous_days if login_record else 1
-        
-        # 准备用户数据
-        user_data = prepare_user_data(current_user, None, continuous_days)  # token 为 None，因为这里不需要
-        
-        # 更新缓存
-        redis_db.cache_user_info(user_data)
-        if login_record:
-            redis_db.update_login_record(current_user.id, continuous_days)
-        
-        # 删除敏感信息
-        del user_data['password']
-        return HttpStatus.success(message=Message.success()["msg"], data=user_data)
-        
-    except Exception as e:
-        return HttpStatus.server_error(
-            message=Message.error(f"获取用户信息失败: {str(e)}")["msg"],
+        # 确定用户标识
+        user_identifier = UserIdentifier.GUEST.value
+        if current_user_id:
+            if current_user_id == user_id:
+                user_identifier = UserIdentifier.CURRENT_USER.value
+            else:
+                user_identifier = UserIdentifier.OTHER_USER.value
+
+        # 构建基本响应数据（公开信息）
+        user_data = {
+            "id": user.id,
+            "uid": user.uid,
+            "type": int(user.type),
+            "username": user.username,
+            "name": user.name,
+            "status": int(user.status),
+            "location": user.location,
+            "sex": int(user.sex),
+            "create_time": int(user.create_time),
+            "last_time": int(user.last_time),
+            "is_admin": user.type in [UserType.ADMIN, UserType.SUPER],
+            "is_super_admin": user.type == UserType.SUPER,
+            "login_type": int(user.login_type),
+            "user_type": user_identifier  # 使用枚举值作为标识
+        }
+
+        # 如果是当前用户查看自己的信息，添加私密信息
+        if user_identifier == UserIdentifier.CURRENT_USER.value:
+            # 只有本人可以看到的信息
+            user_data.update({
+                "email": user.email,                      # 邮箱
+                "phone": user.phone,                      # 手机号
+                "is_email_verified": user.is_email_verified,  # 邮箱是否验证
+                "is_phone_verified": user.is_phone_verified,  # 手机是否验证
+                "last_login_time": user.last_login_time,     # 最后登录时间
+                "last_login_ip": user.last_login_ip,         # 最后登录IP
+                "update_time": user.update_time              # 信息更新时间
+            })
+
+        # 如果是管理员，可以看到一些额外信息
+        if current_user_id and (user_data.get("is_admin") or user_data.get("is_super_admin")):
+            user_data.update({
+                "created_by": user.created_by,            # 创建者
+                "updated_by": user.updated_by,            # 最后更新者
+                "remarks": user.remarks                   # 备注信息
+            })
+
+        return HttpStatus.success(
+            message=Message.get(MsgCode.SUCCESS.value)["msg"],
+            result=user_data
         )
+
+    except Exception as e:
+        return HttpStatus.server_error()
 
 @userApp.post('/update', description="更新用户信息", summary="更新用户信息")
 async def update_user_info(

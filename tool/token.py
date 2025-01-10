@@ -23,7 +23,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(EnvACCESS_TOKEN_EXPIRE_MINUTES or '43200')  # 默认30天
 
 # OAuth2 scheme配置
-oauth_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth_scheme = OAuth2PasswordBearer(tokenUrl="login", auto_error=False)
 
 def get_password_hash(password: str) -> str:
     """
@@ -103,7 +103,29 @@ def create_access_token(
     except Exception as e:
         raise ValidationError(f"创建token失败: {str(e)}")
 
-def parse_token(token: str = Depends(oauth_scheme)) -> Optional[int]:
+async def parse_token_optional(token: Optional[str] = Depends(oauth_scheme)) -> Optional[int]:
+    """
+    可选的 token 解析函数，不会在 token 无效时抛出异常
+    
+    Args:
+        token: JWT令牌，可选
+
+    Returns:
+        Optional[int]: 用户ID，如果token无效或不存在则返回None
+    """
+    if not token:
+        return None
+        
+    try:
+        payload = jwt.decode(token, EnvSECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if user_id is None:
+            return None
+        return int(user_id)
+    except JWTError:
+        return None
+
+async def parse_token(token: str = Depends(oauth_scheme)) -> Optional[int]:
     """
     解析JWT令牌
 
