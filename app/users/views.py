@@ -8,6 +8,7 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, date
 import re
+from typing import Optional
 
 from tool.dbConnectionConfig import sendBindEmail, getVerifyEmail, generate_random_code
 from tool.msg import Message, MsgCode
@@ -15,7 +16,6 @@ from .model import UserAuth, UserInfo
 from tool.db import getDbSession
 from tool import token as createToken
 from models.user.model import UserInputs, UserType, UserStatus, EmailStatus, UserLoginRecord, LoginType, UserLogoutRecord
-from tool.classDb import HttpStatus
 from tool.dbRedis import RedisDB
 from config.api_descriptions import ApiDescriptions
 from config.user_constants import UserIdentifier
@@ -25,7 +25,7 @@ load_dotenv()
 EXPIRE_TIME = int(os.getenv('EXPIRE_TIME', str(60*60*24*30)))  # 默认30天
 
 redis_db = RedisDB()
-userApp = APIRouter()
+userApp = APIRouter(tags=["用户相关"])
 
 # 管理员账号配置
 ADMIN_ACCOUNTS = {
@@ -98,8 +98,12 @@ def prepare_user_data(user: UserInputs, token: str, continuous_days: int) -> dic
         "login_type": int(user.login_type)
     }
 
-@userApp.post('/auth', description="用户认证", summary="用户注册或登录")
-def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
+@userApp.post(
+    "/auth",
+    response_model=Message[UserInfo],
+    summary=ApiDescriptions.AUTH.summary
+)
+async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
     """
     用户认证接口：处理注册和登录
     - 优先从 Redis 缓存获取用户信息
@@ -111,7 +115,7 @@ def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
     - 特殊处理管理员账号
     """
     if not user_auth.account or not user_auth.password:
-        return HttpStatus.error()
+        return Message.error()
 
     try:
         current_time = int(time.time())
@@ -121,9 +125,9 @@ def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
         if cached_user:
             # 验证密码
             if not createToken.check_password(user_auth.password, cached_user['password']):
-                return HttpStatus.error(message=Message.get(MsgCode.ACCOUNT_OR_PASSWORD_ERROR.value)["msg"])
+                return Message.error(message=Message.get(MsgCode.ACCOUNT_OR_PASSWORD_ERROR.value)["msg"])
             if int(cached_user['status']) == UserStatus.DISABLED:
-                return HttpStatus.error(message=Message.get(MsgCode.ACCOUNT_DISABLED.value)["msg"])
+                return Message.error(message=Message.get(MsgCode.ACCOUNT_DISABLED.value)["msg"])
                 
             # 获取登录记录
             login_record = redis_db.get_login_record(cached_user['id'])
@@ -170,7 +174,7 @@ def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
             # 返回用户信息
             response_data = cached_user.copy()
             del response_data['password']
-            return HttpStatus.success(
+            return Message.success(
                 message=Message.success()["msg"],
                 data=response_data
             )
@@ -179,7 +183,7 @@ def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
         query = db.query(UserInputs)
         if user_auth.login_type == LoginType.EMAIL:
             if not is_valid_email(user_auth.account):
-                return HttpStatus.error(message=Message.get(MsgCode.EMAIL_INVALID_FORMAT.value)["msg"])
+                return Message.error(message=Message.get(MsgCode.EMAIL_INVALID_FORMAT.value)["msg"])
             existing_user = query.filter(
                 UserInputs.email == user_auth.account,
                 UserInputs.login_type == LoginType.EMAIL
@@ -222,9 +226,9 @@ def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
         else:
             # 登录验证
             if not createToken.check_password(user_auth.password, existing_user.password):
-                return HttpStatus.error(message=Message.get(MsgCode.ACCOUNT_OR_PASSWORD_ERROR.value)["msg"])
+                return Message.error(message=Message.get(MsgCode.ACCOUNT_OR_PASSWORD_ERROR.value)["msg"])
             if existing_user.status == UserStatus.DISABLED:
-                return HttpStatus.error(message=Message.get(MsgCode.ACCOUNT_DISABLED.value)["msg"])
+                return Message.error(message=Message.get(MsgCode.ACCOUNT_DISABLED.value)["msg"])
             
             # 检查是否需要更新用户类型（比如普通用户被加入管理员白名单）
             admin_info = ADMIN_ACCOUNTS.get(user_auth.account)
@@ -261,23 +265,23 @@ def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
         response_data = user_data.copy()
         del response_data['password']
         
-        return HttpStatus.success(
+        return Message.success(
             message=Message.success()["msg"], 
             data=response_data
         )
 
     except SQLAlchemyError as e:
         db.rollback()
-        return HttpStatus.server_error()
+        return Message.server_error()
 
 @userApp.get(
-    '/info/{user_id}',
-    description=ApiDescriptions.GET_USER_INFO.description,
+    "/user/{user_id}",
+    response_model=Message[UserInfo],
     summary=ApiDescriptions.GET_USER_INFO.summary
 )
 async def get_user_info(
     user_id: int,
-    current_user_id: int = Depends(createToken.parse_token_optional),
+    current_user_id: Optional[int] = Depends(lambda token: createToken.parse_token(token, required=False)),
     db: Session = Depends(getDbSession)
 ):
     """
@@ -290,7 +294,7 @@ async def get_user_info(
         # 查询用户信息
         user = db.query(UserInputs).filter(UserInputs.id == user_id).first()
         if not user:
-            return HttpStatus.error(
+            return Message.error(
                 message=Message.get(MsgCode.USER_NOT_FOUND.value)["msg"]
             )
 
@@ -341,18 +345,22 @@ async def get_user_info(
                 "remarks": user.remarks                   # 备注信息
             })
 
-        return HttpStatus.success(
+        return Message.success(
             message=Message.get(MsgCode.SUCCESS.value)["msg"],
             result=user_data
         )
 
     except Exception as e:
-        return HttpStatus.server_error()
+        return Message.server_error()
 
-@userApp.post('/update', description="更新用户信息", summary="更新用户信息")
+@userApp.put(
+    "/user/{user_id}",
+    response_model=Message[UserInfo],
+    summary=ApiDescriptions.UPDATE_USER_INFO.summary
+)
 async def update_user_info(
     user_info: UserInfo, 
-    user_id: int = Depends(createToken.parse_token), 
+    user_id: int = Depends(lambda token: createToken.parse_token(token, required=True)), 
     db: Session = Depends(getDbSession)
 ):
     """
@@ -363,14 +371,14 @@ async def update_user_info(
     """
     try:
         if not user_id:
-            return HttpStatus.unauthorized(
+            return Message.unauthorized(
                 message=Message.unauthorized("用户未登录")["msg"],
             )
             
         # 查找用户
         current_user = db.query(UserInputs).filter(UserInputs.id == user_id).first()
         if not current_user:
-            return HttpStatus.error(message=Message.get(MsgCode.USER_NOT_FOUND.value)["msg"])
+            return Message.error(message=Message.get(MsgCode.USER_NOT_FOUND.value)["msg"])
         
         # 检查邮箱是否已被使用
         if user_info.email and user_info.email != current_user.email:
@@ -379,7 +387,7 @@ async def update_user_info(
                 UserInputs.id != current_user.id
             ).first()
             if existing:
-                return HttpStatus.error(message=Message.get(MsgCode.EMAIL_ALREADY_BOUND.value)["msg"])
+                return Message.error(message=Message.get(MsgCode.EMAIL_ALREADY_BOUND.value)["msg"])
         
         # 检查用户名是否已被使用
         if user_info.username and user_info.username != current_user.username:
@@ -388,7 +396,7 @@ async def update_user_info(
                 UserInputs.id != current_user.id
             ).first()
             if existing:
-                return HttpStatus.error(message=Message.get(MsgCode.USERNAME_ALREADY_BOUND.value)["msg"])
+                return Message.error(message=Message.get(MsgCode.USERNAME_ALREADY_BOUND.value)["msg"])
         
         # 更新用户信息
         update_fields = {
@@ -425,20 +433,27 @@ async def update_user_info(
             
             # 删除敏感信息
             del user_data['password']
-            return HttpStatus.success(message=Message.success()["msg"], data=user_data)
+            return Message.success(message=Message.success()["msg"], data=user_data)
         
-        return HttpStatus.error(message=Message.get(MsgCode.NO_UPDATE_INFO.value)["msg"])
+        return Message.error(message=Message.get(MsgCode.NO_UPDATE_INFO.value)["msg"])
         
     except ValueError as ve:
-        return HttpStatus.error(message=Message.error(str(ve))["msg"])
+        return Message.error(message=Message.error(str(ve))["msg"])
     except Exception as e:
         db.rollback()
-        return HttpStatus.server_error(
+        return Message.server_error(
             message=Message.error(f"更新用户信息失败: {str(e)}")["msg"],
         )
 
-@userApp.post('/logout', description="用户登出", summary="用户登出")
-async def logout(user_id: int = Depends(createToken.parse_token), db: Session = Depends(getDbSession)):
+@userApp.post(
+    "/logout",
+    response_model=Message,
+    summary=ApiDescriptions.LOGOUT.summary
+)
+async def logout(
+    user_id: int = Depends(lambda token: createToken.parse_token(token, required=True)), 
+    db: Session = Depends(getDbSession)
+):
     """
     用户登出
     - 清除用户 Redis 缓存
@@ -447,14 +462,14 @@ async def logout(user_id: int = Depends(createToken.parse_token), db: Session = 
     """
     try:
         if not user_id:
-            return HttpStatus.unauthorized(
+            return Message.unauthorized(
                 message=Message.unauthorized("用户未登录")["msg"],
             )
             
         # 查找用户
         current_user = db.query(UserInputs).filter(UserInputs.id == user_id).first()
         if not current_user:
-            return HttpStatus.error(message=Message.get(MsgCode.USER_NOT_FOUND.value)["msg"])
+            return Message.error(message=Message.get(MsgCode.USER_NOT_FOUND.value)["msg"])
 
         current_time = int(time.time())
         
@@ -482,25 +497,25 @@ async def logout(user_id: int = Depends(createToken.parse_token), db: Session = 
         # 清除 token 缓存（如果有）
         redis_db.clear_token_cache(current_user.id)
         
-        return HttpStatus.success(
+        return Message.success(
             message=Message.success("登出成功")["msg"]
         )
         
     except Exception as e:
         db.rollback()
-        return HttpStatus.server_error(
+        return Message.server_error(
             message=Message.error(f"登出失败: {str(e)}")["msg"],
         )
 
 @userApp.post(
-    '/bind-email',
-    description=ApiDescriptions.BIND_EMAIL.description,
+    "/bind-email",
+    response_model=Message[UserInfo],
     summary=ApiDescriptions.BIND_EMAIL.summary
 )
 async def bind_email(
     email: str,
     verify_code: str,
-    user_id: int = Depends(createToken.parse_token),
+    user_id: int = Depends(lambda token: createToken.parse_token(token, required=True)),
     db: Session = Depends(getDbSession)
 ):
     """
@@ -511,7 +526,7 @@ async def bind_email(
     - 更新缓存
     """
     if not is_valid_email(email):
-        return HttpStatus.error(
+        return Message.error(
             message=Message.get(MsgCode.EMAIL_INVALID_FORMAT.value)["msg"],
         )
 
@@ -519,7 +534,7 @@ async def bind_email(
     redis_key = f"email_verify_{email}"
     stored_code = redis_db.get(redis_key)
     if not stored_code or stored_code != verify_code:
-        return HttpStatus.error(
+        return Message.error(
             message=Message.get(MsgCode.EMAIL_CODE_INVALID.value)["msg"],
         )
 
@@ -530,14 +545,14 @@ async def bind_email(
             UserInputs.id != user_id
         ).first()
         if existing_user:
-            return HttpStatus.error(
+            return Message.error(
                 message=Message.get(MsgCode.EMAIL_ALREADY_BOUND.value)["msg"],
             )
 
         # 更新用户信息
         user = db.query(UserInputs).filter(UserInputs.id == user_id).first()
         if not user:
-            return HttpStatus.error(
+            return Message.error(
                 message=Message.get(MsgCode.USER_NOT_FOUND.value)["msg"],
             )
 
@@ -549,22 +564,22 @@ async def bind_email(
         # 更新Redis缓存
         user_data = prepare_user_data(user, "", user.continuous_days)
         redis_db.set(f"user_{user_id}", user_data, EXPIRE_TIME)
-        return HttpStatus.success(
+        return Message.success(
             message=Message.get(MsgCode.EMAIL_BIND_SUCCESS.value)["msg"]
         )
 
     except SQLAlchemyError as e:
         db.rollback()
-        return HttpStatus.server_error()
+        return Message.server_error()
 
 @userApp.post(
-    '/send-email-code',
-    description=ApiDescriptions.SEND_EMAIL_CODE.description,
+    "/send-email-code",
+    response_model=Message,
     summary=ApiDescriptions.SEND_EMAIL_CODE.summary
 )
 async def send_email_code(
     email: str,
-    user_id: int = Depends(createToken.parse_token),
+    user_id: int = Depends(lambda token: createToken.parse_token(token, required=True)),
     db: Session = Depends(getDbSession)
 ):
     """
@@ -573,7 +588,7 @@ async def send_email_code(
     - 发送验证码邮件
     """
     if not is_valid_email(email):
-        return HttpStatus.error(
+        return Message.error(
             message=Message.get(MsgCode.EMAIL_INVALID_FORMAT.value)["msg"]
         )
 
@@ -581,7 +596,7 @@ async def send_email_code(
         # 检查发送频率限制
         redis_key = f"email_verify_{email}"
         if redis_db.exists(redis_key):
-            return HttpStatus.error(
+            return Message.error(
                 message=Message.get(MsgCode.EMAIL_SEND_TOO_FREQUENT.value)["msg"]
             )
 
@@ -591,17 +606,17 @@ async def send_email_code(
         if email_result.get("code") != status.HTTP_200_OK:
             # 如果是频率限制错误
             if email_result.get("code") == MsgCode.EMAIL_SEND_TOO_FREQUENT.value:
-                return HttpStatus.error(
+                return Message.error(
                     message=Message.get(MsgCode.EMAIL_SEND_TOO_FREQUENT.value)["msg"]
                 )
             # 其他发送失败情况
-            return HttpStatus.error(
+            return Message.error(
                 message=Message.get(MsgCode.EMAIL_SEND_FAILED.value)["msg"]
             )
 
-        return HttpStatus.success(
+        return Message.success(
             message=Message.get(MsgCode.EMAIL_VERIFY_SUCCESS.value)["msg"]
         )
 
     except Exception as e:
-        return HttpStatus.server_error()
+        return Message.server_error()

@@ -1,12 +1,11 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Enum as SQLAlchemyEnum, Date, Index, BigInteger
 from sqlalchemy.orm import relationship
-from core.database import Base
 
 import time
 from tool.dbEnum import generate_uid, UserType, generate_default_name, EmailStatus, UserStatus, UserSex, LoginType
 from datetime import date
 
-
+from extend.db import Base,LOCSESSION,ENGIN
 class UserInputs(Base): # 用户信息
     __tablename__ = 'user_inputs'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -19,7 +18,7 @@ class UserInputs(Base): # 用户信息
     create_time = Column(Integer, nullable=False, default=lambda: int(time.time()))
     last_time = Column(Integer, nullable=False, default=lambda: int(time.time()))
     name = Column(String(30), nullable=False, default=generate_default_name)
-    phone = Column(String(11), nullable=False, default="10000000000")
+    phone = Column(String(11), nullable=False, default="")
     emailCode = Column(SQLAlchemyEnum(EmailStatus), nullable=False, default=EmailStatus.UNBOUND)
     status = Column(SQLAlchemyEnum(UserStatus), nullable=False, default=UserStatus.NORMAL)
     sex = Column(SQLAlchemyEnum(UserSex), nullable=False, default=UserSex.UNKNOWN)

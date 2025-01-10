@@ -1,13 +1,13 @@
-from typing import Optional, Dict, Union
+from typing import Optional, Dict, Union, Any
 from datetime import datetime, timedelta
-from fastapi import Depends, HTTPException, status, Security, Request
+from fastapi import Depends, HTTPException, status, Security
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jose import jwt, JWTError
+import jwt
+from jwt.exceptions import InvalidTokenError as JWTError
 import bcrypt
 from dotenv import load_dotenv
 import os
 from .validationTools import ParamValidator, ValidationError
-from tool.classDb import HttpStatus
 from config.error_messages import USER_ERROR, SYSTEM_ERROR
 
 # 加载环境变量
@@ -75,109 +75,68 @@ def create_access_token(
     except Exception as e:
         raise ValidationError(USER_ERROR["TOKEN_CREATE_ERROR"])
 
-def get_current_user_optional(token: str = Depends(oauth2_scheme)) -> Optional[Dict]:
+def parse_token(token: str = Depends(oauth2_scheme), *, required: bool = True, full_payload: bool = False) -> Any:
     """
-    获取当前用户（可选）
-    :param token: token
-    :return: Optional[Dict]
+    统一的token解析方法，可用于所有token解析场景
+    :param token: token字符串
+    :param required: 是否必需，如果为True则token无效时抛出异常
+    :param full_payload: 是否返回完整的payload
+    :return: 根据参数返回不同的值：
+            - required=True, full_payload=False: int (user_id)
+            - required=True, full_payload=True: Dict (完整payload)
+            - required=False, full_payload=False: Optional[int] (user_id或None)
+            - required=False, full_payload=True: Optional[Dict] (payload或None)
+    
+    使用示例：
+    1. 必需的user_id（用于需要登录的接口）:
+       user_id: int = Depends(lambda token: parse_token(token, required=True))
+       
+    2. 可选的user_id（用于可以匿名访问的接口）:
+       user_id: Optional[int] = Depends(lambda token: parse_token(token, required=False))
     """
+    # 如果没有token
     if not token:
-        return None
-        
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("sub")
-        if user_id is None:
-            return None
-            
-        token_data = {
-            "user_id": user_id,
-            "account": payload.get("account"),
-            "login_type": payload.get("login_type")
-        }
-        return token_data
-    except JWTError:
-        return None
-    except Exception as e:
-        return None
-
-def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict:
-    """
-    获取当前用户（必需）
-    :param token: token
-    :return: Dict
-    """
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=USER_ERROR["TOKEN_INVALID"],
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-        
-    try:
-        ParamValidator.validate_string(token, "token")
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("sub")
-        if not user_id:
+        if required:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail=USER_ERROR["TOKEN_INVALID"],
                 headers={"WWW-Authenticate": "Bearer"},
             )
-            
-        token_data = {
-            "user_id": user_id,
-            "account": payload.get("account"),
-            "login_type": payload.get("login_type")
-        }
-        return token_data
-    except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=USER_ERROR["TOKEN_EXPIRED"],
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=str(e),
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=USER_ERROR["TOKEN_INVALID"],
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        return None
 
-def get_token_from_cookie(request: Request) -> Optional[Dict]:
-    """
-    从cookie中获取token
-    :param request: Request
-    :return: Optional[Dict]
-    """
     try:
-        authorization = request.cookies.get("Authorization")
-        if not authorization:
-            return None
-            
-        parts = authorization.split()
-        if len(parts) != 2 or parts[0].lower() != "bearer":
-            return None
-            
-        token = parts[1]
+        # 解析token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        
+        # 提取用户ID
         user_id = payload.get("sub")
         if not user_id:
+            if required:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail=USER_ERROR["TOKEN_INVALID"],
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
             return None
             
-        token_data = {
-            "user_id": user_id,
-            "account": payload.get("account"),
-            "login_type": payload.get("login_type")
-        }
-        return token_data
+        # 返回结果
+        if full_payload:
+            return payload
+        return int(user_id)
+            
     except JWTError:
+        if required:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=USER_ERROR["TOKEN_EXPIRED"],
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         return None
-    except Exception as e:
+    except Exception:
+        if required:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=USER_ERROR["TOKEN_INVALID"],
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         return None
