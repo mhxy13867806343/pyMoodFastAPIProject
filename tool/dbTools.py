@@ -5,16 +5,48 @@ import secrets
 import time
 import random
 from hashlib import md5
-def getPistPagenaTion(db:Session,dbms=None,current:int=1,size:int=20)->Optional[List[Dict[str, Any]]]:
-    offsetCurrent=(current-1)*size
-    array=db.query(dbms).offset(offsetCurrent).limit(size).all()
-    return array
 
-#获取总条数
-def getPistPagenationTotal(db:Session,dbms=None)->int:
-    count=db.query(dbms).count()
-    return count
-def generate_dynamic_cookies():
+def get_pagination(
+    db: Session,
+    model: Any,
+    page: int = 1,
+    page_size: int = 20
+) -> Optional[List[Dict[str, Any]]]:
+    """
+    获取分页数据
+
+    参数:
+    db (Session): 数据库会话
+    model: 数据库模型
+    page (int): 当前页码，默认为1
+    page_size (int): 每页数量，默认为20
+
+    返回:
+    List: 分页后的数据列表
+    """
+    offset = (page - 1) * page_size
+    return db.query(model).offset(offset).limit(page_size).all()
+
+def get_total_count(db: Session, model: Any) -> int:
+    """
+    获取总条数
+
+    参数:
+    db (Session): 数据库会话
+    model: 数据库模型
+
+    返回:
+    int: 总条数
+    """
+    return db.query(model).count()
+
+def generate_dynamic_cookies() -> Dict[str, str]:
+    """
+    生成动态cookies
+
+    返回:
+    Dict[str, str]: 包含各种cookie值的字典
+    """
     current_time = int(time.time())
     random_value = random.randint(1000, 9999)
 
@@ -24,20 +56,16 @@ def generate_dynamic_cookies():
     # 使用 MD5 生成一个假设的会话 ID
     session_id = md5(f"{current_time}{random_value}".encode()).hexdigest()
 
-    # 生成时间相关的 Cookie 值
-    hm_lvt_value = current_time
-    hm_lpvt_value = current_time + 300  # 假设5分钟后过期
-
-    cookies = {
+    return {
         'Culture': 'c%3Dzh%7Cuic%3Dzh',
         '_ga': ga_value,
         '_ga_KSTCY0VQQ2': f'GS1.1.{current_time}.{random_value}.0.0.0',
-        'Hm_lvt_00199139cedb22dd93566ef972128f5f': str(hm_lvt_value),
-        'Hm_lpvt_00199139cedb22dd93566ef972128f5f': str(hm_lpvt_value),
+        'Hm_lvt_00199139cedb22dd93566ef972128f5f': str(current_time),
+        'Hm_lpvt_00199139cedb22dd93566ef972128f5f': str(current_time + 300),
         'session_id': session_id
     }
-    return cookies
-def getValidate_email(email):
+
+def validate_email(email: str) -> bool:
     """
     验证电子邮件地址是否合法。
 

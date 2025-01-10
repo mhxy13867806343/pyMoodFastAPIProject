@@ -1,60 +1,159 @@
-#密码加密
-from typing import Optional
-
-from fastapi import Depends, HTTPException, status, Security,Request
+from typing import Optional, Dict, Union
+from datetime import datetime, timedelta
+from fastapi import Depends, HTTPException, status, Security, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
-from jose import jwt,JWTError
+from jose import jwt, JWTError
 import bcrypt
 from dotenv import load_dotenv
-from datetime import datetime, timedelta
 import os
+from .validationTools import ParamValidator, ValidationError
+
+# 加载环境变量
 load_dotenv()
-pwdContext=CryptContext(schemes=['bcrypt'], deprecated='auto')#密码加密
-SECRET_KEY = os.getenv('SECRET_KEY',None)
 
-ALGORITHM= "HS256"
+# 常量配置
+PWD_CONTEXT = CryptContext(schemes=['bcrypt'], deprecated='auto')
+EnvSECRET_KEY = os.getenv('SECRET_KEY')
+EnvACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
+if not EnvSECRET_KEY:
+    raise ValueError("未找到必须的文件,请联系管理员")
 
-oauth_scheme= OAuth2PasswordBearer(tokenUrl="login")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = int(EnvACCESS_TOKEN_EXPIRE_MINUTES or '43200')  # 默认30天
 
-def getHashPwd(password:str):
-    return pwdContext.hash(password)
-def check_password(plain_password:str, hashed_password:str):
+# OAuth2 scheme配置
+oauth_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+def get_password_hash(password: str) -> str:
     """
-    验证明文密码和哈希密码是否匹配。
-    :param plain_password: 用户输入的明文密码
-    :param hashed_password: 数据库中存储的哈希密码
-    :return: 密码是否匹配的布尔值
+    使用bcrypt对密码进行哈希处理
+
+    Args:
+        password: 原始密码
+
+    Raises:
+        ValidationError: 当password验证失败时抛出
+
+    Returns:
+        str: 哈希后的密码
     """
-    # 将明文密码编码为bytes，然后与存储的哈希密码进行比较
-    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+    ParamValidator.validate_string(password, "密码")
+    
+    salt = bcrypt.gensalt(rounds=12)
+    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
 
-#生成token用户信息，过期时间
-def create_token(data:dict,expires_delta):
-    if expires_delta:
-        expire=datetime.utcnow()+expires_delta
-    else:
-        expire=datetime.utcnow()+timedelta(minutes=30)
-    data.update({"exp":expire})
-    token= jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
-    return token
-#解构token
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """
+    使用bcrypt验证密码
 
-def pase_token(token: str = Depends(oauth_scheme)) -> Optional[int]:
+    Args:
+        plain_password: 原始密码
+        hashed_password: 哈希后的密码
+
+    Raises:
+        ValidationError: 当参数验证失败时抛出
+
+    Returns:
+        bool: 密码是否匹配
+    """
+    ParamValidator.validate_string(plain_password, "原始密码")
+    ParamValidator.validate_string(hashed_password, "哈希密码")
+    
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: str = payload.get("sub")
-        return int(user_id) if user_id else None
-    except (JWTError, ValueError):
+        return bcrypt.checkpw(
+            plain_password.encode('utf-8'),
+            hashed_password.encode('utf-8')
+        )
+    except Exception as e:
+        raise ValidationError(f"密码验证失败: {str(e)}")
+
+def create_access_token(
+    data: Dict[str, Union[str, int]],
+    expires_delta: Optional[Union[timedelta, int]] = None
+) -> str:
+    """
+    创建访问令牌
+
+    Args:
+        data: 要编码到令牌中的数据
+        expires_delta: 过期时间，可以是timedelta对象或者分钟数
+
+    Raises:
+        ValidationError: 当参数验证失败时抛出
+
+    Returns:
+        str: JWT令牌
+    """
+    ParamValidator.validate_dict(data, "data", ["sub"])
+    ParamValidator.validate_expires_delta(expires_delta, "过期时间")
+    
+    to_encode = data.copy()
+    
+    try:
+        if expires_delta is None:
+            expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        elif isinstance(expires_delta, int):
+            expire = datetime.utcnow() + timedelta(minutes=expires_delta)
+        else:
+            expire = datetime.utcnow() + expires_delta
+            
+        to_encode.update({"exp": expire})
+        return jwt.encode(to_encode, EnvSECRET_KEY, algorithm=ALGORITHM)
+    except Exception as e:
+        raise ValidationError(f"创建token失败: {str(e)}")
+
+def parse_token(token: str = Depends(oauth_scheme)) -> Optional[int]:
+    """
+    解析JWT令牌
+
+    Args:
+        token: JWT令牌
+
+    Returns:
+        Optional[int]: 用户ID，解析失败返回None
+    """
+    if not token:
         return None
-def getNotCurrentUserId(request: Request) -> Optional[int]:
-    token = request.headers.get("Authorization")
-    if token:
-        try:
-            token = token.split(" ")[1]  # 假设Token格式为"Bearer xxx"
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            user_id: int = payload.get("sub")
-            return user_id
-        except (IndexError, JWTError):
-            return None  # 在Token无效时返回None
-    return None  # 如果没有Token也返回None
+        
+    try:
+        ParamValidator.validate_string(token, "token")
+        payload = jwt.decode(token, EnvSECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if not user_id:
+            return None
+        return int(user_id)
+    except (JWTError, ValidationError, ValueError):
+        return None
+
+def get_current_user_id(request: Request) -> Optional[int]:
+    """
+    从请求头中获取当前用户ID
+
+    Args:
+        request: FastAPI请求对象
+
+    Returns:
+        Optional[int]: 用户ID，获取失败返回None
+    """
+    if not request:
+        return None
+        
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        return None
+        
+    try:
+        ParamValidator.validate_string(auth_header, "Authorization header")
+        parts = auth_header.split()
+        if len(parts) != 2 or parts[0].lower() != "bearer":
+            return None
+            
+        token = parts[1]
+        payload = jwt.decode(token, EnvSECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if not user_id:
+            return None
+        return int(user_id)
+    except (IndexError, JWTError, ValidationError, ValueError):
+        return None
