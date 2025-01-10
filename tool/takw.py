@@ -1,6 +1,6 @@
 from starlette import status
 from typing import Tuple, List, Dict, Any
-from tool.classDb import httpStatus
+from tool.classDb import HttpStatus
 
 
 def getArgsKwArgsResult(*args, **kwargs)->Dict[str, Any]:
@@ -18,4 +18,4 @@ def getArgsKwArgsResult(*args, **kwargs)->Dict[str, Any]:
         "pageSize": kwargs.get("pageSize",10),
     }
 
-    return httpStatus(code=status.HTTP_200_OK, message="获取成功", data=result)
+    return HttpStatus.success(message="获取成功", data=result)

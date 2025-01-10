@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 import time
 import random
 import string
+import os
+from dotenv import load_dotenv
 from datetime import datetime, timedelta, date
 import re
 
@@ -14,10 +16,13 @@ from tool.db import getDbSession
 from tool import token as createToken
 from models.user.model import UserInputs, UserType, UserStatus, EmailStatus, UserLoginRecord, LoginType, UserLogoutRecord
 from tool.classDb import HttpStatus
-from tool.statusTool import EXPIRE_TIME
 from tool.dbRedis import RedisDB
 from config.api_descriptions import ApiDescriptions
 from config.user_constants import UserIdentifier
+
+# 加载环境变量
+load_dotenv()
+EXPIRE_TIME = int(os.getenv('EXPIRE_TIME', str(60*60*24*30)))  # 默认30天
 
 redis_db = RedisDB()
 userApp = APIRouter()
@@ -146,7 +151,7 @@ def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
                 db.commit()
             
             # 生成新的 token
-            token_expire = timedelta(minutes=EXPIRE_TIME * 2) if cached_user['type'] != UserType.NORMAL else timedelta(minutes=EXPIRE_TIME)
+            token_expire = timedelta(seconds=EXPIRE_TIME * 2) if cached_user['type'] != UserType.NORMAL else timedelta(seconds=EXPIRE_TIME)
             token = createToken.create_token(
                 {
                     "sub": str(cached_user['id']),
@@ -235,7 +240,7 @@ def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
         db.commit()
 
         # 生成token，管理员token有效期更长
-        token_expire = timedelta(minutes=EXPIRE_TIME * 2) if existing_user.type != UserType.NORMAL else timedelta(minutes=EXPIRE_TIME)
+        token_expire = timedelta(seconds=EXPIRE_TIME * 2) if existing_user.type != UserType.NORMAL else timedelta(seconds=EXPIRE_TIME)
         token = createToken.create_token(
             {
                 "sub": str(existing_user.id),

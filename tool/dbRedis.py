@@ -1,8 +1,15 @@
 import redis
 import time
 from datetime import date, datetime
-from tool.statusTool import EXPIRE_TIME
-from tool.classDb import httpStatus
+import os
+from dotenv import load_dotenv
+
+from config.error_messages import ErrorCode
+from tool.classDb import HttpStatus
+
+# 加载环境变量
+load_dotenv()
+EXPIRE_TIME = int(os.getenv('EXPIRE_TIME', str(60*60*24*30)))  # 默认30天
 
 REDIS_KEYS = {
     "USER_INFO": "user:info:",    # 用户基本信息，key格式：user:info:{account}:{login_type}
@@ -175,4 +182,4 @@ class RedisDB:
 def check_redis():
     redis_db = RedisDB()
     if not redis_db.is_running():
-        return httpStatus(message="redis未运行,请运行", data={}, code=60000)
+        return HttpStatus.custom(message="redis未运行,请运行", data={}, code=ErrorCode.REDIS_ERROR)

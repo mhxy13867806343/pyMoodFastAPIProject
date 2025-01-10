@@ -26,7 +26,8 @@ SYSTEM_ERROR = {
     "REDIS_ERROR": "Redis连接失败",
     "REQUEST_ERROR": "请求处理出现异常",
     "DB_INIT_ERROR": "数据库初始化失败",
-    "DB_INIT_SUCCESS": "数据库初始化成功"
+    "DB_INIT_SUCCESS": "数据库初始化成功",
+    "CONFIG_ERROR": "配置错误：未找到必须的环境变量"
 }
 
 # 用户相关错误信息
@@ -36,6 +37,7 @@ USER_ERROR = {
     "PASSWORD_ERROR": "密码错误",
     "TOKEN_EXPIRED": "登录已过期",
     "TOKEN_INVALID": "无效的登录信息",
+    "TOKEN_CREATE_ERROR": "创建登录令牌失败",
     "PERMISSION_DENIED": "权限不足"
 }
 
@@ -43,5 +45,6 @@ USER_ERROR = {
 BUSINESS_ERROR = {
     "RATE_LIMIT": "请求过于频繁",
     "INVALID_OPERATION": "无效的操作",
-    "RESOURCE_NOT_FOUND": "资源不存在"
+    "RESOURCE_NOT_FOUND": "资源不存在",
+    "DATA_VALIDATION_ERROR": "数据验证失败"
 }

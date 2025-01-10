@@ -2,180 +2,182 @@ from typing import Optional, Dict, Union
 from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status, Security, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from passlib.context import CryptContext
 from jose import jwt, JWTError
 import bcrypt
 from dotenv import load_dotenv
 import os
 from .validationTools import ParamValidator, ValidationError
+from tool.classDb import HttpStatus
+from config.error_messages import USER_ERROR, SYSTEM_ERROR
 
 # 加载环境变量
 load_dotenv()
-
-# 常量配置
-PWD_CONTEXT = CryptContext(schemes=['bcrypt'], deprecated='auto')
 EnvSECRET_KEY = os.getenv('SECRET_KEY')
-EnvACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
-if not EnvSECRET_KEY:
-    raise ValueError("未找到必须的文件,请联系管理员")
+EnvEXPIRE_TIME = os.getenv('EXPIRE_TIME')
 
+if not EnvSECRET_KEY:
+    raise ValueError(SYSTEM_ERROR["CONFIG_ERROR"])
+
+# JWT配置
+SECRET_KEY = EnvSECRET_KEY
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(EnvACCESS_TOKEN_EXPIRE_MINUTES or '43200')  # 默认30天
+EXPIRE_TIME = int(EnvEXPIRE_TIME or str(60*60*24*30))  # 默认30天
 
 # OAuth2 scheme配置
-oauth_scheme = OAuth2PasswordBearer(tokenUrl="login", auto_error=False)
-
-def get_password_hash(password: str) -> str:
-    """
-    使用bcrypt对密码进行哈希处理
-
-    Args:
-        password: 原始密码
-
-    Raises:
-        ValidationError: 当password验证失败时抛出
-
-    Returns:
-        str: 哈希后的密码
-    """
-    ParamValidator.validate_string(password, "密码")
-    
-    salt = bcrypt.gensalt(rounds=12)
-    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
-    使用bcrypt验证密码
-
-    Args:
-        plain_password: 原始密码
-        hashed_password: 哈希后的密码
-
-    Raises:
-        ValidationError: 当参数验证失败时抛出
-
-    Returns:
-        bool: 密码是否匹配
+    验证密码
+    :param plain_password: 明文密码
+    :param hashed_password: 加密后的密码
+    :return: bool
     """
-    ParamValidator.validate_string(plain_password, "原始密码")
-    ParamValidator.validate_string(hashed_password, "哈希密码")
-    
     try:
         return bcrypt.checkpw(
             plain_password.encode('utf-8'),
             hashed_password.encode('utf-8')
         )
     except Exception as e:
-        raise ValidationError(f"密码验证失败: {str(e)}")
+        raise ValidationError(USER_ERROR["PASSWORD_ERROR"])
+
+def get_password_hash(password: str) -> str:
+    """
+    获取密码hash
+    :param password: 明文密码
+    :return: str
+    """
+    try:
+        salt = bcrypt.gensalt()
+        return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+    except Exception as e:
+        raise ValidationError(USER_ERROR["PASSWORD_ERROR"])
 
 def create_access_token(
-    data: Dict[str, Union[str, int]],
-    expires_delta: Optional[Union[timedelta, int]] = None
+    data: dict,
+    expires_delta: Optional[timedelta] = None
 ) -> str:
     """
     创建访问令牌
-
-    Args:
-        data: 要编码到令牌中的数据
-        expires_delta: 过期时间，可以是timedelta对象或者分钟数
-
-    Raises:
-        ValidationError: 当参数验证失败时抛出
-
-    Returns:
-        str: JWT令牌
+    :param data: 数据
+    :param expires_delta: 过期时间
+    :return: str
     """
-    ParamValidator.validate_dict(data, "data", ["sub"])
-    ParamValidator.validate_expires_delta(expires_delta, "过期时间")
-    
-    to_encode = data.copy()
-    
     try:
-        if expires_delta is None:
-            expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        elif isinstance(expires_delta, int):
-            expire = datetime.utcnow() + timedelta(minutes=expires_delta)
-        else:
+        to_encode = data.copy()
+        if expires_delta:
             expire = datetime.utcnow() + expires_delta
+        else:
+            expire = datetime.utcnow() + timedelta(seconds=EXPIRE_TIME)
             
         to_encode.update({"exp": expire})
-        return jwt.encode(to_encode, EnvSECRET_KEY, algorithm=ALGORITHM)
+        return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     except Exception as e:
-        raise ValidationError(f"创建token失败: {str(e)}")
+        raise ValidationError(USER_ERROR["TOKEN_CREATE_ERROR"])
 
-async def parse_token_optional(token: Optional[str] = Depends(oauth_scheme)) -> Optional[int]:
+def get_current_user_optional(token: str = Depends(oauth2_scheme)) -> Optional[Dict]:
     """
-    可选的 token 解析函数，不会在 token 无效时抛出异常
-    
-    Args:
-        token: JWT令牌，可选
-
-    Returns:
-        Optional[int]: 用户ID，如果token无效或不存在则返回None
+    获取当前用户（可选）
+    :param token: token
+    :return: Optional[Dict]
     """
     if not token:
         return None
         
     try:
-        payload = jwt.decode(token, EnvSECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
         if user_id is None:
             return None
-        return int(user_id)
+            
+        token_data = {
+            "user_id": user_id,
+            "account": payload.get("account"),
+            "login_type": payload.get("login_type")
+        }
+        return token_data
     except JWTError:
         return None
+    except Exception as e:
+        return None
 
-async def parse_token(token: str = Depends(oauth_scheme)) -> Optional[int]:
+def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict:
     """
-    解析JWT令牌
-
-    Args:
-        token: JWT令牌
-
-    Returns:
-        Optional[int]: 用户ID，解析失败返回None
+    获取当前用户（必需）
+    :param token: token
+    :return: Dict
     """
     if not token:
-        return None
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=USER_ERROR["TOKEN_INVALID"],
+            headers={"WWW-Authenticate": "Bearer"},
+        )
         
     try:
         ParamValidator.validate_string(token, "token")
-        payload = jwt.decode(token, EnvSECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
         if not user_id:
-            return None
-        return int(user_id)
-    except (JWTError, ValidationError, ValueError):
-        return None
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=USER_ERROR["TOKEN_INVALID"],
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+            
+        token_data = {
+            "user_id": user_id,
+            "account": payload.get("account"),
+            "login_type": payload.get("login_type")
+        }
+        return token_data
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=USER_ERROR["TOKEN_EXPIRED"],
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e),
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=USER_ERROR["TOKEN_INVALID"],
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
-def get_current_user_id(request: Request) -> Optional[int]:
+def get_token_from_cookie(request: Request) -> Optional[Dict]:
     """
-    从请求头中获取当前用户ID
-
-    Args:
-        request: FastAPI请求对象
-
-    Returns:
-        Optional[int]: 用户ID，获取失败返回None
+    从cookie中获取token
+    :param request: Request
+    :return: Optional[Dict]
     """
-    if not request:
-        return None
-        
-    auth_header = request.headers.get("Authorization")
-    if not auth_header:
-        return None
-        
     try:
-        ParamValidator.validate_string(auth_header, "Authorization header")
-        parts = auth_header.split()
+        authorization = request.cookies.get("Authorization")
+        if not authorization:
+            return None
+            
+        parts = authorization.split()
         if len(parts) != 2 or parts[0].lower() != "bearer":
             return None
             
         token = parts[1]
-        payload = jwt.decode(token, EnvSECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
         if not user_id:
             return None
-        return int(user_id)
-    except (IndexError, JWTError, ValidationError, ValueError):
+            
+        token_data = {
+            "user_id": user_id,
+            "account": payload.get("account"),
+            "login_type": payload.get("login_type")
+        }
+        return token_data
+    except JWTError:
+        return None
+    except Exception as e:
         return None
