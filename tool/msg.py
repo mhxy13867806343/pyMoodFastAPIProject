@@ -40,14 +40,15 @@ class MsgCode(Enum):
     NICKNAME_NO_CHANGE = "305"
     
     # 邮箱相关
-    EMAIL_EMPTY = "400"
-    EMAIL_INVALID = "401"
-    EMAIL_NOT_BOUND = "402"
-    EMAIL_ALREADY_BOUND = "403"
-    EMAIL_VERIFY_EMPTY = "404"
-    EMAIL_VERIFY_EXPIRED = "405"
-    EMAIL_BIND_SUCCESS = "406"
-    EMAIL_BIND_FAILED = "407"
+    EMAIL_EMPTY = "80001"                  # 邮箱为空
+    EMAIL_INVALID_FORMAT = "80002"         # 邮箱格式不正确
+    EMAIL_CODE_INVALID = "80003"           # 验证码错误
+    EMAIL_ALREADY_BOUND = "80004"          # 邮箱已被绑定
+    EMAIL_SEND_FAILED = "80005"            # 邮件发送失败
+    EMAIL_CODE_EXPIRED = "80006"           # 验证码过期
+    EMAIL_SEND_TOO_FREQUENT = "80007"      # 发送过于频繁
+    EMAIL_BIND_SUCCESS = "80008"           # 绑定成功
+    EMAIL_VERIFY_SUCCESS = "80009"         # 验证成功
     
     # 签名相关
     SIGNATURE_NOT_FOUND = "500"
@@ -92,13 +93,14 @@ class Message:
         
         # 邮箱相关
         MsgCode.EMAIL_EMPTY.value: "邮箱不能为空，请输入邮箱地址",
-        MsgCode.EMAIL_INVALID.value: "邮箱格式不正确，请重新输入",
-        MsgCode.EMAIL_NOT_BOUND.value: "您的用户信息中未有邮箱地址，请先添加邮箱地址",
-        MsgCode.EMAIL_ALREADY_BOUND.value: "此邮箱已绑定到其他帐户，请先解除绑定",
-        MsgCode.EMAIL_VERIFY_EMPTY.value: "验证码不能为空",
-        MsgCode.EMAIL_VERIFY_EXPIRED.value: "验证码已失效，请重新获取",
+        MsgCode.EMAIL_INVALID_FORMAT.value: "邮箱格式不正确",
+        MsgCode.EMAIL_CODE_INVALID.value: "验证码错误或已过期",
+        MsgCode.EMAIL_ALREADY_BOUND.value: "该邮箱已被其他用户绑定",
+        MsgCode.EMAIL_SEND_FAILED.value: "邮件发送失败",
+        MsgCode.EMAIL_CODE_EXPIRED.value: "验证码已过期",
+        MsgCode.EMAIL_SEND_TOO_FREQUENT.value: "验证码发送过于频繁，请稍后再试",
         MsgCode.EMAIL_BIND_SUCCESS.value: "邮箱绑定成功",
-        MsgCode.EMAIL_BIND_FAILED.value: "邮箱绑定失败",
+        MsgCode.EMAIL_VERIFY_SUCCESS.value: "验证码发送成功",
         
         # 签名相关
         MsgCode.SIGNATURE_NOT_FOUND.value: "未找到签名内容",
