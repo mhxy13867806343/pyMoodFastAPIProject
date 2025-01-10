@@ -10,6 +10,75 @@ import time
 import hashlib
 from datetime import datetime, timedelta
 from tool.dbHeaders import jsHeaders, outerUserAgentHeadersX64
+
+
+class HttpStatus:
+    """统一的HTTP响应处理类"""
+
+    @staticmethod
+    def success(data: dict | list = None, message: str = "操作成功") -> dict:
+        """成功响应"""
+        return {
+            "code": status.HTTP_200_OK,
+            "message": message,
+            "data": data or {}
+        }
+
+    @staticmethod
+    def error(message: str = "操作失败", code: int = status.HTTP_400_BAD_REQUEST) -> dict:
+        """错误响应"""
+        return {
+            "code": code,
+            "message": message,
+            "data": {}
+        }
+
+    @staticmethod
+    def not_found(message: str = "资源不存在") -> dict:
+        """404响应"""
+        return {
+            "code": status.HTTP_404_NOT_FOUND,
+            "message": message,
+            "data": {}
+        }
+
+    @staticmethod
+    def unauthorized(message: str = "未授权访问") -> dict:
+        """401响应"""
+        return {
+            "code": status.HTTP_401_UNAUTHORIZED,
+            "message": message,
+            "data": {}
+        }
+
+    @staticmethod
+    def forbidden(message: str = "禁止访问") -> dict:
+        """403响应"""
+        return {
+            "code": status.HTTP_403_FORBIDDEN,
+            "message": message,
+            "data": {}
+        }
+
+    @staticmethod
+    def server_error(message: str = "服务器内部错误") -> dict:
+        """500响应"""
+        return {
+            "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+            "message": message,
+            "data": {}
+        }
+
+    @staticmethod
+    def custom(code: int = status.HTTP_400_BAD_REQUEST, message: str = "操作失败", data: dict | list = None) -> dict:
+        """自定义响应"""
+        return {
+            "code": code,
+            "message": message,
+            "data": data or {}
+        }
+
+
 # 通用工具类 正则表达式
 toolReg={
     "email_regex":r'^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$',
@@ -20,28 +89,30 @@ toolReg={
 
 def performGetRequest(url:str=None, method='get', data=None, json=None):
     if not url:
-        return httpStatus(code=status.HTTP_400_BAD_REQUEST, message="请求地址不能为空", data={})
+        return HttpStatus.error(message="请求地址不能为空", code=status.HTTP_400_BAD_REQUEST)
     try:
         if method == 'post':
             response = requests.post(url, headers=outerUserAgentHeadersX64, data=data, json=json)
         elif method == 'get':
             response = requests.get(url, headers=outerUserAgentHeadersX64, json=json,data=None)
         if response.status_code != 200:
-            return httpStatus(code=status.HTTP_500_INTERNAL_SERVER_ERROR, message=f"获取数据失败: {response.status_code}", data={})
-        return httpStatus(code=status.HTTP_200_OK, message="获取成功", data=response.json())
+            return HttpStatus.error(message=f"获取数据失败: {response.status_code}", code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return HttpStatus.success(data=response.json())
     except requests.ConnectionError:
         # 处理连接错误
-        raise httpStatus(code=status.HTTP_503_SERVICE_UNAVAILABLE, message="服务不可达")
+        return HttpStatus.error(message="服务不可达", code=status.HTTP_503_SERVICE_UNAVAILABLE)
     except requests.Timeout:
         # 处理超时错误
-        raise httpStatus(code=status.HTTP_408_REQUEST_TIMEOUT, message="请求超时")
+        return HttpStatus.error(message="请求超时", code=status.HTTP_408_REQUEST_TIMEOUT)
     except requests.RequestException as e:
         # 对于其他请求相关的异常
-        raise httpStatus(code=status.HTTP_500_INTERNAL_SERVER_ERROR, message=str(e))
+        return HttpStatus.error(message=str(e), code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 def get_next_year_timestamp():
     current_time = datetime.now()
     next_year_date = current_time.replace(year=current_time.year + 1)
     return int(time.mktime(next_year_date.timetuple()))
+
 class UUIDType(TypeDecorator):
     impl = CHAR
 
@@ -62,16 +133,10 @@ class UUIDType(TypeDecorator):
         else:
             return uuid.UUID(value)
 
-def httpStatus(code:int=status.HTTP_400_BAD_REQUEST,message:str="获取失败",data:dict={})->dict:
-    return {
-        "data":{
-            "code":code,
-            "message":message,
-            "result":data
-        }
-    }
+
 def validate_phone_number(phone_number:int)->bool:
     return validateReg("phone_regex",phone_number)
+
 #密码强度校验，最少6位，包括至少1个大写字母，1个小写字母，1个数字，1个特殊字符
 def validate_pwd(pwd_str:str)->bool:
     return validateReg("pwd_regex",pwd_str)
@@ -79,14 +144,14 @@ def validate_pwd(pwd_str:str)->bool:
 def validateReg(reg:str,txt:str)->bool:
     pattern = toolReg[reg]
     return re.match(pattern, txt) if 1 else 0
+
 def validate_email_str(s:str)->bool:
     return validateReg("email_regex",s)
-
 
 def validate_encrypt_email(email:str=""):
     result =validate_email_str(email)
     if not result:
-        return httpStatus(message="邮箱格式不正确", data={})
+        return HttpStatus.error(message="邮箱格式不正确", code=status.HTTP_400_BAD_REQUEST)
     # 分割邮箱地址为用户名和域名
     user, domain = email.split('@')
 
@@ -104,13 +169,14 @@ def validate_encrypt_email(email:str=""):
     # 合并加密后的用户名和域名
     encrypted_email = encrypted_user + '@' + domain
     return encrypted_email
+
 def validate_phone_input(phone: str)->dict or None:
     if not phone:
-        return httpStatus(message="手机号码不能为空", data={})
+        return HttpStatus.error(message="手机号码不能为空", code=status.HTTP_400_BAD_REQUEST)
     if not validate_phone_number(phone):
-        return httpStatus(message="手机号格式不合法", data={})
+        return HttpStatus.error(message="手机号格式不合法", code=status.HTTP_400_BAD_REQUEST)
     if len(phone) != 11:
-        return httpStatus(message="手机号必须为11位", data={})
+        return HttpStatus.error(message="手机号必须为11位", code=status.HTTP_400_BAD_REQUEST)
 
     return None  # 如果验证通过，返回 None
 
@@ -119,13 +185,10 @@ def createUuid(name,time,pwd):
     d=uuid.uuid5(uuid.NAMESPACE_DNS, data)
     return d
 
-
-
 def createMd5Pwd(pwd:str):
     m = hashlib.md5()
     m.update(pwd.encode('utf-8'))
     return m.hexdigest()
-
 
 def getListAll(db=None, cls=None, name: str = '', status: int = 0, pageNo: int = 1, pageSize: int = 20):
     size = (pageNo - 1) * pageSize
@@ -139,7 +202,6 @@ def getListAll(db=None, cls=None, name: str = '', status: int = 0, pageNo: int =
 
     return result
 
-
 def getListAllTotal(db=None, cls=None, name: str = '', status: int = 0) -> int:
     # 类似地处理总数查询
     if name:
@@ -148,12 +210,13 @@ def getListAllTotal(db=None, cls=None, name: str = '', status: int = 0) -> int:
         count = db.query(cls).filter(cls.status == status).count()
 
     return count
+
 def getJsonStatic(static:str=""):
     try:
         with open(static, "r", encoding="utf-8") as json_file:
             data = json.load(json_file)
-        return httpStatus(data=data, code=status.HTTP_200_OK, message="获取成功")
+        return HttpStatus.success(data=data, message="获取成功")
     except FileNotFoundError:
-        return httpStatus(message='未找到相关资源', code=status.HTTP_400_BAD_REQUEST)
+        return HttpStatus.error(message='未找到相关资源', code=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
-        return httpStatus(message=str(e), code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return HttpStatus.error(message=str(e), code=status.HTTP_500_INTERNAL_SERVER_ERROR)

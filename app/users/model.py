@@ -1,15 +1,36 @@
-from pydantic import BaseModel
-from typing import Optional, List, Dict, Any, Union, TypeVar, Type, Callable, cast
+from pydantic import BaseModel, EmailStr, validator
+from typing import Optional
+from tool.dbEnum import UserType, UserStatus, UserSex, LoginType
 
-class AccountInputFirst(BaseModel):
+class UserAuth(BaseModel):
+    """用户认证模型"""
+    account: str  # 登录账号（邮箱或用户名）
+    password: str
+    login_type: LoginType = LoginType.EMAIL  # 默认使用邮箱登录
+
+class UserInfo(BaseModel):
+    """用户信息模型"""
+    uid: Optional[str] = None
     name: Optional[str] = None
-    sex: Optional[str] = None
-class AccountInputEamail(BaseModel):
     email: Optional[str] = None
-
-class AccountInputEamail1(AccountInputEamail):
-    code: Optional[str] = None
-class AccountInputEamail2(BaseModel):
-    password: Optional[str] = None
-    email: Optional[str] = None
-    code: Optional[str] = None
+    phone: Optional[str] = None
+    location: Optional[str] = None
+    sex: Optional[UserSex] = None
+    code: Optional[str] = None  # 验证码，可选
+    username: Optional[str] = None
+    
+    @validator('phone')
+    def validate_phone(cls, v):
+        if v and not v.isdigit():
+            raise ValueError('手机号必须是数字')
+        if v and len(v) != 11:
+            raise ValueError('手机号长度必须是11位')
+        return v
+    
+    @validator('email')
+    def validate_email(cls, v):
+        if v:
+            from app.users.views import is_valid_email
+            if not is_valid_email(v):
+                raise ValueError('邮箱格式不正确')
+        return v

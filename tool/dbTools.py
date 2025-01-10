@@ -5,6 +5,7 @@ import secrets
 import time
 import random
 from hashlib import md5
+from fastapi import status
 
 def get_pagination(
     db: Session,
@@ -77,3 +78,20 @@ def validate_email(email: str) -> bool:
     """
     pattern = r'^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$'
     return bool(re.match(pattern, email))
+
+def httpStatus(code: int = status.HTTP_400_BAD_REQUEST, message: str = "获取失败", data: dict | list = None) -> dict:
+    """
+    统一的HTTP响应格式
+    :param code: HTTP状态码
+    :param message: 响应消息
+    :param data: 响应数据，可以是字典或列表
+    :return: 标准化的响应格式
+    """
+    if data is None:
+        data = {}
+        
+    return {
+        "code": code,
+        "message": message,
+        "data": data
+    }

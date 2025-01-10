@@ -1,105 +1,130 @@
 import redis
-import schedule
-import  time
-import tool.statusTool as statusTool
+import time
+from datetime import date, datetime
+from tool.statusTool import EXPIRE_TIME
 from tool.classDb import httpStatus
 
-
-rd={
-    "key1":"user:",
-    "key2":"user-temp:"
+REDIS_KEYS = {
+    "USER_INFO": "user:info:",    # 用户基本信息，key格式：user:info:{account}:{login_type}
+    "USER_LOGIN": "user:login:",  # 用户登录记录
+    "USER_TEMP": "user:temp:"     # 临时数据
 }
 
 class RedisDB:
-
     def __init__(self, host='localhost', port=6379, db=0, decode_responses=True):
         self.redis_client = redis.Redis(host=host, port=port, db=db, decode_responses=decode_responses)
 
     def is_running(self):
+        """检查 Redis 是否正常运行"""
         try:
             return self.redis_client.ping()
         except (redis.exceptions.ConnectionError, redis.exceptions.TimeoutError):
             return False
-    def __repr__(self):
-        return f'<RedisDB {self.redis_client}>'
-    def get(self, key: str=''):
-        """从Redis获取用户信息。"""
-        data = f"{rd.get('key1')}{key}"
-        user_data = self.redis_client.hgetall(data)
-        if not user_data:
+
+    def cache_user_info(self, user_data: dict):
+        """
+        缓存用户信息
+        :param user_data: 用户数据，必须包含 login_type 和对应的登录标识（email 或 username）
+        """
+        login_type = user_data.get('login_type')
+        account = user_data.get('email' if login_type == 0 else 'username')
+        if not account:
+            return False
+            
+        key = f"{REDIS_KEYS['USER_INFO']}{account}:{login_type}"
+        # 转换数值类型为字符串，避免 Redis 存储问题
+        data = {k: str(v) if isinstance(v, (int, bool)) else v for k, v in user_data.items()}
+        self.redis_client.hmset(key, data)
+        self.redis_client.expire(key, EXPIRE_TIME * 60)  # 转换为秒
+        return True
+
+    def get_user_info(self, account: str, login_type: int) -> dict:
+        """
+        获取用户缓存信息
+        :param account: 登录账号（邮箱或用户名）
+        :param login_type: 登录类型（0: 邮箱, 1: 用户名）
+        :return: 用户信息字典或 None
+        """
+        key = f"{REDIS_KEYS['USER_INFO']}{account}:{login_type}"
+        data = self.redis_client.hgetall(key)
+        if not data:
             return None
-        return user_data  # 直接返回用户数据
+            
+        # 转换特定字段为正确的类型
+        type_conversion = {
+            'id': int,
+            'type': int,
+            'create_time': int,
+            'last_time': int,
+            'status': int,
+            'emailCode': int,
+            'sex': int,
+            'continuous_days': int,
+            'login_type': int,
+            'is_admin': lambda x: x.lower() == 'true',
+            'is_super_admin': lambda x: x.lower() == 'true'
+        }
+        
+        return {
+            k: type_conversion[k](v) if k in type_conversion else v 
+            for k, v in data.items()
+        }
 
-    def set(self, key: str = '', value: dict = {}):
-        """将用户信息存储到Redis。"""
-        data = f"{rd.get('key1')}{key}"
-        user_data = self.get(key)
-        if user_data is None:  # 如果用户不存在
-            # 注意：使用hset并传入字典
-            self.redis_client.hset(data, mapping=value)
-        else:  # 如果用户已存在
-            # 更新用户信息
-            self.redis_client.hmset(data, value)
-        # 设置过期时间，例如24小时。这一步是可选的。
-        self.redis_client.expire(data, statusTool.EXPIRE_TIME)
-        return httpStatus(message="存储成功", data={})
+    def update_login_record(self, user_id: int, continuous_days: int):
+        """
+        更新用户登录记录
+        :param user_id: 用户ID
+        :param continuous_days: 连续登录天数
+        """
+        key = f"{REDIS_KEYS['USER_LOGIN']}{user_id}"
+        today = date.today().isoformat()
+        
+        # 保存登录记录
+        login_data = {
+            'last_login_date': today,
+            'last_login_time': str(int(time.time())),
+            'continuous_days': str(continuous_days)
+        }
+        self.redis_client.hmset(key, login_data)
+        self.redis_client.expire(key, 86400 * 2)  # 2天过期
+        
+        # 添加到登录日期集合
+        date_set_key = f"{key}:dates"
+        self.redis_client.sadd(date_set_key, today)
+        self.redis_client.expire(date_set_key, 86400 * 32)  # 保存32天的登录记录
 
+    def get_login_record(self, user_id: int) -> dict:
+        """
+        获取用户登录记录
+        :param user_id: 用户ID
+        :return: 登录记录字典
+        """
+        key = f"{REDIS_KEYS['USER_LOGIN']}{user_id}"
+        data = self.redis_client.hgetall(key)
+        if not data:
+            return None
+            
+        # 获取登录日期集合
+        date_set_key = f"{key}:dates"
+        login_dates = list(self.redis_client.smembers(date_set_key))
+        
+        return {
+            'last_login_date': data['last_login_date'],
+            'last_login_time': int(data['last_login_time']),
+            'continuous_days': int(data['continuous_days']),
+            'login_dates': sorted(login_dates)  # 最近32天的登录日期列表
+        }
 
-    def delete(self, key: str=''):
-        """删除用户信息。"""
-        data = f"{rd.get('key1')}{key}"
-        if self.get(key) is not None:  # 如果用户存在
-            self.redis_client.delete(data)
-            return httpStatus(message="删除成功", data={})
-        return httpStatus(message="用户未找到,删除失败", data={}, code=statusTool.statusCode[12000])
-
-    def set_with_expiry(self, key: str = '', value: dict = {}, expire_time: int = 5, time_unit: str = 'minutes'):
-        """存储数据并设置自定义过期时间和单位，默认为5分钟"""
-        data = f"{rd.get('key2')}{key}"
-        # 计算过期时间的秒数
-        if time_unit == 'minutes':
-            expire_seconds = expire_time * 60
-        elif time_unit == 'hours':
-            expire_seconds = expire_time * 3600
-        elif time_unit == 'days':
-            expire_seconds = expire_time * 86400
-        else:
-            expire_seconds = expire_time  # 如果单位是秒
-        self.redis_client.hset(data, mapping=value)
-        self.redis_client.expire(data, expire_seconds)
-        return httpStatus(message="存储成功，带有过期时间", data={})
-
-    def get_with_expiry_check(self, key: str = ''):
-        if not key:
-            return httpStatus(message="请输入key", data={}, code=statusTool.statusCode[130001])
-        """获取数据及其剩余的过期时间"""
-        data = f"{rd.get('key2')}{key}"
-        user_data = self.redis_client.hgetall(data)
-        if user_data:
-            ttl = self.redis_client.ttl(data)
-
-            user_data['ttl'] = ttl
-            return user_data
-        else:
-            return httpStatus(message="数据不存在或已过期", data={}, code=statusTool.statusCode[12000])
-    def del_with_expiry_check(self, key: str = ''):
-        if not key:
-            return httpStatus(message="请输入key", data={}, code=statusTool.statusCode[130001])
-        """删除数据并检查剩余的过期时间"""
-        data = f"{rd.get('key2')}{key}"
-        if self.get_with_expiry_check(key) is not None:  # 如果临时数据存在
-            self.redis_client.delete(data)
-            return httpStatus(message="删除成功", data={})
-        return httpStatus(message="数据不存在或已过期", data={}, code=statusTool.statusCode[130001])
+    def clear_user_cache(self, account: str, login_type: int):
+        """
+        清除用户缓存
+        :param account: 登录账号
+        :param login_type: 登录类型
+        """
+        key = f"{REDIS_KEYS['USER_INFO']}{account}:{login_type}"
+        self.redis_client.delete(key)
 
 def check_redis():
     redis_db = RedisDB()
     if not redis_db.is_running():
-        return httpStatus(message="redis未运行,请运行", data={}, code=statusTool.statusCode[60000])
-
-#
-# schedule.every(600).seconds.do(check_redis) # 每隔600秒检查一次 Redis 是否运行
-#
-# while True:
-#     schedule.run_pending()
-#     time.sleep(1)
+        return httpStatus(message="redis未运行,请运行", data={}, code=60000)
