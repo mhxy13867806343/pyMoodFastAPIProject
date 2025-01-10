@@ -6,7 +6,8 @@ from email.utils import formataddr
 from fastapi import status
 from tool.dbRedis import RedisDB
 from tool.emailTools import emailTools
-from tool.msg import Message, MsgCode
+from tool.msg import Message
+from config.error_code import ErrorCode
 from tool.classDb import HttpStatus
 import random
 import string
@@ -41,7 +42,7 @@ async def sendBindEmail(from_email: str, uid: int = 0) -> Dict[str, Any]:
             last_sent = datetime.fromtimestamp(float(check['timestamp']))
             if (now - last_sent) < timedelta(minutes=5):
                 return HttpStatus.error(
-                    message=Message.get(MsgCode.EMAIL_SEND_TOO_FREQUENT.value)["msg"]
+                    message=Message.get(ErrorCode.EMAIL_SEND_TOO_FREQUENT.value)["msg"]
                 )
 
         # 生成验证码
@@ -92,11 +93,11 @@ async def sendBindEmail(from_email: str, uid: int = 0) -> Dict[str, Any]:
             server.login(from_email, main_password)
             server.sendmail(from_email, [to_email], message.as_string())
             return HttpStatus.success(
-                message=Message.get(MsgCode.EMAIL_VERIFY_SUCCESS.value)["msg"]
+                message=Message.get(ErrorCode.EMAIL_VERIFY_SUCCESS.value)["msg"]
             )
         except smtplib.SMTPException as e:
             return HttpStatus.error(
-                message=Message.get(MsgCode.EMAIL_SEND_FAILED.value)["msg"]
+                message=Message.get(ErrorCode.EMAIL_SEND_FAILED.value)["msg"]
             )
         finally:
             if server:
@@ -120,7 +121,7 @@ async def getVerifyEmail(email: str, code: str, uid: int = 0) -> Dict[str, Any]:
 
     if not code_data:
         return HttpStatus.error(
-            message=Message.get(MsgCode.EMAIL_CODE_EXPIRED.value)["msg"]
+            message=Message.get(ErrorCode.EMAIL_CODE_EXPIRED.value)["msg"]
         )
 
     stored_code = code_data.get("code")
@@ -129,19 +130,19 @@ async def getVerifyEmail(email: str, code: str, uid: int = 0) -> Dict[str, Any]:
 
     if not all([stored_code, stored_email, timestamp]):
         return HttpStatus.error(
-            message=Message.get(MsgCode.EMAIL_CODE_INVALID.value)["msg"]
+            message=Message.get(ErrorCode.EMAIL_CODE_INVALID.value)["msg"]
         )
 
     # 验证邮箱匹配
     if stored_email != email:
         return HttpStatus.error(
-            message=Message.get(MsgCode.EMAIL_CODE_INVALID.value)["msg"]
+            message=Message.get(ErrorCode.EMAIL_CODE_INVALID.value)["msg"]
         )
 
     # 验证码匹配检查
     if stored_code != code:
         return HttpStatus.error(
-            message=Message.get(MsgCode.EMAIL_CODE_INVALID.value)["msg"]
+            message=Message.get(ErrorCode.EMAIL_CODE_INVALID.value)["msg"]
         )
 
     # 检查是否过期
@@ -150,7 +151,7 @@ async def getVerifyEmail(email: str, code: str, uid: int = 0) -> Dict[str, Any]:
         if datetime.now() - code_timestamp > timedelta(minutes=5):
             redis_db.del_with_expiry_check(tempkey)
             return HttpStatus.error(
-                message=Message.get(MsgCode.EMAIL_CODE_EXPIRED.value)["msg"]
+                message=Message.get(ErrorCode.EMAIL_CODE_EXPIRED.value)["msg"]
             )
     except (TypeError, ValueError):
         return HttpStatus.server_error()
@@ -159,5 +160,5 @@ async def getVerifyEmail(email: str, code: str, uid: int = 0) -> Dict[str, Any]:
     redis_db.del_with_expiry_check(tempkey)
     
     return HttpStatus.success(
-        message=Message.get(MsgCode.EMAIL_VERIFY_SUCCESS.value)["msg"]
+        message=Message.get(ErrorCode.EMAIL_VERIFY_SUCCESS.value)["msg"]
     )

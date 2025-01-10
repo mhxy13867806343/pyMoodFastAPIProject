@@ -99,7 +99,10 @@ def parse_token(token: str = Depends(oauth2_scheme), *, required: bool = True, f
         if required:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=USER_ERROR["TOKEN_INVALID"],
+                detail={
+                    "message":USER_ERROR["TOKEN_INVALID"],
+                    "code":status.HTTP_401_UNAUTHORIZED
+                },
                 headers={"WWW-Authenticate": "Bearer"},
             )
         return None
@@ -114,7 +117,10 @@ def parse_token(token: str = Depends(oauth2_scheme), *, required: bool = True, f
             if required:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail=USER_ERROR["TOKEN_INVALID"],
+                    detail={
+                        "message": USER_ERROR["TOKEN_INVALID"],
+                        "code": status.HTTP_401_UNAUTHORIZED
+                    },
                     headers={"WWW-Authenticate": "Bearer"},
                 )
             return None
@@ -128,7 +134,10 @@ def parse_token(token: str = Depends(oauth2_scheme), *, required: bool = True, f
         if required:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=USER_ERROR["TOKEN_EXPIRED"],
+                detail={
+                    "message": USER_ERROR["TOKEN_INVALID"],
+                    "code": status.HTTP_401_UNAUTHORIZED
+                },
                 headers={"WWW-Authenticate": "Bearer"},
             )
         return None
@@ -136,7 +145,10 @@ def parse_token(token: str = Depends(oauth2_scheme), *, required: bool = True, f
         if required:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=USER_ERROR["TOKEN_INVALID"],
+                detail={
+                    "message": USER_ERROR["TOKEN_INVALID"],
+                    "code": status.HTTP_401_UNAUTHORIZED
+                },
                 headers={"WWW-Authenticate": "Bearer"},
             )
         return None

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Header
+from fastapi import APIRouter, Depends, status, Header, Request
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 import time
@@ -10,8 +10,11 @@ from datetime import datetime, timedelta, date
 import re
 from typing import Optional, Dict, Any
 
+from config.error_messages import USER_ERROR
 from tool.dbConnectionConfig import sendBindEmail, getVerifyEmail, generate_random_code
-from tool.msg import Message, MsgCode
+from tool.msg import Message
+from config.error_code import ErrorCode
+from tool.validationTools import ValidationError
 from .model import UserAuth, UserInfo
 from tool.db import getDbSession
 from tool import token as createToken
@@ -74,29 +77,76 @@ def handle_login_record(db: Session, user_id: int, current_time: int) -> int:
     
     return continuous_days
 
-def prepare_user_data(user: UserInputs, token: str, continuous_days: int) -> dict:
-    """准备用户数据，用于缓存和返回"""
-    return {
+def prepare_user_data(
+    user: UserInputs, 
+    token: Optional[str] = None, 
+    continuous_days: int = 1,
+    include_password: bool = False
+) -> Dict[str, Any]:
+    """
+    准备用户数据
+    :param user: 用户对象
+    :param token: 用户token
+    :param continuous_days: 连续登录天数
+    :param include_password: 是否包含密码（用于缓存）
+    :return: 用户数据字典
+    """
+    data = {
         "id": user.id,
-        "token": token,
         "uid": user.uid,
-        "type": int(user.type),
-        "email": user.email,
         "username": user.username,
-        "password": user.password,  # 用于缓存中的密码验证
-        "create_time": int(user.create_time),
-        "last_time": int(user.last_time),
+        "email": user.email,
         "name": user.name,
-        "status": int(user.status),
         "phone": user.phone,
-        "emailCode": int(user.emailCode),
         "location": user.location,
-        "sex": int(user.sex),
+        "sex": user.sex.value,
+        "type": user.type.value,
+        "status": user.status.value,
+        "emailCode": user.emailCode.value,
+        "create_time": user.create_time,
+        "last_time": user.last_time,
         "continuous_days": continuous_days,
-        "is_admin": user.type in [UserType.ADMIN, UserType.SUPER],
-        "is_super_admin": user.type == UserType.SUPER,
-        "login_type": int(user.login_type)
+        "login_type": user.login_type.value
     }
+    
+    if token:
+        data["token"] = token
+        
+    if include_password:
+        data["password"] = user.password
+        
+    return data
+
+def get_user_data(user: UserInputs, include_private: bool = False) -> Dict[str, Any]:
+    """
+    获取用户数据
+    :param user: 用户对象
+    :param include_private: 是否包含私密信息
+    :return: 用户数据字典
+    """
+    # 基本公开信息
+    data = {
+        "id": user.id,
+        "uid": user.uid,
+        "name": user.name,
+        "sex": user.sex.value,
+        "type": user.type.value,
+        "create_time": user.create_time
+    }
+
+    # 包含私密信息
+    if include_private:
+        data.update({
+            "username": user.username,
+            "email": user.email,
+            "phone": user.phone,
+            "location": user.location,
+            "status": user.status.value,
+            "emailCode": user.emailCode.value,
+            "last_time": user.last_time,
+        })
+
+    return data
 
 @userApp.post(
     "/auth",
@@ -115,8 +165,7 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
     - 特殊处理管理员账号
     """
     if not user_auth.account or not user_auth.password:
-        return Message.error()
-
+        return Message.error(code=ErrorCode.INVALID_PARAMS.value, message=USER_ERROR["ACCOUNT_NOT_EMAIL_FOUND"])
     try:
         current_time = int(time.time())
         
@@ -124,11 +173,27 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
         cached_user = redis_db.get_user_info(user_auth.account, user_auth.login_type)
         if cached_user:
             # 验证密码
-            if not createToken.check_password(user_auth.password, cached_user['password']):
-                return Message.error(message=Message.get(MsgCode.ACCOUNT_OR_PASSWORD_ERROR.value)["msg"])
-            if int(cached_user['status']) == UserStatus.DISABLED:
-                return Message.error(message=Message.get(MsgCode.ACCOUNT_DISABLED.value)["msg"])
-                
+            if not createToken.check_password(user_auth.password, cached_user["password"]):
+                return Message.error(
+                    message=USER_ERROR["ACCOUNT_OR_PASSWORD_ERROR"],
+                    code=ErrorCode.ACCOUNT_OR_PASSWORD_ERROR.value
+                )
+            
+            # 生成新的token
+            token_expire = timedelta(seconds=EXPIRE_TIME * 2) if cached_user['type'] != UserType.NORMAL else timedelta(seconds=EXPIRE_TIME)
+            token = createToken.create_token(
+                {
+                    "sub": str(cached_user["id"]),
+                    "type": cached_user['type'],
+                    "login_type": cached_user['login_type']
+                }, 
+                token_expire
+            )
+            
+            # 更新缓存中的token
+            cached_user["token"] = token
+            cached_user["last_time"] = current_time
+            
             # 获取登录记录
             login_record = redis_db.get_login_record(cached_user['id'])
             continuous_days = 1
@@ -154,25 +219,14 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
                 user.last_time = current_time
                 db.commit()
             
-            # 生成新的 token
-            token_expire = timedelta(seconds=EXPIRE_TIME * 2) if cached_user['type'] != UserType.NORMAL else timedelta(seconds=EXPIRE_TIME)
-            token = createToken.create_token(
-                {
-                    "sub": str(cached_user['id']),
-                    "type": cached_user['type'],
-                    "login_type": cached_user['login_type']
-                }, 
-                token_expire
-            )
+            # 准备用户数据（包含密码用于缓存）
+            user_data = prepare_user_data(user, token, continuous_days, include_password=True)
             
-            # 更新缓存中的 token
-            cached_user['token'] = token
-            cached_user['last_time'] = current_time
-            cached_user['continuous_days'] = continuous_days
-            redis_db.cache_user_info(cached_user)
+            # 更新缓存
+            redis_db.cache_user_info(user_data)
             
-            # 返回用户信息
-            response_data = cached_user.copy()
+            # 删除敏感信息
+            response_data = user_data.copy()
             del response_data['password']
             return Message.success(
                 message=Message.success()["msg"],
@@ -183,7 +237,7 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
         query = db.query(UserInputs)
         if user_auth.login_type == LoginType.EMAIL:
             if not is_valid_email(user_auth.account):
-                return Message.error(message=Message.get(MsgCode.EMAIL_INVALID_FORMAT.value)["msg"])
+                return Message.error(message=USER_ERROR["EMAIL_INVALID_FORMAT"])
             existing_user = query.filter(
                 UserInputs.email == user_auth.account,
                 UserInputs.login_type == LoginType.EMAIL
@@ -226,9 +280,9 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
         else:
             # 登录验证
             if not createToken.check_password(user_auth.password, existing_user.password):
-                return Message.error(message=Message.get(MsgCode.ACCOUNT_OR_PASSWORD_ERROR.value)["msg"])
+                return Message.error(message=USER_ERROR["ACCOUNT_OR_PASSWORD_ERROR"], code=ErrorCode.ACCOUNT_OR_PASSWORD_ERROR.value)
             if existing_user.status == UserStatus.DISABLED:
-                return Message.error(message=Message.get(MsgCode.ACCOUNT_DISABLED.value)["msg"])
+                return Message.error(message=USER_ERROR["ACCOUNT_DISABLED"])
             
             # 检查是否需要更新用户类型（比如普通用户被加入管理员白名单）
             admin_info = ADMIN_ACCOUNTS.get(user_auth.account)
@@ -254,8 +308,8 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
             token_expire
         )
         
-        # 准备用户数据
-        user_data = prepare_user_data(existing_user, token, continuous_days)
+        # 准备用户数据（包含密码用于缓存）
+        user_data = prepare_user_data(existing_user, token, continuous_days, include_password=True)
         
         # 更新 Redis 缓存
         redis_db.cache_user_info(user_data)
@@ -275,348 +329,318 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
         return Message.server_error()
 
 @userApp.get(
-    "/user/{user_id}",
+    "/info",
     response_model=Message[Dict[str, Any]],
-    summary=ApiDescriptions.GET_USER_INFO.summary
+    summary="获取当前登录用户信息"
 )
-async def get_user_info(
-    user_id: int,
-    current_user_id: Optional[int] = Depends(lambda token: createToken.parse_token(token, required=False)),
+async def get_current_user_info(
+    current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
     db: Session = Depends(getDbSession)
 ):
     """
-    获取用户信息
-    - 如果提供了有效的token，current_user_id 将是当前登录用户的ID
-    - 如果没有提供token或token无效，current_user_id 将是 None
-    - 如果 current_user_id 与请求的 user_id 相同，表示用户在查看自己的信息
+    获取当前登录用户的详细信息
+    - 从 token 中获取用户 ID
+    - 返回用户的所有可见信息
     """
     try:
-        # 查询用户信息
-        user = db.query(UserInputs).filter(UserInputs.id == user_id).first()
-        if not user:
+        # 查找用户
+        current_user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
+        if not current_user:
             return Message.error(
-                message=Message.get(MsgCode.USER_NOT_FOUND.value)["msg"]
+                code=ErrorCode.USER_NOT_FOUND.value,
+                message=USER_ERROR["USER_NOT_FOUND"]
             )
 
-        # 确定用户标识
-        user_identifier = UserIdentifier.GUEST.value
-        if current_user_id:
-            if current_user_id == user_id:
-                user_identifier = UserIdentifier.CURRENT_USER.value
-            else:
-                user_identifier = UserIdentifier.OTHER_USER.value
+        # 获取用户的连续登录天数
+        login_record = db.query(UserLoginRecord).filter(
+            UserLoginRecord.user_id == current_user_id
+        ).order_by(UserLoginRecord.login_date.desc()).first()
+        
+        # 获取用户数据（包含私密信息）
+        user_data = get_user_data(current_user, include_private=True)
+        user_data["continuous_days"] = login_record.continuous_days if login_record else 1
 
-        # 构建基本响应数据（公开信息）
-        user_data = {
-            "id": user.id,
-            "uid": user.uid,
-            "type": int(user.type),
-            "username": user.username,
-            "name": user.name,
-            "status": int(user.status),
-            "location": user.location,
-            "sex": int(user.sex),
-            "create_time": int(user.create_time),
-            "last_time": int(user.last_time),
-            "is_admin": user.type in [UserType.ADMIN, UserType.SUPER],
-            "is_super_admin": user.type == UserType.SUPER,
-            "login_type": int(user.login_type),
-            "user_type": user_identifier  # 使用枚举值作为标识
-        }
+        return Message.success(data=user_data)
+    except Exception as e:
+        return Message.server_error()
 
-        # 如果是当前用户查看自己的信息，添加私密信息
-        if user_identifier == UserIdentifier.CURRENT_USER.value:
-            # 只有本人可以看到的信息
-            user_data.update({
-                "email": user.email,                      # 邮箱
-                "phone": user.phone,                      # 手机号
-                "is_email_verified": user.is_email_verified,  # 邮箱是否验证
-                "is_phone_verified": user.is_phone_verified,  # 手机是否验证
-                "last_login_time": user.last_login_time,     # 最后登录时间
-                "last_login_ip": user.last_login_ip,         # 最后登录IP
-                "update_time": user.update_time              # 信息更新时间
-            })
+@userApp.get(
+    "/info/{user_id}",
+    response_model=Message[Dict[str, Any]],
+    summary="获取指定用户的公开信息"
+)
+async def get_user_info(
+    user_id: int,
+    current_user_id: Optional[int] = Depends(lambda: createToken.parse_token(required=False)),
+    db: Session = Depends(getDbSession)
+):
+    """
+    获取指定用户的公开信息
+    - 如果是获取自己的信息，返回所有信息
+    - 如果是获取其他用户的信息，只返回公开信息
+    - 如果未登录，只返回最基本的公开信息
+    """
+    try:
+        # 查找目标用户
+        target_user = db.query(UserInputs).filter(UserInputs.id == user_id).first()
+        if not target_user:
+            return Message.error(
+                code=ErrorCode.USER_NOT_FOUND.value,
+                message=USER_ERROR["USER_NOT_FOUND"]
+            )
 
-        # 如果是管理员，可以看到一些额外信息
-        if current_user_id and (user_data.get("is_admin") or user_data.get("is_super_admin")):
-            user_data.update({
-                "created_by": user.created_by,            # 创建者
-                "updated_by": user.updated_by,            # 最后更新者
-                "remarks": user.remarks                   # 备注信息
-            })
+        # 判断是否是查看自己的信息
+        is_self = current_user_id and current_user_id == user_id
+        user_data = get_user_data(target_user, include_private=is_self)
 
-        return Message.success(
-            message=Message.get(MsgCode.SUCCESS.value)["msg"],
-            result=user_data
-        )
+        # 如果是查看自己的信息，添加连续登录天数
+        if is_self:
+            login_record = db.query(UserLoginRecord).filter(
+                UserLoginRecord.user_id == user_id
+            ).order_by(UserLoginRecord.login_date.desc()).first()
+            user_data["continuous_days"] = login_record.continuous_days if login_record else 1
 
+        return Message.success(data=user_data)
     except Exception as e:
         return Message.server_error()
 
 @userApp.put(
-    "/user/{user_id}",
+    "/update",
     response_model=Message[Dict[str, Any]],
-    summary=ApiDescriptions.UPDATE_USER_INFO.summary
+    summary="更新用户信息"
 )
 async def update_user_info(
-    user_info: UserInfo, 
-    user_id: int = Depends(lambda token: createToken.parse_token(token, required=True)), 
+    user_info: UserInfo,
+    current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
     db: Session = Depends(getDbSession)
 ):
     """
     更新用户信息
-    - 验证用户输入
-    - 更新数据库
-    - 同步更新 Redis 缓存
+    - 需要登录
+    - 只能更新自己的信息
     """
     try:
-        if not user_id:
-            return Message.unauthorized(
-                message=Message.unauthorized("用户未登录")["msg"],
-            )
-            
         # 查找用户
-        current_user = db.query(UserInputs).filter(UserInputs.id == user_id).first()
+        current_user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
         if not current_user:
-            return Message.error(message=Message.get(MsgCode.USER_NOT_FOUND.value)["msg"])
-        
-        # 检查邮箱是否已被使用
-        if user_info.email and user_info.email != current_user.email:
-            existing = db.query(UserInputs).filter(
-                UserInputs.email == user_info.email,
-                UserInputs.id != current_user.id
-            ).first()
-            if existing:
-                return Message.error(message=Message.get(MsgCode.EMAIL_ALREADY_BOUND.value)["msg"])
-        
-        # 检查用户名是否已被使用
-        if user_info.username and user_info.username != current_user.username:
-            existing = db.query(UserInputs).filter(
-                UserInputs.username == user_info.username,
-                UserInputs.id != current_user.id
-            ).first()
-            if existing:
-                return Message.error(message=Message.get(MsgCode.USERNAME_ALREADY_BOUND.value)["msg"])
-        
-        # 更新用户信息
-        update_fields = {
-            k: v for k, v in user_info.dict(exclude_unset=True).items()
-            if v is not None and hasattr(current_user, k)
-        }
-        
-        if update_fields:
-            # 更新最后修改时间
-            update_fields['last_time'] = int(time.time())
-            
-            # 更新数据库
-            for key, value in update_fields.items():
-                setattr(current_user, key, value)
-            db.commit()
-            
-            # 清除旧的缓存
-            old_account = current_user.email if current_user.login_type == LoginType.EMAIL else current_user.username
-            redis_db.clear_user_cache(old_account, current_user.login_type)
-            
-            # 获取最新的登录记录
-            login_record = db.query(UserLoginRecord).filter(
-                UserLoginRecord.user_id == current_user.id
-            ).order_by(UserLoginRecord.login_date.desc()).first()
-            
-            continuous_days = login_record.continuous_days if login_record else 1
-            
-            # 准备新的用户数据
-            user_data = prepare_user_data(current_user, None, continuous_days)
-            
-            # 更新缓存
-            new_account = current_user.email if current_user.login_type == LoginType.EMAIL else current_user.username
-            redis_db.cache_user_info(user_data)
-            
-            # 删除敏感信息
-            del user_data['password']
-            return Message.success(message=Message.success()["msg"], data=user_data)
-        
-        return Message.error(message=Message.get(MsgCode.NO_UPDATE_INFO.value)["msg"])
-        
-    except ValueError as ve:
-        return Message.error(message=Message.error(str(ve))["msg"])
-    except Exception as e:
-        db.rollback()
-        return Message.server_error(
-            message=Message.error(f"更新用户信息失败: {str(e)}")["msg"],
-        )
-
-@userApp.post(
-    "/logout",
-    response_model=Message[Dict[str, Any]],
-    summary=ApiDescriptions.LOGOUT.summary
-)
-async def logout(
-    user_id: int = Depends(lambda token: createToken.parse_token(token, required=True)), 
-    db: Session = Depends(getDbSession)
-):
-    """
-    用户登出
-    - 清除用户 Redis 缓存
-    - 更新用户最后登出时间
-    - 保存登出记录
-    """
-    try:
-        if not user_id:
-            return Message.unauthorized(
-                message=Message.unauthorized("用户未登录")["msg"],
-            )
-            
-        # 查找用户
-        current_user = db.query(UserInputs).filter(UserInputs.id == user_id).first()
-        if not current_user:
-            return Message.error(message=Message.get(MsgCode.USER_NOT_FOUND.value)["msg"])
-
-        current_time = int(time.time())
-        
-        # 1. 更新用户最后登出时间
-        current_user.last_time = current_time
-        db.commit()
-        
-        # 2. 记录登出时间
-        logout_record = UserLogoutRecord(
-            user_id=current_user.id,
-            logout_time=current_time,
-            logout_date=date.today()
-        )
-        db.add(logout_record)
-        db.commit()
-        
-        # 3. 清除 Redis 缓存
-        # 清除用户信息缓存
-        account = current_user.email if current_user.login_type == LoginType.EMAIL else current_user.username
-        redis_db.clear_user_cache(account, current_user.login_type)
-        
-        # 清除登录记录缓存
-        redis_db.clear_login_record(current_user.id)
-        
-        # 清除 token 缓存（如果有）
-        redis_db.clear_token_cache(current_user.id)
-        
-        return Message.success(
-            message=Message.success("登出成功")["msg"]
-        )
-        
-    except Exception as e:
-        db.rollback()
-        return Message.server_error(
-            message=Message.error(f"登出失败: {str(e)}")["msg"],
-        )
-
-@userApp.post(
-    "/bind-email",
-    response_model=Message[Dict[str, Any]],
-    summary=ApiDescriptions.BIND_EMAIL.summary
-)
-async def bind_email(
-    email: str,
-    verify_code: str,
-    user_id: int = Depends(lambda token: createToken.parse_token(token, required=True)),
-    db: Session = Depends(getDbSession)
-):
-    """
-    绑定邮箱接口
-    - 验证邮箱格式
-    - 验证验证码
-    - 更新用户邮箱信息
-    - 更新缓存
-    """
-    if not is_valid_email(email):
-        return Message.error(
-            message=Message.get(MsgCode.EMAIL_INVALID_FORMAT.value)["msg"],
-        )
-
-    # 验证验证码
-    redis_key = f"email_verify_{email}"
-    stored_code = redis_db.get(redis_key)
-    if not stored_code or stored_code != verify_code:
-        return Message.error(
-            message=Message.get(MsgCode.EMAIL_CODE_INVALID.value)["msg"],
-        )
-
-    try:
-        # 检查邮箱是否已被其他用户使用
-        existing_user = db.query(UserInputs).filter(
-            UserInputs.email == email,
-            UserInputs.id != user_id
-        ).first()
-        if existing_user:
             return Message.error(
-                message=Message.get(MsgCode.EMAIL_ALREADY_BOUND.value)["msg"],
+                code=ErrorCode.USER_NOT_FOUND.value,
+                message=USER_ERROR["USER_NOT_FOUND"]
             )
 
         # 更新用户信息
-        user = db.query(UserInputs).filter(UserInputs.id == user_id).first()
-        if not user:
-            return Message.error(
-                message=Message.get(MsgCode.USER_NOT_FOUND.value)["msg"],
-            )
-
-        user.email = email
-        user.emailCode = EmailStatus.BOUND
-        user.last_time = int(time.time())
+        if user_info.name is not None:
+            current_user.name = user_info.name
+        if user_info.phone is not None:
+            current_user.phone = user_info.phone
+        if user_info.location is not None:
+            current_user.location = user_info.location
+        if user_info.sex is not None:
+            current_user.sex = user_info.sex
+        
+        current_user.last_time = int(time.time())
+        
+        # 同步更新 Redis 缓存
+        if current_user.email:
+            redis_db.delete_user_info(current_user.email, LoginType.EMAIL)
+        if current_user.username:
+            redis_db.delete_user_info(current_user.username, LoginType.USERNAME)
+        
         db.commit()
-
-        # 更新Redis缓存
-        user_data = prepare_user_data(user, "", user.continuous_days)
-        redis_db.set(f"user_{user_id}", user_data, EXPIRE_TIME)
+        
         return Message.success(
-            message=Message.get(MsgCode.EMAIL_BIND_SUCCESS.value)["msg"]
+            data={
+                "user_id": current_user_id,
+                "update_time": current_user.last_time
+            }
         )
-
-    except SQLAlchemyError as e:
+    except ValidationError as ve:
+        db.rollback()
+        return Message.error(message=str(ve))
+    except Exception as e:
         db.rollback()
         return Message.server_error()
 
 @userApp.post(
-    "/send-email-code",
+    "/logout",
     response_model=Message[Dict[str, Any]],
-    summary=ApiDescriptions.SEND_EMAIL_CODE.summary
+    summary="用户登出"
+)
+async def logout(
+    current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
+    db: Session = Depends(getDbSession)
+):
+    """
+    用户登出
+    - 需要登录
+    - 清除缓存
+    """
+    try:
+        # 查找用户
+        current_user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
+        if not current_user:
+            return Message.error(
+                code=ErrorCode.USER_NOT_FOUND.value,
+                message=USER_ERROR["USER_NOT_FOUND"]
+            )
+
+        current_time = int(time.time())
+
+        # 更新用户最后登出时间
+        current_user.last_time = current_time
+        
+        # 创建登出记录
+        logout_record = UserLogoutRecord(
+            user_id=current_user_id,
+            logout_time=current_time,
+            create_time=current_time
+        )
+        db.add(logout_record)
+        
+        # 清除Redis缓存
+        redis_db.delete_user_info(current_user.email, LoginType.EMAIL)
+        if current_user.username:
+            redis_db.delete_user_info(current_user.username, LoginType.USERNAME)
+            
+        db.commit()
+        
+        return Message.success(
+            data={
+                "user_id": current_user_id,
+                "logout_time": current_time
+            }
+        )
+    except SQLAlchemyError as e:
+        db.rollback()
+        return Message.server_error()
+    except Exception as e:
+        return Message.server_error()
+
+@userApp.post(
+    "/email/bind",
+    response_model=Message[Dict[str, Any]],
+    summary="绑定邮箱"
+)
+async def bind_email(
+    email: str,
+    code: str,
+    current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
+    db: Session = Depends(getDbSession)
+):
+    """
+    绑定邮箱
+    - 需要登录
+    - 需要验证码
+    """
+    try:
+        # 验证邮箱格式
+        if not is_valid_email(email):
+            return Message.error(
+                message=USER_ERROR["EMAIL_INVALID_FORMAT"]
+            )
+
+        # 验证验证码
+        redis_key = f"email_verify_{email}"
+        stored_code = redis_db.get(redis_key)
+        if not stored_code or stored_code != code:
+            return Message.error(
+                message=USER_ERROR["EMAIL_CODE_INVALID"]
+            )
+
+        # 查找用户
+        current_user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
+        if not current_user:
+            return Message.error(
+                code=ErrorCode.USER_NOT_FOUND.value,
+                message=USER_ERROR["USER_NOT_FOUND"]
+            )
+
+        # 检查邮箱是否已被其他用户使用
+        existing_user = db.query(UserInputs).filter(
+            UserInputs.email == email,
+            UserInputs.id != current_user_id
+        ).first()
+        if existing_user:
+            return Message.error(
+                message=USER_ERROR["EMAIL_ALREADY_BOUND"]
+            )
+
+        # 更新用户邮箱
+        current_user.email = email
+        current_user.emailCode = EmailStatus.BOUND
+        current_user.last_time = int(time.time())
+        
+        # 清除旧的缓存
+        if current_user.email:
+            redis_db.delete_user_info(current_user.email, LoginType.EMAIL)
+        if current_user.username:
+            redis_db.delete_user_info(current_user.username, LoginType.USERNAME)
+        
+        db.commit()
+        
+        return Message.success(
+            data={
+                "user_id": current_user_id,
+                "email": email,
+                "bind_time": current_user.last_time
+            }
+        )
+    except Exception as e:
+        db.rollback()
+        return Message.server_error()
+
+@userApp.post(
+    "/email/code",
+    response_model=Message[Dict[str, Any]],
+    summary="发送邮箱验证码"
 )
 async def send_email_code(
     email: str,
-    user_id: int = Depends(lambda token: createToken.parse_token(token, required=True)),
+    current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
     db: Session = Depends(getDbSession)
 ):
     """
     发送邮箱验证码
-    - 验证邮箱格式
-    - 发送验证码邮件
+    - 需要登录
     """
-    if not is_valid_email(email):
-        return Message.error(
-            message=Message.get(MsgCode.EMAIL_INVALID_FORMAT.value)["msg"]
-        )
-
     try:
+        # 验证邮箱格式
+        if not is_valid_email(email):
+            return Message.error(
+                message=USER_ERROR["EMAIL_INVALID_FORMAT"]
+            )
+
+        # 查找用户
+        current_user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
+        if not current_user:
+            return Message.error(
+                code=ErrorCode.USER_NOT_FOUND.value,
+                message=USER_ERROR["USER_NOT_FOUND"]
+            )
+
         # 检查发送频率限制
         redis_key = f"email_verify_{email}"
         if redis_db.exists(redis_key):
             return Message.error(
-                message=Message.get(MsgCode.EMAIL_SEND_TOO_FREQUENT.value)["msg"]
+                message=USER_ERROR["EMAIL_CODE_FREQ_LIMIT"]
             )
 
-        # 发送邮件（包含验证码生成和存储）
-        email_result = await sendBindEmail(email, user_id)
-        
-        if email_result.get("code") != status.HTTP_200_OK:
-            # 如果是频率限制错误
-            if email_result.get("code") == MsgCode.EMAIL_SEND_TOO_FREQUENT.value:
-                return Message.error(
-                    message=Message.get(MsgCode.EMAIL_SEND_TOO_FREQUENT.value)["msg"]
-                )
-            # 其他发送失败情况
+        # 生成并发送验证码
+        verify_code = generate_random_code()
+        if not sendBindEmail(email, verify_code):
             return Message.error(
-                message=Message.get(MsgCode.EMAIL_SEND_FAILED.value)["msg"]
+                message=USER_ERROR["EMAIL_SEND_FAILED"]
             )
 
+        # 存储验证码到 Redis，设置5分钟过期
+        redis_db.setex(redis_key, 300, verify_code)
+        
         return Message.success(
-            message=Message.get(MsgCode.EMAIL_VERIFY_SUCCESS.value)["msg"]
+            data={
+                "user_id": current_user_id,
+                "email": email,
+                "expire_time": 300
+            }
         )
-
     except Exception as e:
         return Message.server_error()
