@@ -1,0 +1,11 @@
+# Test your FastAPI endpoints
+
+GET https://www.lcs200.icu/
+Accept: application/json
+
+###
+
+GET https://www.lcs200.icu/hello/User
+Accept: application/json
+
+###
