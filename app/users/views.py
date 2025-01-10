@@ -8,7 +8,7 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, date
 import re
-from typing import Optional
+from typing import Optional, Dict, Any
 
 from tool.dbConnectionConfig import sendBindEmail, getVerifyEmail, generate_random_code
 from tool.msg import Message, MsgCode
@@ -100,7 +100,7 @@ def prepare_user_data(user: UserInputs, token: str, continuous_days: int) -> dic
 
 @userApp.post(
     "/auth",
-    response_model=Message[UserInfo],
+    response_model=Message[Dict[str, Any]],
     summary=ApiDescriptions.AUTH.summary
 )
 async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
@@ -276,7 +276,7 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
 
 @userApp.get(
     "/user/{user_id}",
-    response_model=Message[UserInfo],
+    response_model=Message[Dict[str, Any]],
     summary=ApiDescriptions.GET_USER_INFO.summary
 )
 async def get_user_info(
@@ -355,7 +355,7 @@ async def get_user_info(
 
 @userApp.put(
     "/user/{user_id}",
-    response_model=Message[UserInfo],
+    response_model=Message[Dict[str, Any]],
     summary=ApiDescriptions.UPDATE_USER_INFO.summary
 )
 async def update_user_info(
@@ -447,7 +447,7 @@ async def update_user_info(
 
 @userApp.post(
     "/logout",
-    response_model=Message,
+    response_model=Message[Dict[str, Any]],
     summary=ApiDescriptions.LOGOUT.summary
 )
 async def logout(
@@ -509,7 +509,7 @@ async def logout(
 
 @userApp.post(
     "/bind-email",
-    response_model=Message[UserInfo],
+    response_model=Message[Dict[str, Any]],
     summary=ApiDescriptions.BIND_EMAIL.summary
 )
 async def bind_email(
@@ -574,7 +574,7 @@ async def bind_email(
 
 @userApp.post(
     "/send-email-code",
-    response_model=Message,
+    response_model=Message[Dict[str, Any]],
     summary=ApiDescriptions.SEND_EMAIL_CODE.summary
 )
 async def send_email_code(

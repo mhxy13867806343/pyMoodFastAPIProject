@@ -1,5 +1,6 @@
 from enum import Enum
-from typing import Dict, Optional
+from typing import Dict, Optional, TypeVar, Generic, Any, ClassVar
+from pydantic import BaseModel, Field
 
 class MsgType(Enum):
     """消息类型枚举"""
@@ -9,59 +10,64 @@ class MsgType(Enum):
     INFO = "info"
 
 class MsgCode(Enum):
-    """消息代码枚举"""
-    # 通用消息
-    SUCCESS = "0"
-    FAILED = "1"
-    INVALID_PARAMS = "2"
-    NOT_FOUND = "3"
-    UNAUTHORIZED = "4"
-    FORBIDDEN = "5"
+    """消息码枚举"""
+    SUCCESS = "200"
+    FAILED = "500"
+    INVALID_PARAMS = "400"
+    NOT_FOUND = "404"
+    UNAUTHORIZED = "401"
+    FORBIDDEN = "403"
     
     # 认证相关
-    AUTH_SUCCESS = "100"
-    AUTH_FAILED = "101"
-    TOKEN_INVALID = "102"
-    TOKEN_EXPIRED = "103"
-    ACCOUNT_DISABLED = "104"
+    AUTH_SUCCESS = "2001"
+    AUTH_FAILED = "4001"
+    TOKEN_INVALID = "4002"
+    TOKEN_EXPIRED = "4003"
+    ACCOUNT_DISABLED = "4004"
     
     # 密码相关
-    PWD_WEAK = "200"
-    PWD_EMPTY = "201"
-    PWD_UPDATE_SUCCESS = "202"
-    PWD_UPDATE_FAILED = "203"
+    PWD_WEAK = "4101"
+    PWD_EMPTY = "4102"
+    PWD_UPDATE_SUCCESS = "2002"
+    PWD_UPDATE_FAILED = "4103"
     
     # 用户相关
-    USER_NOT_FOUND = "300"
-    USER_EXISTS = "301"
-    USER_UPDATE_SUCCESS = "302"
-    USER_UPDATE_FAILED = "303"
-    NICKNAME_EMPTY = "304"
-    NICKNAME_NO_CHANGE = "305"
+    USER_NOT_FOUND = "4201"
+    USER_EXISTS = "4202"
+    USER_UPDATE_SUCCESS = "2003"
+    USER_UPDATE_FAILED = "4203"
+    NICKNAME_EMPTY = "4204"
+    NICKNAME_NO_CHANGE = "4205"
     
     # 邮箱相关
-    EMAIL_EMPTY = "80001"                  # 邮箱为空
-    EMAIL_INVALID_FORMAT = "80002"         # 邮箱格式不正确
-    EMAIL_CODE_INVALID = "80003"           # 验证码错误
-    EMAIL_ALREADY_BOUND = "80004"          # 邮箱已被绑定
-    EMAIL_SEND_FAILED = "80005"            # 邮件发送失败
-    EMAIL_CODE_EXPIRED = "80006"           # 验证码过期
-    EMAIL_SEND_TOO_FREQUENT = "80007"      # 发送过于频繁
-    EMAIL_BIND_SUCCESS = "80008"           # 绑定成功
-    EMAIL_VERIFY_SUCCESS = "80009"         # 验证成功
+    EMAIL_EMPTY = "4301"
+    EMAIL_INVALID_FORMAT = "4302"
+    EMAIL_CODE_INVALID = "4303"
+    EMAIL_ALREADY_BOUND = "4304"
+    EMAIL_SEND_FAILED = "4305"
+    EMAIL_CODE_EXPIRED = "4306"
+    EMAIL_SEND_TOO_FREQUENT = "4307"
+    EMAIL_BIND_SUCCESS = "2004"
+    EMAIL_VERIFY_SUCCESS = "2005"
     
     # 签名相关
-    SIGNATURE_NOT_FOUND = "500"
-    SIGNATURE_TOO_LONG = "501"
-    SIGNATURE_ADD_SUCCESS = "502"
-    SIGNATURE_ADD_FAILED = "503"
-    SIGNATURE_UPDATE_SUCCESS = "504"
-    SIGNATURE_UPDATE_FAILED = "505"
+    SIGNATURE_NOT_FOUND = "4401"
+    SIGNATURE_TOO_LONG = "4402"
+    SIGNATURE_ADD_SUCCESS = "2006"
+    SIGNATURE_ADD_FAILED = "4403"
+    SIGNATURE_UPDATE_SUCCESS = "2007"
+    SIGNATURE_UPDATE_FAILED = "4404"
 
-class Message:
+T = TypeVar('T')
+
+class Message(BaseModel, Generic[T]):
     """消息处理类"""
     
-    _messages: Dict[str, str] = {
+    code: str = Field(default=MsgCode.SUCCESS.value)
+    message: str = Field(default="操作成功")
+    data: Optional[T] = None
+
+    messages: ClassVar[Dict[str, str]] = {
         # 通用消息
         MsgCode.SUCCESS.value: "操作成功",
         MsgCode.FAILED.value: "操作失败",
@@ -103,52 +109,40 @@ class Message:
         MsgCode.EMAIL_VERIFY_SUCCESS.value: "验证码发送成功",
         
         # 签名相关
-        MsgCode.SIGNATURE_NOT_FOUND.value: "未找到签名内容",
-        MsgCode.SIGNATURE_TOO_LONG.value: "签名内容最大长度为64个字符",
+        MsgCode.SIGNATURE_NOT_FOUND.value: "签名不存在",
+        MsgCode.SIGNATURE_TOO_LONG.value: "签名过长",
         MsgCode.SIGNATURE_ADD_SUCCESS.value: "签名添加成功",
         MsgCode.SIGNATURE_ADD_FAILED.value: "签名添加失败",
         MsgCode.SIGNATURE_UPDATE_SUCCESS.value: "签名更新成功",
-        MsgCode.SIGNATURE_UPDATE_FAILED.value: "签名更新失败",
+        MsgCode.SIGNATURE_UPDATE_FAILED.value: "签名更新失败"
     }
 
     @classmethod
-    def get(cls, code: str, msg: Optional[str] = None) -> Dict[str, str]:
-        """
-        获取消息
-
-        Args:
-            code: 消息代码
-            msg: 可选的自定义消息
-
-        Returns:
-            Dict[str, str]: 包含代码和消息的字典
-        """
-        return {
-            "code": code,
-            "msg": msg or cls._messages.get(code, "未知错误")
-        }
+    def success(cls, data: Optional[T] = None, message: Optional[str] = None) -> "Message[T]":
+        """成功响应"""
+        return cls(
+            code=MsgCode.SUCCESS.value,
+            message=message or cls.messages[MsgCode.SUCCESS.value],
+            data=data
+        )
 
     @classmethod
-    def success(cls, msg: Optional[str] = None) -> Dict[str, str]:
-        """快捷方法：成功消息"""
-        return cls.get(MsgCode.SUCCESS.value, msg)
+    def error(cls, code: str = MsgCode.FAILED.value, message: Optional[str] = None) -> "Message[T]":
+        """错误响应"""
+        return cls(
+            code=code,
+            message=message or cls.messages.get(code, cls.messages[MsgCode.FAILED.value])
+        )
 
     @classmethod
-    def error(cls, msg: Optional[str] = None) -> Dict[str, str]:
-        """快捷方法：错误消息"""
-        return cls.get(MsgCode.FAILED.value, msg)
+    def server_error(cls, message: Optional[str] = None) -> "Message[T]":
+        """服务器错误响应"""
+        return cls(
+            code=MsgCode.FAILED.value,
+            message=message or cls.messages[MsgCode.FAILED.value],
+        )
 
     @classmethod
-    def not_found(cls, msg: Optional[str] = None) -> Dict[str, str]:
-        """快捷方法：未找到消息"""
-        return cls.get(MsgCode.NOT_FOUND.value, msg)
-
-    @classmethod
-    def invalid_params(cls, msg: Optional[str] = None) -> Dict[str, str]:
-        """快捷方法：无效参数消息"""
-        return cls.get(MsgCode.INVALID_PARAMS.value, msg)
-
-    @classmethod
-    def unauthorized(cls, msg: Optional[str] = None) -> Dict[str, str]:
-        """快捷方法：未授权消息"""
-        return cls.get(MsgCode.UNAUTHORIZED.value, msg)
+    def custom(cls, code: str, message: str, data: Optional[T] = None) -> "Message[T]":
+        """自定义响应"""
+        return cls(code=code, message=message, data=data)

@@ -1,6 +1,6 @@
 import time
 from datetime import datetime
-
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, APIRouter, Request, status
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response, JSONResponse
@@ -18,14 +18,38 @@ from tool.classDb import HttpStatus
 from tool.getLogger import globalLogger
 from config.error_messages import SYSTEM_ERROR
 
+# 生命周期事件
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """应用生命周期事件处理"""
+    # 启动事件
+    try:
+        # 检查 Redis 连接
+        redis_status = check_redis()
+        if redis_status["code"] != 200:
+            globalLogger.error(SYSTEM_ERROR['REDIS_ERROR'])
+            raise Exception(SYSTEM_ERROR['REDIS_ERROR'])
+            
+        # 初始化数据库
+        try:
+            Base.metadata.create_all(bind=ENGIN)
+            globalLogger.info(SYSTEM_ERROR['DB_INIT_SUCCESS'])
+        except Exception as e:
+            globalLogger.error(f"{SYSTEM_ERROR['DB_INIT_ERROR']}: {str(e)}")
+            raise
+        yield
+    finally:
+        # 关闭事件
+        globalLogger.info("应用正在关闭...")
+
 # 创建主应用
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 # 创建带全局前缀的路由器
 v1_router = APIRouter(prefix="/v1")
 
 # 将各个模块的路由添加到带前缀的路由器
-v1_router.include_router(userAppRouterApi, prefix="/h5/user", tags=["用户管理"])
+v1_router.include_router(userAppRouterApi, prefix="/h5/user")
 
 # 将带有前缀的路由器添加到主应用
 app.include_router(v1_router)
@@ -112,30 +136,6 @@ app.add_middleware(CustomHeaderMiddleware)  # 最后是自定义头部
 # 静态文件和限流
 staticMount(app)
 appLimitRate(app)
-
-# 启动事件
-@app.on_event("startup")
-async def startup_event():
-    """应用启动时的初始化操作"""
-    # 检查 Redis 连接
-    redis_status = check_redis()
-    if redis_status.code != 200:
-        globalLogger.error(SYSTEM_ERROR['REDIS_ERROR'])
-        raise Exception(SYSTEM_ERROR['REDIS_ERROR'])
-        
-    # 初始化数据库
-    try:
-        Base.metadata.create_all(bind=ENGIN)
-        globalLogger.info(SYSTEM_ERROR['DB_INIT_SUCCESS'])
-    except Exception as e:
-        globalLogger.exception(f"{SYSTEM_ERROR['DB_INIT_ERROR']}:", e)
-        raise
-
-# 关闭事件
-@app.on_event("shutdown")
-async def shutdown_event():
-    """应用关闭时的清理操作"""
-    globalLogger.info("应用正在关闭...")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="localhost", port=8000, reload=True)

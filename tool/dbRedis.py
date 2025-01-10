@@ -1,10 +1,9 @@
 import redis
 import time
-from datetime import date, datetime
+from datetime import date
 import os
 from dotenv import load_dotenv
 
-from config.error_messages import ErrorCode
 from tool.classDb import HttpStatus
 
 # 加载环境变量
@@ -182,4 +181,5 @@ class RedisDB:
 def check_redis():
     redis_db = RedisDB()
     if not redis_db.is_running():
-        return HttpStatus.custom(message="redis未运行,请运行", data={}, code=ErrorCode.REDIS_ERROR)
+        return HttpStatus.error(message="redis未运行,请运行")
+    return HttpStatus.success()
