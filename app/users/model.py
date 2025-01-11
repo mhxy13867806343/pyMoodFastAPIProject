@@ -18,6 +18,9 @@ class UserInfo(BaseModel):
     sex: Optional[UserSex] = None
     code: Optional[str] = None  # 验证码，可选
     username: Optional[str] = None
+    password: Optional[str] = None  # 用户密码
+    avatar: Optional[str] = None  # 用户头像
+    is_registered: Optional[int] = None  # 注册状态
     
     @validator('phone')
     def validate_phone(cls, v):

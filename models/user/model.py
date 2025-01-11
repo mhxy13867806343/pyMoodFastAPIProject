@@ -6,6 +6,7 @@ from tool.dbEnum import generate_uid, UserType, generate_default_name, EmailStat
 from datetime import date
 
 from extend.db import Base,LOCSESSION,ENGIN
+
 class UserInputs(Base): # 用户信息
     __tablename__ = 'user_inputs'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -20,6 +21,8 @@ class UserInputs(Base): # 用户信息
     name = Column(String(30), nullable=False, default=generate_default_name)
     phone = Column(String(11), nullable=False, default="")
     emailCode = Column(SQLAlchemyEnum(EmailStatus), nullable=False, default=EmailStatus.UNBOUND)
+    avatar = Column(String(255), nullable=False, default="", comment="用户头像")
+    is_registered = Column(Integer, nullable=False, default=0, comment="注册状态：0=未注册完成，1=注册成功")
     status = Column(SQLAlchemyEnum(UserStatus), nullable=False, default=UserStatus.NORMAL)
     sex = Column(SQLAlchemyEnum(UserSex), nullable=False, default=UserSex.UNKNOWN)
     location=Column(String(30), nullable=False, default="ip地址")
@@ -54,17 +57,3 @@ class UserLoginRecord(Base):
         self.login_date = login_date
         self.login_time = login_time
         self.continuous_days = continuous_days
-
-
-class UserLogoutRecord(Base):
-    """用户登出记录表"""
-    __tablename__ = 'user_logout_records'
-    
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey('user_inputs.id', ondelete='CASCADE'), nullable=False)
-    logout_time = Column(BigInteger, nullable=False, comment='登出时间戳')
-    logout_date = Column(Date, nullable=False, comment='登出日期')
-    
-    __table_args__ = (
-        Index('idx_user_logout_date', 'user_id', 'logout_date'),  # 用于查询用户某天是否登出
-    )

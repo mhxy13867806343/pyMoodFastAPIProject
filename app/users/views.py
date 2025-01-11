@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Depends, status, Header, Request, HTTPException, Body
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
@@ -9,16 +11,18 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta, date
 import re
 from typing import Optional, Dict, Any
+from sqlalchemy import or_
 
 from config.error_messages import USER_ERROR
 from tool.dbConnectionConfig import sendBindEmail, getVerifyEmail, generate_random_code
+from tool.getLogger import globalLogger
 from tool.msg import Message
 from config.error_code import ErrorCode
 from tool.validationTools import ValidationError
-from .model import UserAuth, UserInfo
-from tool.db import getDbSession
 from tool import token as createToken
-from models.user.model import UserInputs, UserType, UserStatus, EmailStatus, UserLoginRecord, LoginType, UserLogoutRecord
+from .model import UserAuth, UserInfo
+from models.user.model import UserInputs, UserType, UserStatus, EmailStatus, UserLoginRecord, LoginType, UserSex
+from tool.db import getDbSession
 from tool.dbRedis import RedisDB
 from config.api_descriptions import ApiDescriptions
 from config.user_constants import UserIdentifier
@@ -108,7 +112,9 @@ def prepare_user_data(
         "create_time": user.create_time,
         "last_time": user.last_time,
         "continuous_days": continuous_days,
-        "login_type": user.login_type.value
+        "login_type": user.login_type.value,
+        "avatar": user.avatar,
+        "is_registered": user.is_registered
     }
     
     if token:
@@ -133,7 +139,9 @@ def get_user_data(user: UserInputs, include_private: bool = False) -> Dict[str, 
         "name": user.name,
         "sex": user.sex.value,
         "type": user.type.value,
-        "create_time": user.create_time
+        "create_time": user.create_time,
+        "avatar": user.avatar,
+        "is_registered": user.is_registered
     }
 
     # 包含私密信息
@@ -149,6 +157,101 @@ def get_user_data(user: UserInputs, include_private: bool = False) -> Dict[str, 
         })
 
     return data
+
+async def verify_email_code(email: str, code: str) -> bool:
+    """
+    验证邮箱验证码
+    """
+    try:
+        # 从 Redis 获取验证码
+        stored_code = await getVerifyEmail(email)
+        if not stored_code:
+            return False
+        return stored_code == code
+    except Exception as e:
+        globalLogger.exception(f"验证邮箱验证码失败: {str(e)}")
+        return False
+
+async def bind_user_email(db: Session, user_id: int, email: str) -> bool:
+    """
+    绑定用户邮箱
+    """
+    try:
+        # 查找用户
+        user = db.query(UserInputs).filter(UserInputs.id == user_id).first()
+        if not user:
+            return False
+        
+        # 检查邮箱是否已被其他用户使用
+        existing_user = db.query(UserInputs).filter(
+            UserInputs.email == email,
+            UserInputs.id != user_id
+        ).first()
+        if existing_user:
+            return False
+        
+        # 更新用户邮箱
+        user.email = email
+        user.last_time = int(time.time())
+        db.commit()
+        return True
+    except Exception as e:
+        db.rollback()
+        globalLogger.exception(f"绑定用户邮箱失败: {str(e)}")
+        return False
+
+async def send_verification_code(email: str) -> bool:
+    """
+    发送验证码到邮箱
+    """
+    try:
+        # 生成验证码
+        code = generate_random_code()
+        # 保存验证码到 Redis
+        await sendBindEmail(email, code)
+        return True
+    except Exception as e:
+        globalLogger.exception(f"发送验证码失败: {str(e)}")
+        return False
+
+async def update_user_info(db: Session, request: UserUpdateRequest) -> Optional[Dict[str, Any]]:
+    """
+    更新用户信息
+    """
+    try:
+        # 查找用户
+        db_user = db.query(UserInputs).filter(UserInputs.uid == request.uid).first()
+        if not db_user:
+            return None
+
+        # 更新用户信息
+        if request.username is not None:
+            db_user.username = request.username
+        if request.email is not None:
+            db_user.email = request.email
+        if request.phone is not None:
+            db_user.phone = request.phone
+        if request.name is not None:
+            db_user.name = request.name
+        if request.sex is not None:
+            db_user.sex = UserSex(request.sex)
+        if request.location is not None:
+            db_user.location = request.location
+        if request.avatar is not None:
+            db_user.avatar = request.avatar
+        if request.is_registered is not None:
+            db_user.is_registered = request.is_registered
+
+        db_user.last_time = int(time.time())
+        db.commit()
+        db.refresh(db_user)
+        
+        # 返回更新后的用户信息
+        return get_user_data(db_user, include_private=True)
+    except Exception as e:
+        db.rollback()
+        globalLogger.exception(f"更新用户信息失败: {str(e)}")
+        return None
 
 @userApp.post(
     "/auth",
@@ -272,7 +375,9 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
                 type=user_type,
                 login_type=login_type,
                 status=UserStatus.NORMAL,
-                name=f"{'Admin' if user_type != UserType.NORMAL else 'User'}_{int(time.time())}"
+                name=f"{'Admin' if user_type != UserType.NORMAL else 'User'}_{int(time.time())}",
+                avatar="",
+                is_registered=0
             )
             db.add(new_user)
             db.commit()
@@ -424,11 +529,8 @@ async def update_user(
     - 只能更新自己的信息
     """
     # 验证用户是否在更新自己的信息
-    if str(current_user_id) != request.uid:
-        return Message.error(
-            code=ErrorCode.FORBIDDEN.value,
-            message=USER_ERROR["NO_PERMISSION"]
-        )
+    if not current_user_id:
+        return Message.error(message=USER_ERROR["NO_PERMISSION"])
     
     try:
         # 更新用户信息
@@ -461,45 +563,16 @@ async def logout(
     - 清除缓存
     """
     try:
-        # 查找用户
-        current_user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
-        if not current_user:
-            return Message.error(
-                code=ErrorCode.USER_NOT_FOUND.value,
-                message=USER_ERROR["USER_NOT_FOUND"]
-            )
-
-        current_time = int(time.time())
-
-        # 更新用户最后登出时间
-        current_user.last_time = current_time
-        
-        # 创建登出记录
-        logout_record = UserLogoutRecord(
-            user_id=current_user_id,
-            logout_time=current_time,
-            create_time=current_time
-        )
-        db.add(logout_record)
-        
-        # 清除Redis缓存
-        redis_db.delete_user_info(current_user.email, LoginType.EMAIL)
-        if current_user.username:
-            redis_db.delete_user_info(current_user.username, LoginType.USERNAME)
-            
-        db.commit()
-        
-        return Message.success(
-            data={
-                "user_id": current_user_id,
-                "logout_time": current_time
-            }
-        )
-    except SQLAlchemyError as e:
-        db.rollback()
-        return Message.server_error()
+        # 清除用户缓存
+        redis = RedisDB()
+        await redis.delete(f"user:{current_user_id}")
+        return Message.success()
     except Exception as e:
-        return Message.server_error()
+        globalLogger.exception(f"用户登出失败: {str(e)}")
+        return Message.error(
+            code=ErrorCode.INTERNAL_ERROR.value,
+            message=USER_ERROR["LOGOUT_FAILED"]
+        )
 
 @userApp.post(
     "/email/bind",

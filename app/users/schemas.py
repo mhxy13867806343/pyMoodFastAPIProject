@@ -3,15 +3,25 @@ from pydantic import BaseModel, field_validator, model_validator, EmailStr
 from typing_extensions import Annotated
 import re
 
+class UserBase(BaseModel):
+    username: str
+    email: str | None = None
+    password: str
+    phone: str | None = None
+    avatar: str | None = ""
+    is_registered: int = 0
+
 class UserUpdateRequest(BaseModel):
     uid: str
-    name: str
-    email: str
-    phone: str
-    location: str
-    sex: int
+    username: str | None = None
+    email: str | None = None
+    phone: str | None = None
+    avatar: str | None = None
+    name: str | None = None
+    sex: int | None = None
+    location: str | None = None
     code: str
-    username: str
+    is_registered: int | None = None
 
     @field_validator('*')
     @classmethod
