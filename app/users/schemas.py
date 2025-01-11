@@ -1,6 +1,4 @@
-from typing import Optional
-from pydantic import BaseModel, field_validator, model_validator, EmailStr
-from typing_extensions import Annotated
+from pydantic import BaseModel, field_validator
 import re
 
 class UserBase(BaseModel):

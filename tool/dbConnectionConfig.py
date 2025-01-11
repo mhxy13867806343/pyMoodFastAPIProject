@@ -1,9 +1,5 @@
 from datetime import datetime, timedelta
 import secrets
-import smtplib
-from email.mime.text import MIMEText
-from email.utils import formataddr
-from fastapi import status
 from tool.dbRedis import RedisDB
 from tool.emailTools import emailTools
 from tool.msg import Message
@@ -11,7 +7,7 @@ from config.error_code import ErrorCode
 from tool.classDb import HttpStatus
 import random
 import string
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 redis_db = RedisDB()
 

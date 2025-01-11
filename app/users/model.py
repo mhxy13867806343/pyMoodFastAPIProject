@@ -1,6 +1,7 @@
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, validator
 from typing import Optional
-from tool.dbEnum import UserType, UserStatus, UserSex, LoginType
+from tool.dbEnum import UserSex, LoginType
+import re
 
 class UserAuth(BaseModel):
     """用户认证模型"""
@@ -33,7 +34,7 @@ class UserInfo(BaseModel):
     @validator('email')
     def validate_email(cls, v):
         if v:
-            from app.users.views import is_valid_email
-            if not is_valid_email(v):
+            pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+            if not re.match(pattern, v):
                 raise ValueError('邮箱格式不正确')
         return v

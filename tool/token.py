@@ -1,13 +1,13 @@
-from typing import Optional, Dict, Union, Any
-from datetime import datetime, timedelta
-from fastapi import Depends, HTTPException, status, Security
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from typing import Optional, Dict, Any
+from datetime import timedelta
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 import jwt
 from jwt.exceptions import InvalidTokenError as JWTError
 import bcrypt
 from dotenv import load_dotenv
 import os
-from .validationTools import ParamValidator, ValidationError
+from .validationTools import ValidationError
 from config.error_messages import USER_ERROR, SYSTEM_ERROR
 
 # 加载环境变量

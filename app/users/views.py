@@ -1,38 +1,31 @@
-import uuid
+import datetime
 
-from fastapi import APIRouter, Depends, status, Header, Request, HTTPException, Body
+from fastapi import APIRouter, Depends
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 import time
-import random
-import string
-import os
-from dotenv import load_dotenv
-from datetime import datetime, timedelta, date
+from datetime import date, timedelta
 import re
 from typing import Optional, Dict, Any
 from sqlalchemy import or_
 
+from config.api_descriptions import ApiDescriptions
 from config.error_messages import USER_ERROR
 from tool.dbConnectionConfig import sendBindEmail, getVerifyEmail, generate_random_code
 from tool.getLogger import globalLogger
 from tool.msg import Message
 from config.error_code import ErrorCode
+from tool.param_validator import validate_params
+from tool.token import EXPIRE_TIME
 from tool.validationTools import ValidationError
 from tool import token as createToken
 from .model import UserAuth, UserInfo
-from models.user.model import UserInputs, UserType, UserStatus, EmailStatus, UserLoginRecord, LoginType, UserSex
+from models.user.model import UserInputs, UserType, UserStatus, UserLoginRecord, LoginType, UserSex
 from tool.db import getDbSession
 from tool.dbRedis import RedisDB
-from config.api_descriptions import ApiDescriptions
-from config.user_constants import UserIdentifier
-from tool.param_validator import validate_params
 from app.users.schemas import UserUpdateRequest, EmailBindRequest, EmailCodeRequest
 
 # 加载环境变量
-load_dotenv()
-EXPIRE_TIME = int(os.getenv('EXPIRE_TIME', str(60*60*24*30)))  # 默认30天
-
 redis_db = RedisDB()
 userApp = APIRouter(tags=["用户相关"])
 

@@ -1,11 +1,9 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Enum as SQLAlchemyEnum, Date, Index, BigInteger
 from sqlalchemy.orm import relationship
-
 import time
 from tool.dbEnum import generate_uid, UserType, generate_default_name, EmailStatus, UserStatus, UserSex, LoginType
 from datetime import date
-
-from extend.db import Base,LOCSESSION,ENGIN
+from extend.db import Base
 
 class UserInputs(Base): # 用户信息
     __tablename__ = 'user_inputs'

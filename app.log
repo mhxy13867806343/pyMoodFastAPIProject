@@ -1622,3 +1622,48 @@ WHERE user_inputs.id = %(id_1)s
 2025-01-11 22:04:08,189 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/h5/user/email/code
 2025-01-11 22:04:08,189 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '23', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'content-type': 'application/json', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
 2025-01-11 22:04:08,191 - tool.getLogger - INFO - Response time: 0.002s
+2025-01-11 22:07:13,801 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-11 22:09:10,430 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-11 22:09:10,478 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-11 22:09:10,478 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-11 22:09:10,478 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-11 22:09:10,478 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-11 22:09:10,479 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-11 22:09:10,479 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-11 22:09:10,479 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-11 22:09:10,479 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-11 22:09:10,479 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-11 22:09:10,481 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-11 22:09:10,481 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-11 22:09:10,482 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-11 22:09:10,483 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-11 22:09:18,093 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-11 22:09:19,736 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-11 22:09:19,792 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-11 22:09:19,792 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-11 22:09:19,793 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-11 22:09:19,793 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-11 22:09:19,793 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-11 22:09:19,793 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-11 22:09:19,793 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-11 22:09:19,794 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-11 22:09:19,794 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-11 22:09:19,795 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-11 22:09:19,795 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-11 22:09:19,796 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-11 22:09:19,796 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-11 22:09:22,427 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-11 22:09:22,975 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-11 22:09:23,098 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-11 22:09:23,098 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-11 22:09:23,100 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-11 22:09:23,100 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-11 22:09:23,100 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-11 22:09:23,100 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-11 22:09:23,100 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-11 22:09:23,100 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-11 22:09:23,100 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-11 22:09:23,103 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-11 22:09:23,103 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-11 22:09:23,104 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-11 22:09:23,105 - tool.getLogger - INFO - 数据库初始化成功
