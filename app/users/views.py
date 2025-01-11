@@ -1,6 +1,6 @@
 import datetime
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 import time
@@ -246,6 +246,19 @@ async def update_user_info(db: Session, request: UserUpdateRequest) -> Optional[
         globalLogger.exception(f"更新用户信息失败: {str(e)}")
         return None
 
+def check_user_status(user: UserInputs) -> Optional[Message]:
+    """
+    检查用户状态
+    - 如果是普通用户且状态为禁用，则返回错误消息
+    - 如果状态正常，返回 None
+    """
+    if user.type == UserType.NORMAL and user.status == UserStatus.DISABLED:
+        return Message.custom(
+            code=ErrorCode.FORBIDDEN.value,
+            message=USER_ERROR["FORBIDDEN"],
+        )
+    return None
+
 @userApp.post(
     "/auth",
     response_model=Message[Dict[str, Any]],
@@ -275,6 +288,13 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
                 return Message.error(
                     message=USER_ERROR["ACCOUNT_OR_PASSWORD_ERROR"],
                     code=ErrorCode.ACCOUNT_OR_PASSWORD_ERROR.value
+                )
+            
+            # 检查用户状态
+            if cached_user["type"] == UserType.NORMAL.value and cached_user["status"] == UserStatus.DISABLED.value:
+                return Message.custom(
+                    code=ErrorCode.FORBIDDEN.value,
+                    message=USER_ERROR["FORBIDDEN"],
                 )
             
             # 生成新的token
@@ -451,6 +471,11 @@ async def get_current_user_info(
                 message=USER_ERROR["USER_NOT_FOUND"]
             )
 
+        # 检查用户状态
+        status_check = check_user_status(current_user)
+        if status_check:
+            return status_check
+        
         # 获取用户的连续登录天数
         login_record = db.query(UserLoginRecord).filter(
             UserLoginRecord.user_id == current_user_id
@@ -461,6 +486,8 @@ async def get_current_user_info(
         user_data["continuous_days"] = login_record.continuous_days if login_record else 1
 
         return Message.success(data=user_data)
+    except HTTPException as e:
+        return Message.error(code=ErrorCode.USER_DISABLED.value, message=str(e.detail))
     except Exception as e:
         return Message.server_error()
 
@@ -526,19 +553,32 @@ async def update_user(
         return Message.error(message=USER_ERROR["NO_PERMISSION"])
     
     try:
-        # 更新用户信息
-        user = await update_user_info(db, request)
+        # 获取当前用户
+        user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
         if not user:
             return Message.error(
-                code=ErrorCode.NOT_FOUND.value,
+                code=ErrorCode.USER_NOT_FOUND.value,
                 message=USER_ERROR["USER_NOT_FOUND"]
             )
-        return Message.success(data=user)
+            
+        # 检查用户状态
+        status_check = check_user_status(user)
+        if status_check:
+            return status_check
+        
+        # 更新用户信息
+        result = await update_user_info(db, request)
+        if isinstance(result, Message):
+            return result
+            
+        return Message.success(data=get_user_data(user, include_private=True))
+    except HTTPException as e:
+        return Message.error(code=ErrorCode.USER_DISABLED.value, message=str(e.detail))
     except Exception as e:
-        globalLogger.exception(f"{USER_ERROR['UPDATE_FAILED']}: {str(e)}")
+        globalLogger.exception(f"更新用户信息失败: {str(e)}")
         return Message.error(
             code=ErrorCode.INTERNAL_ERROR.value,
-            message=USER_ERROR["UPDATE_FAILED"]
+            message=USER_ERROR["UPDATE_USER_FAILED"]
         )
 
 @userApp.post(
@@ -550,16 +590,25 @@ async def logout(
     current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
     db: Session = Depends(getDbSession)
 ):
-    """
-    用户登出
-    - 需要登录
-    - 清除缓存
-    """
     try:
+        user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
+        if not user:
+            return Message.error(
+                code=ErrorCode.USER_NOT_FOUND.value,
+                message=USER_ERROR["USER_NOT_FOUND"]
+            )
+            
+        # 检查用户状态
+        status_check = check_user_status(user)
+        if status_check:
+            return status_check
+        
         # 清除用户缓存
         redis = RedisDB()
         await redis.delete(f"user:{current_user_id}")
         return Message.success()
+    except HTTPException as e:
+        return Message.error(code=ErrorCode.USER_DISABLED.value, message=str(e.detail))
     except Exception as e:
         globalLogger.exception(f"用户登出失败: {str(e)}")
         return Message.error(
