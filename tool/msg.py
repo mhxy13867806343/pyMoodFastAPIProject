@@ -1,8 +1,13 @@
 from enum import Enum
 from typing import Dict, Optional, TypeVar, Generic, Any
+
+from fastapi import HTTPException
 from pydantic import BaseModel, Field
+from starlette import status
+
 from config.error_code import ErrorCode
 from config.error_messages import USER_ERROR, SYSTEM_ERROR
+from fastapi.responses import JSONResponse
 
 class MsgType(str, Enum):
     """消息类型枚举"""
@@ -18,6 +23,16 @@ class Message(BaseModel, Generic[T]):
     code: int = Field(default=ErrorCode.SUCCESS)
     message: str = Field(default="操作成功")
     data: Optional[T] = None
+    headers: Optional[Dict[str, str]] = Field(default=None, exclude=True)
+
+    def dict(self, *args, **kwargs):
+        """重写dict方法，在序列化时排除headers为None的情况"""
+        d = super().dict(*args, **kwargs)
+        if d.get('headers') is None:
+            d.pop('headers', None)
+        if d.get('data') is None:
+            d.pop('data', None)
+        return d
 
     @classmethod
     def success(cls, data: Optional[T] = None, message: str = "操作成功", code: int = ErrorCode.SUCCESS) -> "Message[T]":
@@ -50,6 +65,35 @@ class Message(BaseModel, Generic[T]):
         )
 
     @classmethod
-    def custom(cls, code: int, message: str, data: Optional[T] = None) -> "Message[T]":
-        """自定义响应"""
+    def custom(cls, code: int, message: str, data: Optional[T] = None) -> JSONResponse:
         return cls(code=code, message=message, data=data)
+
+
+    @classmethod
+    def http_401_exception(cls) -> JSONResponse:
+        """
+        返回401未授权响应
+        :param message: 自定义错误消息，如果不提供则使用默认的TOKEN_INVALID消息
+        """
+        # raise HTTPException(
+        #     status_code=status.HTTP_401_UNAUTHORIZED,
+        #     detail={
+        #         "message": USER_ERROR["TOKEN_INVALID"],
+        #         "code": status.HTTP_401_UNAUTHORIZED
+        #     },
+        #     headers={"WWW-Authenticate": "Bearer"},
+        # )
+        unauthorized=ErrorCode.UNAUTHORIZED
+        message=USER_ERROR.get("TOKEN_EXPIRED")
+        response_data={
+            "code":unauthorized,
+            "message":message
+        }
+        headers={
+            "WWW-Authenticate": "Bearer"
+        }
+        raise HTTPException(
+            detail=response_data,
+            headers=headers,
+            status_code=unauthorized
+        )

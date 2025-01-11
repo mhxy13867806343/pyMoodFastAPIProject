@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional, Dict, Any
 from datetime import timedelta
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, status
 from fastapi.security import OAuth2PasswordBearer
 import jwt
 from jwt.exceptions import InvalidTokenError as JWTError
@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 import os
 from .validationTools import ValidationError
 from config.error_messages import USER_ERROR, SYSTEM_ERROR
+from .msg import Message
 
 # 加载环境变量
 load_dotenv()
@@ -80,32 +81,13 @@ def parse_token(token: str = Depends(oauth2_scheme), *, required: bool = True, f
     """
     统一的token解析方法，可用于所有token解析场景
     :param token: token字符串
-    :param required: 是否必需，如果为True则token无效时抛出异常
+    :param required: 是否必需，如果为True则token无效时返回401响应
     :param full_payload: 是否返回完整的payload
-    :return: 根据参数返回不同的值：
-            - required=True, full_payload=False: int (user_id)
-            - required=True, full_payload=True: Dict (完整payload)
-            - required=False, full_payload=False: Optional[int] (user_id或None)
-            - required=False, full_payload=True: Optional[Dict] (payload或None)
-    
-    使用示例：
-    1. 必需的user_id（用于需要登录的接口）:
-       user_id: int = Depends(lambda token: parse_token(token, required=True))
-       
-    2. 可选的user_id（用于可以匿名访问的接口）:
-       user_id: Optional[int] = Depends(lambda token: parse_token(token, required=False))
     """
     # 如果没有token
     if not token:
         if required:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail={
-                    "message":USER_ERROR["TOKEN_INVALID"],
-                    "code":status.HTTP_401_UNAUTHORIZED
-                },
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            return Message.http_401_exception()
         return None
 
     try:
@@ -116,14 +98,7 @@ def parse_token(token: str = Depends(oauth2_scheme), *, required: bool = True, f
         user_id = payload.get("sub")
         if not user_id:
             if required:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail={
-                        "message": USER_ERROR["TOKEN_INVALID"],
-                        "code": status.HTTP_401_UNAUTHORIZED
-                    },
-                    headers={"WWW-Authenticate": "Bearer"},
-                )
+                return Message.http_401_exception()
             return None
             
         # 返回结果
@@ -133,23 +108,9 @@ def parse_token(token: str = Depends(oauth2_scheme), *, required: bool = True, f
             
     except JWTError:
         if required:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail={
-                    "message": USER_ERROR["TOKEN_INVALID"],
-                    "code": status.HTTP_401_UNAUTHORIZED
-                },
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            return Message.http_401_exception()
         return None
     except Exception:
         if required:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail={
-                    "message": USER_ERROR["TOKEN_INVALID"],
-                    "code": status.HTTP_401_UNAUTHORIZED
-                },
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            return Message.http_401_exception()
         return None
