@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Header, Request
+from fastapi import APIRouter, Depends, status, Header, Request, HTTPException, Body
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 import time
@@ -22,6 +22,8 @@ from models.user.model import UserInputs, UserType, UserStatus, EmailStatus, Use
 from tool.dbRedis import RedisDB
 from config.api_descriptions import ApiDescriptions
 from config.user_constants import UserIdentifier
+from tool.param_validator import validate_params
+from app.users.schemas import UserUpdateRequest, EmailBindRequest, EmailCodeRequest
 
 # 加载环境变量
 load_dotenv()
@@ -369,6 +371,7 @@ async def get_current_user_info(
     response_model=Message[Dict[str, Any]],
     summary="获取指定用户的公开信息"
 )
+@validate_params('user_id')
 async def get_user_info(
     user_id: int,
     current_user_id: Optional[int] = Depends(lambda: createToken.parse_token(required=False)),
@@ -409,8 +412,9 @@ async def get_user_info(
     response_model=Message[Dict[str, Any]],
     summary="更新用户信息"
 )
-async def update_user_info(
-    user_info: UserInfo,
+@validate_params('uid')
+async def update_user(
+    request: UserUpdateRequest,
     current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
     db: Session = Depends(getDbSession)
 ):
@@ -419,47 +423,28 @@ async def update_user_info(
     - 需要登录
     - 只能更新自己的信息
     """
+    # 验证用户是否在更新自己的信息
+    if str(current_user_id) != request.uid:
+        return Message.error(
+            code=ErrorCode.FORBIDDEN.value,
+            message=USER_ERROR["NO_PERMISSION"]
+        )
+    
     try:
-        # 查找用户
-        current_user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
-        if not current_user:
+        # 更新用户信息
+        user = await update_user_info(db, request)
+        if not user:
             return Message.error(
-                code=ErrorCode.USER_NOT_FOUND.value,
+                code=ErrorCode.NOT_FOUND.value,
                 message=USER_ERROR["USER_NOT_FOUND"]
             )
-
-        # 更新用户信息
-        if user_info.name is not None:
-            current_user.name = user_info.name
-        if user_info.phone is not None:
-            current_user.phone = user_info.phone
-        if user_info.location is not None:
-            current_user.location = user_info.location
-        if user_info.sex is not None:
-            current_user.sex = user_info.sex
-        
-        current_user.last_time = int(time.time())
-        
-        # 同步更新 Redis 缓存
-        if current_user.email:
-            redis_db.delete_user_info(current_user.email, LoginType.EMAIL)
-        if current_user.username:
-            redis_db.delete_user_info(current_user.username, LoginType.USERNAME)
-        
-        db.commit()
-        
-        return Message.success(
-            data={
-                "user_id": current_user_id,
-                "update_time": current_user.last_time
-            }
-        )
-    except ValidationError as ve:
-        db.rollback()
-        return Message.error(message=str(ve))
+        return Message.success(data=user)
     except Exception as e:
-        db.rollback()
-        return Message.server_error()
+        globalLogger.exception(f"{USER_ERROR['UPDATE_FAILED']}: {str(e)}")
+        return Message.error(
+            code=ErrorCode.INTERNAL_ERROR.value,
+            message=USER_ERROR["UPDATE_FAILED"]
+        )
 
 @userApp.post(
     "/logout",
@@ -522,8 +507,7 @@ async def logout(
     summary="绑定邮箱"
 )
 async def bind_email(
-    email: str,
-    code: str,
+    request: EmailBindRequest,
     current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
     db: Session = Depends(getDbSession)
 ):
@@ -533,61 +517,27 @@ async def bind_email(
     - 需要验证码
     """
     try:
-        # 验证邮箱格式
-        if not is_valid_email(email):
-            return Message.error(
-                message=USER_ERROR["EMAIL_INVALID_FORMAT"]
-            )
-
         # 验证验证码
-        redis_key = f"email_verify_{email}"
-        stored_code = redis_db.get(redis_key)
-        if not stored_code or stored_code != code:
+        if not await verify_email_code(request.email, request.code):
             return Message.error(
-                message=USER_ERROR["EMAIL_CODE_INVALID"]
+                code=ErrorCode.INVALID_PARAMS.value,
+                message=USER_ERROR["INVALID_CODE"]
             )
-
-        # 查找用户
-        current_user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
-        if not current_user:
+        
+        # 绑定邮箱
+        success = await bind_user_email(db, current_user_id, request.email)
+        if not success:
             return Message.error(
-                code=ErrorCode.USER_NOT_FOUND.value,
-                message=USER_ERROR["USER_NOT_FOUND"]
+                code=ErrorCode.INTERNAL_ERROR.value,
+                message=USER_ERROR["BIND_EMAIL_FAILED"]
             )
-
-        # 检查邮箱是否已被其他用户使用
-        existing_user = db.query(UserInputs).filter(
-            UserInputs.email == email,
-            UserInputs.id != current_user_id
-        ).first()
-        if existing_user:
-            return Message.error(
-                message=USER_ERROR["EMAIL_ALREADY_BOUND"]
-            )
-
-        # 更新用户邮箱
-        current_user.email = email
-        current_user.emailCode = EmailStatus.BOUND
-        current_user.last_time = int(time.time())
-        
-        # 清除旧的缓存
-        if current_user.email:
-            redis_db.delete_user_info(current_user.email, LoginType.EMAIL)
-        if current_user.username:
-            redis_db.delete_user_info(current_user.username, LoginType.USERNAME)
-        
-        db.commit()
-        
-        return Message.success(
-            data={
-                "user_id": current_user_id,
-                "email": email,
-                "bind_time": current_user.last_time
-            }
-        )
+        return Message.success()
     except Exception as e:
-        db.rollback()
-        return Message.server_error()
+        globalLogger.exception(f"{USER_ERROR['BIND_EMAIL_FAILED']}: {str(e)}")
+        return Message.error(
+            code=ErrorCode.INTERNAL_ERROR.value,
+            message=USER_ERROR["BIND_EMAIL_FAILED"]
+        )
 
 @userApp.post(
     "/email/code",
@@ -595,52 +545,25 @@ async def bind_email(
     summary="发送邮箱验证码"
 )
 async def send_email_code(
-    email: str,
-    current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
-    db: Session = Depends(getDbSession)
+    request: EmailCodeRequest,
+    current_user_id: int = Depends(lambda: createToken.parse_token(required=True))
 ):
     """
     发送邮箱验证码
     - 需要登录
     """
     try:
-        # 验证邮箱格式
-        if not is_valid_email(email):
+        # 发送验证码
+        success = await send_verification_code(request.email)
+        if not success:
             return Message.error(
-                message=USER_ERROR["EMAIL_INVALID_FORMAT"]
+                code=ErrorCode.INTERNAL_ERROR.value,
+                message=USER_ERROR["SEND_CODE_FAILED"]
             )
-
-        # 查找用户
-        current_user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
-        if not current_user:
-            return Message.error(
-                code=ErrorCode.USER_NOT_FOUND.value,
-                message=USER_ERROR["USER_NOT_FOUND"]
-            )
-
-        # 检查发送频率限制
-        redis_key = f"email_verify_{email}"
-        if redis_db.exists(redis_key):
-            return Message.error(
-                message=USER_ERROR["EMAIL_CODE_FREQ_LIMIT"]
-            )
-
-        # 生成并发送验证码
-        verify_code = generate_random_code()
-        if not sendBindEmail(email, verify_code):
-            return Message.error(
-                message=USER_ERROR["EMAIL_SEND_FAILED"]
-            )
-
-        # 存储验证码到 Redis，设置5分钟过期
-        redis_db.setex(redis_key, 300, verify_code)
-        
-        return Message.success(
-            data={
-                "user_id": current_user_id,
-                "email": email,
-                "expire_time": 300
-            }
-        )
+        return Message.success()
     except Exception as e:
-        return Message.server_error()
+        globalLogger.exception(f"{USER_ERROR['SEND_CODE_FAILED']}: {str(e)}")
+        return Message.error(
+            code=ErrorCode.INTERNAL_ERROR.value,
+            message=USER_ERROR["SEND_CODE_FAILED"]
+        )
