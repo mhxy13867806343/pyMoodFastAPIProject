@@ -10,7 +10,7 @@ from typing import Optional, Dict, Any
 from sqlalchemy import or_
 
 from config.api_descriptions import ApiDescriptions
-from config.error_messages import USER_ERROR, SYSTEM_ERROR
+from config.error_messages import USER_ERROR, SYSTEM_ERROR, LOG_MESSAGES
 from tool.dbConnectionConfig import sendBindEmail, getVerifyEmail, generate_random_code
 from tool.getLogger import globalLogger
 from tool.msg import Message
@@ -177,7 +177,8 @@ def get_user_data(user: UserInputs, include_private: bool = False) -> Dict[str, 
         "type": user.type.value,
         "create_time": user.create_time,
         "avatar": user.avatar,
-        "is_registered": user.is_registered
+        "is_registered": user.is_registered,
+        "signature": user.signature or ""  # 确保签名字段永远不会是 None
     }
 
     # 包含私密信息
@@ -190,6 +191,7 @@ def get_user_data(user: UserInputs, include_private: bool = False) -> Dict[str, 
             "status": user.status.value,
             "emailCode": user.emailCode.value,
             "last_time": user.last_time,
+
         })
 
     return data
@@ -769,11 +771,11 @@ async def upload_avatar(
         # 获取上传的文件
         form = await request.form()
         if "file" not in form:
-            return Message.error(message="请选择要上传的文件", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=USER_ERROR["NO_FILE_UPLOADED"], code=ErrorCode.BAD_REQUEST)
             
         file = form["file"]
         if not hasattr(file, "filename"):
-            return Message.error(message="无效的文件", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=USER_ERROR["INVALID_FILE"], code=ErrorCode.BAD_REQUEST)
 
         # 使用 FileUploader 处理上传
         uploader = FileUploader(current_user_id)
@@ -793,11 +795,11 @@ async def upload_avatar(
         
         return Message.success(
             data={"url": path},
-            message="头像上传成功"
+            message=USER_ERROR["AVATAR_UPLOAD_SUCCESS"]
         )
         
     except Exception as e:
-        globalLogger.exception(f"上传头像失败: {str(e)}")
+        globalLogger.exception(f"{LOG_MESSAGES['UPLOAD_AVATAR_FAILED']}: {str(e)}")
         return Message.error(message=USER_ERROR["UPLOAD_FAILED"], code=ErrorCode.INTERNAL_ERROR)
 
 @userApp.post(
@@ -861,7 +863,7 @@ async def batch_upload(
         )
 
     except Exception as e:
-        globalLogger.exception(f"批量上传文件失败: {str(e)}")
+        globalLogger.exception(f"{LOG_MESSAGES['BATCH_UPLOAD_FAILED']}: {str(e)}")
         return Message.error(message=USER_ERROR["UPLOAD_FAILED"], code=ErrorCode.INTERNAL_ERROR)
 
 @userApp.get(
@@ -889,10 +891,10 @@ async def get_signature(
         })
 
     except SQLAlchemyError as e:
-        globalLogger.error(f"数据库错误: {str(e)}")
+        globalLogger.error(f"{LOG_MESSAGES['DATABASE_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["DATABASE_ERROR"], code=ErrorCode.INTERNAL_ERROR)
     except Exception as e:
-        globalLogger.error(f"获取签名时发生错误: {str(e)}")
+        globalLogger.error(f"{LOG_MESSAGES['GET_SIGNATURE_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"], code=ErrorCode.INTERNAL_ERROR)
 
 @userApp.post(
@@ -912,6 +914,20 @@ async def set_signature(
         if not user:
             return Message.error(message=USER_ERROR["USER_NOT_FOUND"])
 
+        # 检查用户状态
+        if user.type == UserType.NORMAL and user.status == UserStatus.DISABLED:
+            return Message.error(
+                message=USER_ERROR["FORBIDDEN"],
+                code=ErrorCode.FORBIDDEN
+            )
+
+        # 验证签名长度
+        if request.signature and len(request.signature) > 32:
+            return Message.error(
+                message=USER_ERROR["SIGNATURE_TOO_LONG"],
+                code=ErrorCode.INVALID_PARAMS
+            )
+
         # 更新签名
         user.signature = request.signature
         db.commit()
@@ -922,91 +938,8 @@ async def set_signature(
 
     except SQLAlchemyError as e:
         db.rollback()
-        globalLogger.error(f"数据库错误: {str(e)}")
+        globalLogger.error(f"{LOG_MESSAGES['DATABASE_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["DATABASE_ERROR"], code=ErrorCode.INTERNAL_ERROR)
     except Exception as e:
-        globalLogger.error(f"设置签名时发生错误: {str(e)}")
+        globalLogger.error(f"{LOG_MESSAGES['SET_SIGNATURE_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"], code=ErrorCode.INTERNAL_ERROR)
-
-@userApp.post(
-    "/bind/email",
-    response_model=Message,
-    summary=ApiDescriptions.BIND_EMAIL["summary"],
-    description=ApiDescriptions.BIND_EMAIL["description"]
-)
-async def bind_email(
-    request: EmailBindRequest,
-    current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
-    db: Session = Depends(getDbSession)
-):
-    """
-    绑定用户邮箱
-    - 需要登录
-    - 需要验证码
-    """
-    try:
-        # 验证邮箱格式
-        if not is_valid_email(request.email):
-            return Message.error(
-                message=USER_ERROR["EMAIL_INVALID_FORMAT"],
-                code=ErrorCode.INVALID_PARAMS
-            )
-        
-        # 验证验证码
-        if not await verify_email_code(request.email, request.code):
-            return Message.error(
-                message=USER_ERROR["EMAIL_VERIFY_CODE_ERROR"],
-                code=ErrorCode.INVALID_PARAMS
-            )
-        
-        # 绑定邮箱
-        if not await bind_user_email(db, current_user_id, request.email):
-            return Message.error(
-                message=USER_ERROR["EMAIL_ALREADY_BOUND"],
-                code=ErrorCode.INTERNAL_ERROR
-            )
-        
-        return Message.success(message=USER_ERROR["EMAIL_BIND_SUCCESS"])
-    except Exception as e:
-        globalLogger.exception(f"{USER_ERROR['EMAIL_BIND_FAILED']}: {str(e)}")
-        return Message.error(
-            message=USER_ERROR["EMAIL_BIND_FAILED"],
-            code=ErrorCode.INTERNAL_ERROR
-        )
-
-@userApp.post(
-    "/email/code",
-    response_model=Message,
-    summary=ApiDescriptions.SEND_EMAIL_CODE["summary"],
-    description=ApiDescriptions.SEND_EMAIL_CODE["description"]
-)
-async def send_email_code(
-    request: EmailCodeRequest,
-    current_user_id: int = Depends(lambda: createToken.parse_token(required=True))
-):
-    """
-    发送邮箱验证码
-    - 需要登录
-    """
-    try:
-        # 验证邮箱格式
-        if not is_valid_email(request.email):
-            return Message.error(
-                message=USER_ERROR["EMAIL_INVALID_FORMAT"],
-                code=ErrorCode.INVALID_PARAMS
-            )
-        
-        # 发送验证码
-        if not await send_verification_code(request.email):
-            return Message.error(
-                message=USER_ERROR["EMAIL_SEND_FAILED"],
-                code=ErrorCode.INTERNAL_ERROR
-            )
-        
-        return Message.success(message=USER_ERROR["EMAIL_CODE_SEND_SUCCESS"])
-    except Exception as e:
-        globalLogger.exception(f"{USER_ERROR['EMAIL_SEND_ERROR']}: {str(e)}")
-        return Message.error(
-            message=USER_ERROR["EMAIL_SEND_ERROR"],
-            code=ErrorCode.INTERNAL_ERROR
-        )

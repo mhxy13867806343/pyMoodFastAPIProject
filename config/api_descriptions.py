@@ -108,6 +108,6 @@ class ApiDescriptions:
         "summary": "设置用户签名",
         "description": """设置当前用户的签名
 - 需要登录
-- 签名长度限制：200字
+- 签名长度限制：32字
 """
     }

@@ -102,13 +102,13 @@ USER_ERROR = {
     # 头像上传相关错误
     "UPLOAD_FAILED": "上传失败",
     "FILE_TOO_LARGE": "文件大小不能超过10MB",
-    "NO_FILE_UPLOADED": "没有文件上传成功",
-    "PARTIAL_UPLOAD_SUCCESS": "部分文件上传成功",
+    "NO_FILE_UPLOADED": "请选择要上传的文件",
+    "INVALID_FILE": "无效的文件",
     "UPLOAD_SUCCESS": "文件上传成功",
-    "FILE_TYPE_ERROR": "文件类型错误",
-    "FILE_COUNT_LIMIT": "文件数量超出限制",
-    "VIDEO_TOO_LARGE": "视频大小不能超过100MB",
-    "IMAGE_TOO_LARGE": "图片大小不能超过10MB",
+    "PARTIAL_UPLOAD_SUCCESS": "部分文件上传成功",
+    "AVATAR_UPLOAD_SUCCESS": "头像上传成功",
+    "FILE_SIZE_LIMIT": "文件大小不能超过10MB",
+    "FILE_FORMAT_LIMIT": "不支持的文件格式",
     
     # 权限相关错误
     "PERMISSION_DENIED": "权限不足",
@@ -128,7 +128,7 @@ USER_ERROR = {
     "PARAM_INVALID": "参数无效",
     
     # 签名相关错误
-    "SIGNATURE_TOO_LONG": "签名长度超过限制",
+    "SIGNATURE_TOO_LONG": "签名长度不能超过32字",
     "SIGNATURE_INVALID": "签名内容无效",
     "SIGNATURE_UPDATE_SUCCESS": "签名更新成功",
     "SIGNATURE_UPDATE_FAILED": "签名更新失败",
@@ -181,7 +181,17 @@ SYSTEM_ERROR = {
     "DIRECTORY_DELETE_ERROR": "目录删除失败",
     "DIRECTORY_MOVE_ERROR": "目录移动失败",
     "DIRECTORY_COPY_ERROR": "目录复制失败",
-    "DIRECTORY_RENAME_ERROR": "目录重命名失败"
+    "DIRECTORY_RENAME_ERROR": "目录重命名失败",
+    "FILE_OPERATION_ERROR": "文件操作失败",
+}
+
+# 日志相关消息
+LOG_MESSAGES = {
+    "UPLOAD_AVATAR_FAILED": "上传头像失败",
+    "BATCH_UPLOAD_FAILED": "批量上传文件失败",
+    "GET_SIGNATURE_ERROR": "获取签名时发生错误",
+    "SET_SIGNATURE_ERROR": "设置签名时发生错误",
+    "DATABASE_ERROR": "数据库错误"
 }
 
 # 业务相关错误
@@ -262,4 +272,4 @@ AUTH_ERROR = {
 }
 
 # 导出所有错误信息
-__all__ = ["USER_ERROR", "SYSTEM_ERROR", "BUSINESS_ERROR", "AUTH_ERROR"]
+__all__ = ["USER_ERROR", "SYSTEM_ERROR", "BUSINESS_ERROR", "AUTH_ERROR", "LOG_MESSAGES"]
