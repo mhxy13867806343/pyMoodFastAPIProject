@@ -10,7 +10,7 @@ from typing import Optional, Dict, Any
 from sqlalchemy import or_
 
 from config.api_descriptions import ApiDescriptions
-from config.error_messages import USER_ERROR
+from config.error_messages import USER_ERROR, SYSTEM_ERROR
 from tool.dbConnectionConfig import sendBindEmail, getVerifyEmail, generate_random_code
 from tool.getLogger import globalLogger
 from tool.msg import Message
@@ -23,7 +23,7 @@ from .model import UserAuth, UserInfo
 from models.user.model import UserInputs, UserType, UserStatus, UserLoginRecord, LoginType, UserSex
 from tool.db import getDbSession
 from tool.dbRedis import RedisDB
-from app.users.schemas import UserUpdateRequest, EmailBindRequest, EmailCodeRequest
+from app.users.schemas import UserUpdateRequest, EmailBindRequest, EmailCodeRequest, SignatureRequest
 import os
 import hashlib
 from datetime import datetime
@@ -205,7 +205,7 @@ async def verify_email_code(email: str, code: str) -> bool:
             return False
         return stored_code == code
     except Exception as e:
-        globalLogger.exception(f"验证邮箱验证码失败: {str(e)}")
+        globalLogger.exception(f"{USER_ERROR['EMAIL_VERIFY_CODE_ERROR']}: {str(e)}")
         return False
 
 async def bind_user_email(db: Session, user_id: int, email: str) -> bool:
@@ -233,7 +233,7 @@ async def bind_user_email(db: Session, user_id: int, email: str) -> bool:
         return True
     except Exception as e:
         db.rollback()
-        globalLogger.exception(f"绑定用户邮箱失败: {str(e)}")
+        globalLogger.exception(f"{USER_ERROR['EMAIL_ALREADY_BOUND']}: {str(e)}")
         return False
 
 async def send_verification_code(email: str) -> bool:
@@ -247,7 +247,7 @@ async def send_verification_code(email: str) -> bool:
         await sendBindEmail(email, code)
         return True
     except Exception as e:
-        globalLogger.exception(f"发送验证码失败: {str(e)}")
+        globalLogger.exception(f"{USER_ERROR['EMAIL_SEND_ERROR']}: {str(e)}")
         return False
 
 async def update_user_info(db: Session, request: UserUpdateRequest) -> Optional[Dict[str, Any]]:
@@ -288,7 +288,7 @@ async def update_user_info(db: Session, request: UserUpdateRequest) -> Optional[
         return get_user_data(db_user, include_private=True)
     except Exception as e:
         db.rollback()
-        globalLogger.exception(f"更新用户信息失败: {str(e)}")
+        globalLogger.exception(f"{USER_ERROR['USER_UPDATE_FAILED']}: {str(e)}")
         return None
 
 def check_user_status(user: UserInputs) -> Optional[Message]:
@@ -307,7 +307,8 @@ def check_user_status(user: UserInputs) -> Optional[Message]:
 @userApp.post(
     "/auth",
     response_model=Message[Dict[str, Any]],
-    summary=ApiDescriptions.AUTH.summary
+    summary=ApiDescriptions.AUTH["summary"],
+    description=ApiDescriptions.AUTH["description"]
 )
 async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
     """
@@ -496,7 +497,8 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
 @userApp.get(
     "/info",
     response_model=Message[Dict[str, Any]],
-    summary="获取当前登录用户信息"
+    summary=ApiDescriptions.GET_USER_INFO["summary"],
+    description=ApiDescriptions.GET_USER_INFO["description"]
 )
 async def get_current_user_info(
     current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
@@ -534,12 +536,17 @@ async def get_current_user_info(
     except HTTPException as e:
         return Message.error(code=ErrorCode.USER_DISABLED.value, message=str(e.detail))
     except Exception as e:
-        return Message.server_error()
+        globalLogger.exception(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
+        return Message.error(
+            message=SYSTEM_ERROR["SYSTEM_ERROR"],
+            code=ErrorCode.INTERNAL_ERROR
+        )
 
 @userApp.get(
     "/info/{user_id}",
     response_model=Message[Dict[str, Any]],
-    summary="获取指定用户的公开信息"
+    summary=ApiDescriptions.GET_USER_INFO_BY_ID["summary"],
+    description=ApiDescriptions.GET_USER_INFO_BY_ID["description"]
 )
 @validate_params('user_id')
 async def get_user_info(
@@ -575,14 +582,18 @@ async def get_user_info(
 
         return Message.success(data=user_data)
     except Exception as e:
-        return Message.server_error()
+        globalLogger.exception(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
+        return Message.error(
+            message=SYSTEM_ERROR["SYSTEM_ERROR"],
+            code=ErrorCode.INTERNAL_ERROR
+        )
 
 @userApp.put(
     "/update",
     response_model=Message[Dict[str, Any]],
-    summary="更新用户信息"
+    summary=ApiDescriptions.UPDATE_USER["summary"],
+    description=ApiDescriptions.UPDATE_USER["description"]
 )
-@validate_params('uid')
 async def update_user(
     request: UserUpdateRequest,
     current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
@@ -594,93 +605,85 @@ async def update_user(
     - 只能更新自己的信息
     - 支持更新：昵称、性别、头像、位置、签名
     """
-    # 验证用户是否在更新自己的信息
-    if not current_user_id:
-        return Message.error(message=USER_ERROR["NO_PERMISSION"])
-    
     try:
-        # 获取当前用户
-        user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
-        if not user:
+        # 参数验证
+        if not request.uid:
             return Message.error(
-                code=ErrorCode.USER_NOT_FOUND.value,
-                message=USER_ERROR["USER_NOT_FOUND"]
+                message=USER_ERROR["PARAM_ERROR"],
+                code=ErrorCode.INVALID_PARAMS
             )
-            
-        # 检查用户状态
-        status_check = check_user_status(user)
-        if status_check:
-            return status_check
-        
-        # 更新用户信息
-        if request.username:
-            user.username = request.username
-        if request.sex is not None:
-            user.sex = request.sex
-        if request.avatar:
-            user.avatar = request.avatar
-        if request.location:
-            user.location = request.location
-        if request.signature is not None:  # 允许设置空字符串
-            user.signature = request.signature
 
-        db.commit()
-        
+        # 确保只能更新自己的信息
+        if request.uid != current_user_id:
+            return Message.error(
+                message=USER_ERROR["PERMISSION_DENIED"],
+                code=ErrorCode.FORBIDDEN
+            )
+
+        # 更新用户信息
+        updated_user = await update_user_info(db, request)
+        if not updated_user:
+            return Message.error(
+                message=USER_ERROR["USER_UPDATE_FAILED"],
+                code=ErrorCode.INTERNAL_ERROR
+            )
+
         return Message.success(
-            data={
-                "id": user.id,
-                "nickname": user.name,
-                "sex": user.sex.value,
-                "avatar": user.avatar,
-                "location": user.location,
-                "signature": user.signature
-            },
-            message="更新成功"
+            message=USER_ERROR["USER_UPDATE_SUCCESS"],
+            data=updated_user
         )
-        
+
+    except ValidationError as e:
+        return Message.error(
+            message=str(e),
+            code=ErrorCode.INVALID_PARAMS
+        )
     except Exception as e:
-        globalLogger.exception(f"更新用户信息失败: {str(e)}")
-        return Message.error(message=USER_ERROR["UPDATE_FAILED"], code=ErrorCode.INTERNAL_ERROR)
+        globalLogger.exception(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
+        return Message.error(
+            message=SYSTEM_ERROR["SYSTEM_ERROR"],
+            code=ErrorCode.INTERNAL_ERROR
+        )
 
 @userApp.post(
     "/logout",
-    response_model=Message[Dict[str, Any]],
-    summary="用户登出"
+    response_model=Message,
+    summary=ApiDescriptions.LOGOUT["summary"],
+    description=ApiDescriptions.LOGOUT["description"]
 )
 async def logout(
     current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
     db: Session = Depends(getDbSession)
 ):
+    """
+    用户登出
+    - 需要登录
+    - 清除 Redis 缓存
+    - 更新最后登录时间
+    """
     try:
-        user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
-        if not user:
-            return Message.error(
-                code=ErrorCode.USER_NOT_FOUND.value,
-                message=USER_ERROR["USER_NOT_FOUND"]
-            )
-            
-        # 检查用户状态
-        status_check = check_user_status(user)
-        if status_check:
-            return status_check
+        # 清除 Redis 缓存
+        redis_db.clear_user_cache(current_user_id)
         
-        # 清除用户缓存
-        redis = RedisDB()
-        await redis.delete(f"user:{current_user_id}")
-        return Message.success()
-    except HTTPException as e:
-        return Message.error(code=ErrorCode.USER_DISABLED.value, message=str(e.detail))
+        # 更新用户最后登录时间
+        user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
+        if user:
+            user.last_time = int(time.time())
+            db.commit()
+        
+        return Message.success(message=USER_ERROR["LOGOUT_SUCCESS"])
     except Exception as e:
-        globalLogger.exception(f"用户登出失败: {str(e)}")
+        globalLogger.exception(f"{USER_ERROR['LOGOUT_FAILED']}: {str(e)}")
         return Message.error(
-            code=ErrorCode.INTERNAL_ERROR.value,
-            message=USER_ERROR["LOGOUT_FAILED"]
+            message=USER_ERROR["LOGOUT_FAILED"],
+            code=ErrorCode.INTERNAL_ERROR
         )
 
 @userApp.post(
     "/email/bind",
     response_model=Message[Dict[str, Any]],
-    summary="绑定邮箱"
+    summary=ApiDescriptions.BIND_EMAIL["summary"],
+    description=ApiDescriptions.BIND_EMAIL["description"]
 )
 async def bind_email(
     request: EmailBindRequest,
@@ -718,7 +721,8 @@ async def bind_email(
 @userApp.post(
     "/email/code",
     response_model=Message[Dict[str, Any]],
-    summary="发送邮箱验证码"
+    summary=ApiDescriptions.SEND_EMAIL_CODE["summary"],
+    description=ApiDescriptions.SEND_EMAIL_CODE["description"]
 )
 async def send_email_code(
     request: EmailCodeRequest,
@@ -747,7 +751,8 @@ async def send_email_code(
 @userApp.post(
     "/upload/avatar",
     response_model=Message[Dict[str, Any]],
-    summary="上传用户头像"
+    summary=ApiDescriptions.UPLOAD_AVATAR["summary"],
+    description=ApiDescriptions.UPLOAD_AVATAR["description"]
 )
 async def upload_avatar(
     request: Request,
@@ -798,7 +803,8 @@ async def upload_avatar(
 @userApp.post(
     "/upload/batch",
     response_model=Message[Dict[str, List]],
-    summary="批量上传文件"
+    summary=ApiDescriptions.BATCH_UPLOAD["summary"],
+    description=ApiDescriptions.BATCH_UPLOAD["description"]
 )
 async def batch_upload(
     request: Request,
@@ -822,7 +828,7 @@ async def batch_upload(
                     files.append(file)
 
         if not files:
-            return Message.error(message="请选择要上传的文件", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=USER_ERROR["NO_FILE_UPLOADED"], code=ErrorCode.BAD_REQUEST)
 
         # 使用 FileUploader 处理上传
         uploader = FileUploader(current_user_id)
@@ -838,22 +844,169 @@ async def batch_upload(
                     code=ErrorCode.BAD_REQUEST,
                     data=result
                 )
-            return Message.error(message="没有文件上传成功", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=USER_ERROR["NO_FILE_UPLOADED"], code=ErrorCode.BAD_REQUEST)
 
         # 如果有部分文件失败
         if result["failed"]:
             return Message(
                 code=ErrorCode.PARTIAL_SUCCESS,
-                message="部分文件上传成功",
+                message=USER_ERROR["PARTIAL_UPLOAD_SUCCESS"],
                 data=result
             )
 
         # 所有文件都成功
         return Message.success(
             data=result,
-            message="文件上传成功"
+            message=USER_ERROR["UPLOAD_SUCCESS"]
         )
 
     except Exception as e:
         globalLogger.exception(f"批量上传文件失败: {str(e)}")
         return Message.error(message=USER_ERROR["UPLOAD_FAILED"], code=ErrorCode.INTERNAL_ERROR)
+
+@userApp.get(
+    "/signature",
+    summary=ApiDescriptions.GET_USER_SIGNATURE["summary"],
+    description=ApiDescriptions.GET_USER_SIGNATURE["description"]
+)
+async def get_signature(
+    current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
+    db: Session = Depends(getDbSession)
+):
+    """
+    获取当前用户的签名
+    - 需要登录
+    - 只返回当前用户的签名信息
+    """
+    try:
+        # 获取当前用户
+        user = db.query(UserInputs).get(current_user_id)
+        if not user:
+            return Message.error(message=USER_ERROR["USER_NOT_FOUND"])
+
+        return Message.ok(data={
+            "signature": user.signature or ""
+        })
+
+    except SQLAlchemyError as e:
+        globalLogger.error(f"数据库错误: {str(e)}")
+        return Message.error(message=SYSTEM_ERROR["DATABASE_ERROR"], code=ErrorCode.INTERNAL_ERROR)
+    except Exception as e:
+        globalLogger.error(f"获取签名时发生错误: {str(e)}")
+        return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"], code=ErrorCode.INTERNAL_ERROR)
+
+@userApp.post(
+    "/signature",
+    summary=ApiDescriptions.SET_USER_SIGNATURE["summary"],
+    description=ApiDescriptions.SET_USER_SIGNATURE["description"]
+)
+async def set_signature(
+    request: SignatureRequest,
+    current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
+    db: Session = Depends(getDbSession)
+):
+    """设置当前用户的签名"""
+    try:
+        # 获取当前用户
+        user = db.query(UserInputs).get(current_user_id)
+        if not user:
+            return Message.error(message=USER_ERROR["USER_NOT_FOUND"])
+
+        # 更新签名
+        user.signature = request.signature
+        db.commit()
+
+        return Message.ok(data={
+            "signature": user.signature or ""
+        })
+
+    except SQLAlchemyError as e:
+        db.rollback()
+        globalLogger.error(f"数据库错误: {str(e)}")
+        return Message.error(message=SYSTEM_ERROR["DATABASE_ERROR"], code=ErrorCode.INTERNAL_ERROR)
+    except Exception as e:
+        globalLogger.error(f"设置签名时发生错误: {str(e)}")
+        return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"], code=ErrorCode.INTERNAL_ERROR)
+
+@userApp.post(
+    "/bind/email",
+    response_model=Message,
+    summary=ApiDescriptions.BIND_EMAIL["summary"],
+    description=ApiDescriptions.BIND_EMAIL["description"]
+)
+async def bind_email(
+    request: EmailBindRequest,
+    current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
+    db: Session = Depends(getDbSession)
+):
+    """
+    绑定用户邮箱
+    - 需要登录
+    - 需要验证码
+    """
+    try:
+        # 验证邮箱格式
+        if not is_valid_email(request.email):
+            return Message.error(
+                message=USER_ERROR["EMAIL_INVALID_FORMAT"],
+                code=ErrorCode.INVALID_PARAMS
+            )
+        
+        # 验证验证码
+        if not await verify_email_code(request.email, request.code):
+            return Message.error(
+                message=USER_ERROR["EMAIL_VERIFY_CODE_ERROR"],
+                code=ErrorCode.INVALID_PARAMS
+            )
+        
+        # 绑定邮箱
+        if not await bind_user_email(db, current_user_id, request.email):
+            return Message.error(
+                message=USER_ERROR["EMAIL_ALREADY_BOUND"],
+                code=ErrorCode.INTERNAL_ERROR
+            )
+        
+        return Message.success(message=USER_ERROR["EMAIL_BIND_SUCCESS"])
+    except Exception as e:
+        globalLogger.exception(f"{USER_ERROR['EMAIL_BIND_FAILED']}: {str(e)}")
+        return Message.error(
+            message=USER_ERROR["EMAIL_BIND_FAILED"],
+            code=ErrorCode.INTERNAL_ERROR
+        )
+
+@userApp.post(
+    "/email/code",
+    response_model=Message,
+    summary=ApiDescriptions.SEND_EMAIL_CODE["summary"],
+    description=ApiDescriptions.SEND_EMAIL_CODE["description"]
+)
+async def send_email_code(
+    request: EmailCodeRequest,
+    current_user_id: int = Depends(lambda: createToken.parse_token(required=True))
+):
+    """
+    发送邮箱验证码
+    - 需要登录
+    """
+    try:
+        # 验证邮箱格式
+        if not is_valid_email(request.email):
+            return Message.error(
+                message=USER_ERROR["EMAIL_INVALID_FORMAT"],
+                code=ErrorCode.INVALID_PARAMS
+            )
+        
+        # 发送验证码
+        if not await send_verification_code(request.email):
+            return Message.error(
+                message=USER_ERROR["EMAIL_SEND_FAILED"],
+                code=ErrorCode.INTERNAL_ERROR
+            )
+        
+        return Message.success(message=USER_ERROR["EMAIL_CODE_SEND_SUCCESS"])
+    except Exception as e:
+        globalLogger.exception(f"{USER_ERROR['EMAIL_SEND_ERROR']}: {str(e)}")
+        return Message.error(
+            message=USER_ERROR["EMAIL_SEND_ERROR"],
+            code=ErrorCode.INTERNAL_ERROR
+        )

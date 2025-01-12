@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Tuple, List, Dict
 from fastapi import UploadFile
 from config.upload_config import UPLOAD_TYPES, UPLOAD_DIR
+from config.error_messages import USER_ERROR
 
 class FileUploader:
     def __init__(self, user_id: int):
@@ -31,17 +32,20 @@ class FileUploader:
         """
         config = UPLOAD_TYPES.get(upload_type)
         if not config:
-            return False, "不支持的文件类型"
+            return False, USER_ERROR["FILE_TYPE_ERROR"]
 
         # 检查文件大小
         if filesize > config["max_size"]:
             max_size_mb = config["max_size"] / (1024 * 1024)
-            return False, f"文件大小不能超过{max_size_mb}MB"
+            if upload_type == "video":
+                return False, USER_ERROR["VIDEO_TOO_LARGE"]
+            else:
+                return False, USER_ERROR["IMAGE_TOO_LARGE"]
         
         # 检查文件扩展名
         ext = Path(filename).suffix.lower()
         if ext not in config["allowed_extensions"]:
-            return False, f"只支持以下格式: {', '.join(config['allowed_extensions'])}"
+            return False, USER_ERROR["FILE_TYPE_ERROR"]
         
         return True, ""
 

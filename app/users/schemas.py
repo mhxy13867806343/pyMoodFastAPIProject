@@ -97,3 +97,14 @@ class EmailCodeRequest(BaseModel):
         if not re.match(pattern, v):
             raise ValueError("Invalid email format")
         return v
+
+class SignatureRequest(BaseModel):
+    """签名请求"""
+    signature: str | None = None
+
+    @field_validator('signature')
+    @classmethod
+    def validate_signature(cls, v):
+        if v and len(v) > 32:
+            raise ValueError('签名不能超过32个字符')
+        return v

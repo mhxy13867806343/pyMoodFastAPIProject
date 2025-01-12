@@ -53,6 +53,9 @@ USER_ERROR = {
     "EMAIL_VERIFY_CODE_ERROR": "验证码错误",
     "EMAIL_VERIFY_CODE_EXPIRED": "验证码已过期",
     "EMAIL_VERIFY_CODE_NOT_FOUND": "验证码不存在",
+    "EMAIL_BIND_SUCCESS": "邮箱绑定成功",
+    "EMAIL_BIND_FAILED": "邮箱绑定失败",
+    "EMAIL_CODE_SEND_SUCCESS": "验证码发送成功",
     
     # 密码相关错误
     "PASSWORD_ERROR": "密码错误",
@@ -99,38 +102,65 @@ USER_ERROR = {
     # 头像上传相关错误
     "UPLOAD_FAILED": "上传失败",
     "FILE_TOO_LARGE": "文件大小不能超过10MB",
-    "INVALID_FILE_TYPE": "不支持的文件类型",
+    "NO_FILE_UPLOADED": "没有文件上传成功",
+    "PARTIAL_UPLOAD_SUCCESS": "部分文件上传成功",
+    "UPLOAD_SUCCESS": "文件上传成功",
+    "FILE_TYPE_ERROR": "文件类型错误",
+    "FILE_COUNT_LIMIT": "文件数量超出限制",
+    "VIDEO_TOO_LARGE": "视频大小不能超过100MB",
+    "IMAGE_TOO_LARGE": "图片大小不能超过10MB",
     
     # 权限相关错误
     "PERMISSION_DENIED": "权限不足",
     "PERMISSION_ERROR": "权限错误",
     "PERMISSION_NOT_FOUND": "权限不存在",
+    "NO_PERMISSION": "没有权限",
     
-    # 系统相关错误
-    "SYSTEM_ERROR": "系统错误，请稍后再试",
-    "NETWORK_ERROR": "网络错误，请检查网络连接",
-    "SERVER_ERROR": "服务器错误",
-    "REQUEST_ERROR": "请求错误",
+    # 登录相关错误
+    "LOGIN_FAILED": "登录失败",
+    "LOGIN_SUCCESS": "登录成功",
+    "LOGOUT_SUCCESS": "登出成功",
+    "LOGOUT_FAILED": "登出失败",
+    
+    # 参数相关错误
     "PARAM_ERROR": "参数错误",
-    "DATA_ERROR": "数据错误",
+    "PARAM_MISSING": "参数缺失",
+    "PARAM_INVALID": "参数无效",
+    
+    # 签名相关错误
+    "SIGNATURE_TOO_LONG": "签名长度超过限制",
+    "SIGNATURE_INVALID": "签名内容无效",
+    "SIGNATURE_UPDATE_SUCCESS": "签名更新成功",
+    "SIGNATURE_UPDATE_FAILED": "签名更新失败",
+    
+    # 操作相关错误
     "OPERATION_FAILED": "操作失败",
-    "OPERATION_TOO_FREQUENT": "操作过于频繁，请稍后再试"
+    "OPERATION_TOO_FREQUENT": "操作过于频繁，请稍后再试",
+    "OPERATION_NOT_ALLOWED": "不允许的操作",
+    "OPERATION_TIMEOUT": "操作超时",
+    
+    # 通用错误
+    "FORBIDDEN": "禁止访问",
+    "REQUEST_ERROR": "请求错误",
+    "DATA_ERROR": "数据错误",
+    "NETWORK_ERROR": "网络错误，请检查网络连接"
 }
 
 # 系统相关错误
 SYSTEM_ERROR = {
-    "SYSTEM_ERROR": "系统错误",
+    "SYSTEM_ERROR": "系统错误，请稍后再试",
     "DATABASE_ERROR": "数据库错误",
-    "REDIS_ERROR": "Redis错误",
-    "NETWORK_ERROR": "网络错误",
-    "TIMEOUT_ERROR": "超时错误",
-    "PARAMETER_ERROR": "参数错误",
+    "REDIS_ERROR": "缓存服务错误",
+    "SERVER_ERROR": "服务器错误",
+    "INTERNAL_ERROR": "内部错误",
+    "SERVICE_UNAVAILABLE": "服务不可用",
+    "MAINTENANCE": "系统维护中",
+    "TIMEOUT": "请求超时",
     "DB_ERROR": "数据库操作出现异常",
     "DB_INIT_ERROR": "数据库初始化失败",
     "DB_INIT_SUCCESS": "数据库初始化成功",
     "CONFIG_ERROR": "配置错误：未找到必须的环境变量",
     "PARAM_ERROR": "参数验证错误",
-    "SERVER_ERROR": "服务器内部错误",
     "REQUEST_ERROR": "请求处理出现异常",
     "FILE_NOT_FOUND": "文件不存在",
     "FILE_TOO_LARGE": "文件太大",
