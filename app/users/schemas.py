@@ -10,6 +10,7 @@ class UserBase(BaseModel):
     is_registered: int = 0
 
 class UserUpdateRequest(BaseModel):
+    """用户更新请求"""
     uid: str
     username: str | None = None
     email: str | None = None
@@ -20,6 +21,7 @@ class UserUpdateRequest(BaseModel):
     location: str | None = None
     code: str
     is_registered: int | None = None
+    signature: str | None = None
 
     @field_validator('*')
     @classmethod
@@ -51,6 +53,13 @@ class UserUpdateRequest(BaseModel):
     def check_phone(cls, v):
         if not v.isdigit() or len(v) < 8:
             raise ValueError("Invalid phone number")
+        return v
+
+    @field_validator('signature')
+    @classmethod
+    def validate_signature(cls, v):
+        if v and len(v) > 32:
+            raise ValueError('签名不能超过32个字符')
         return v
 
 class EmailBindRequest(BaseModel):

@@ -22,7 +22,8 @@ class UserInfo(BaseModel):
     password: Optional[str] = None  # 用户密码
     avatar: Optional[str] = None  # 用户头像
     is_registered: Optional[int] = None  # 注册状态
-    
+    signature: Optional[str] = None  # 注册状态
+
     @validator('phone')
     def validate_phone(cls, v):
         if v and not v.isdigit():

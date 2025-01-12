@@ -277,6 +277,8 @@ async def update_user_info(db: Session, request: UserUpdateRequest) -> Optional[
             db_user.avatar = request.avatar
         if request.is_registered is not None:
             db_user.is_registered = request.is_registered
+        if request.signature is not None:  # 允许设置空字符串
+            db_user.signature = request.signature
 
         db_user.last_time = int(time.time())
         db.commit()
@@ -590,6 +592,7 @@ async def update_user(
     更新用户信息
     - 需要登录
     - 只能更新自己的信息
+    - 支持更新：昵称、性别、头像、位置、签名
     """
     # 验证用户是否在更新自己的信息
     if not current_user_id:
@@ -610,19 +613,34 @@ async def update_user(
             return status_check
         
         # 更新用户信息
-        result = await update_user_info(db, request)
-        if isinstance(result, Message):
-            return result
-            
-        return Message.success(data=get_user_data(user, include_private=True))
-    except HTTPException as e:
-        return Message.error(code=ErrorCode.USER_DISABLED.value, message=str(e.detail))
+        if request.username:
+            user.username = request.username
+        if request.sex is not None:
+            user.sex = request.sex
+        if request.avatar:
+            user.avatar = request.avatar
+        if request.location:
+            user.location = request.location
+        if request.signature is not None:  # 允许设置空字符串
+            user.signature = request.signature
+
+        db.commit()
+        
+        return Message.success(
+            data={
+                "id": user.id,
+                "nickname": user.name,
+                "sex": user.sex.value,
+                "avatar": user.avatar,
+                "location": user.location,
+                "signature": user.signature
+            },
+            message="更新成功"
+        )
+        
     except Exception as e:
         globalLogger.exception(f"更新用户信息失败: {str(e)}")
-        return Message.error(
-            code=ErrorCode.INTERNAL_ERROR.value,
-            message=USER_ERROR["UPDATE_USER_FAILED"]
-        )
+        return Message.error(message=USER_ERROR["UPDATE_FAILED"], code=ErrorCode.INTERNAL_ERROR)
 
 @userApp.post(
     "/logout",

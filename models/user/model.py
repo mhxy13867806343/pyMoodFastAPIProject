@@ -24,6 +24,7 @@ class UserInputs(Base): # 用户信息
     status = Column(SQLAlchemyEnum(UserStatus), nullable=False, default=UserStatus.NORMAL)
     sex = Column(SQLAlchemyEnum(UserSex), nullable=False, default=UserSex.UNKNOWN)
     location=Column(String(30), nullable=False, default="ip地址")
+    signature=Column(String(32),nullable=False,default="") #签名
 
     # 与登录记录表的关系，使用 lazy='dynamic' 实现延迟加载
     login_records = relationship("UserLoginRecord", back_populates="user", lazy='dynamic')
