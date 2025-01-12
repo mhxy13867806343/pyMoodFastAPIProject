@@ -3020,3 +3020,111 @@ pip install python-multipart
 2025-01-12 11:38:40,817 - tool.getLogger - INFO - Request: GET http://localhost:8000/openapi.json
 2025-01-12 11:38:40,817 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json,*/*', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
 2025-01-12 11:38:40,827 - tool.getLogger - INFO - Response time: 0.010s
+2025-01-12 12:08:32,776 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/h5/user/upload/avatar?use_oss=false
+2025-01-12 12:08:32,777 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '0', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-12 12:08:32,780 - tool.getLogger - INFO - Response time: 0.003s
+2025-01-12 12:09:48,870 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-12 12:09:50,015 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-12 12:09:50,255 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-12 12:09:50,255 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:09:50,257 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-12 12:09:50,257 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:09:50,258 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-12 12:09:50,258 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:09:50,259 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-12 12:09:50,259 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-12 12:09:50,260 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:09:50,273 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-12 12:09:50,273 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:09:50,290 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-12 12:09:50,300 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-12 12:10:08,938 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-12 12:10:09,632 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-12 12:10:09,686 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-12 12:10:09,686 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:10:09,687 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-12 12:10:09,687 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:10:09,687 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-12 12:10:09,687 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:10:09,688 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-12 12:10:09,688 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-12 12:10:09,689 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:10:09,691 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-12 12:10:09,691 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:10:09,692 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-12 12:10:09,693 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-12 12:10:26,766 - tool.getLogger - INFO - Request: GET http://localhost:8000/docs
+2025-01-12 12:10:26,766 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'cache-control': 'max-age=0', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-ch-ua-platform': '"macOS"', 'upgrade-insecure-requests': '1', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'navigate', 'sec-fetch-user': '?1', 'sec-fetch-dest': 'document', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-12 12:10:26,767 - tool.getLogger - INFO - Response time: 0.001s
+2025-01-12 12:10:27,067 - tool.getLogger - INFO - Request: GET http://localhost:8000/openapi.json
+2025-01-12 12:10:27,067 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json,*/*', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-12 12:10:27,091 - tool.getLogger - INFO - Response time: 0.024s
+2025-01-12 12:10:32,063 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/h5/user/upload/avatar?use_oss=false
+2025-01-12 12:10:32,064 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '0', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-12 12:10:32,066 - tool.getLogger - INFO - Response time: 0.002s
+2025-01-12 12:11:07,969 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-12 12:11:08,854 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-12 12:11:08,909 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-12 12:11:08,910 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:11:08,911 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-12 12:11:08,911 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:11:08,911 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-12 12:11:08,911 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:11:08,911 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-12 12:11:08,912 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-12 12:11:08,912 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:11:08,913 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-12 12:11:08,913 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:11:08,914 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-12 12:11:08,915 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-12 12:11:29,017 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-12 12:11:29,787 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-12 12:11:29,840 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-12 12:11:29,840 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:11:29,841 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-12 12:11:29,841 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:11:29,841 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-12 12:11:29,842 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:11:29,842 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-12 12:11:29,842 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-12 12:11:29,842 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:11:29,845 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-12 12:11:29,845 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:11:29,847 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-12 12:11:29,847 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-12 12:12:07,727 - tool.getLogger - INFO - Request: GET http://localhost:8000/docs
+2025-01-12 12:12:07,727 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'cache-control': 'max-age=0', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-ch-ua-platform': '"macOS"', 'upgrade-insecure-requests': '1', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'navigate', 'sec-fetch-user': '?1', 'sec-fetch-dest': 'document', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-12 12:12:07,732 - tool.getLogger - INFO - Response time: 0.006s
+2025-01-12 12:12:08,029 - tool.getLogger - INFO - Request: GET http://localhost:8000/openapi.json
+2025-01-12 12:12:08,030 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json,*/*', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-12 12:12:08,041 - tool.getLogger - INFO - Response time: 0.012s
+2025-01-12 12:13:17,766 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-12 12:13:18,468 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-12 12:13:18,519 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-12 12:13:18,519 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:13:18,520 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-12 12:13:18,520 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:13:18,520 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-12 12:13:18,520 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:13:18,521 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-12 12:13:18,521 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-12 12:13:18,521 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:13:18,524 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-12 12:13:18,524 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 12:13:18,526 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-12 12:13:18,526 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-12 12:13:40,958 - tool.getLogger - INFO - Request: GET http://localhost:8000/docs
+2025-01-12 12:13:40,959 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'cache-control': 'max-age=0', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-ch-ua-platform': '"macOS"', 'upgrade-insecure-requests': '1', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'navigate', 'sec-fetch-user': '?1', 'sec-fetch-dest': 'document', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-12 12:13:40,960 - tool.getLogger - INFO - Response time: 0.002s
+2025-01-12 12:13:41,242 - tool.getLogger - INFO - Request: GET http://localhost:8000/openapi.json
+2025-01-12 12:13:41,242 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json,*/*', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-12 12:13:41,268 - tool.getLogger - INFO - Response time: 0.026s
+2025-01-12 12:13:45,458 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/h5/user/upload/batch?use_oss=false
+2025-01-12 12:13:45,458 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '0', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-12 12:13:45,460 - tool.getLogger - INFO - Response time: 0.002s
+2025-01-12 12:14:42,232 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/h5/user/upload/batch?use_oss=false
+2025-01-12 12:14:42,233 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '0', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-12 12:14:42,234 - tool.getLogger - INFO - Response time: 0.002s
+2025-01-12 12:15:55,173 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/h5/user/upload/batch?use_oss=false
+2025-01-12 12:15:55,174 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '0', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-12 12:15:55,176 - tool.getLogger - INFO - Response time: 0.003s

@@ -739,7 +739,7 @@ async def upload_avatar(
 ):
     """
     上传用户头像
-    - 支持格式：.png、.jpg、.jpeg、.webp
+    - 支持图片格式：.png、.jpg、.jpeg、.webp
     - 文件大小限制：10MB
     """
     try:
@@ -753,7 +753,7 @@ async def upload_avatar(
             return Message.error(message="无效的文件", code=ErrorCode.BAD_REQUEST)
 
         # 使用 FileUploader 处理上传
-        uploader = FileUploader("image", current_user_id)
+        uploader = FileUploader(current_user_id)
         file_content = await file.read()
         success, message, path = await uploader.save_file(file_content, file.filename)
         
@@ -778,73 +778,64 @@ async def upload_avatar(
         return Message.error(message=USER_ERROR["UPLOAD_FAILED"], code=ErrorCode.INTERNAL_ERROR)
 
 @userApp.post(
-    "/upload/batch/{upload_type}",
-    response_model=Message[Dict[str, Any]],
+    "/upload/batch",
+    response_model=Message[Dict[str, List]],
     summary="批量上传文件"
 )
-async def upload_batch(
+async def batch_upload(
     request: Request,
-    upload_type: str,
     use_oss: bool = False,
     current_user_id: int = Depends(lambda: createToken.parse_token(required=True))
 ):
     """
     批量上传文件
-    - upload_type: 上传类型 (image/video)
-    - 图片限制：
-        - 支持格式：.png、.jpg、.jpeg、.webp
-        - 单个文件大小：10MB
-        - 最大数量：9个
-    - 视频限制：
-        - 支持格式：.mp4、.mov、.avi
-        - 单个文件大小：100MB
-        - 最大数量：1个
+    - 支持图片格式：.png、.jpg、.jpeg、.webp（最多9张）
+    - 支持视频格式：.mp4、.mov、.avi（最多1个）
+    - 图片大小限制：10MB
+    - 视频大小限制：100MB
     """
     try:
-        # 验证上传类型
-        if upload_type not in UPLOAD_TYPES:
-            return Message.error(message=f"不支持的上传类型: {upload_type}", code=ErrorCode.BAD_REQUEST)
-
-        # 获取上传的文件
         form = await request.form()
         files = []
-        for key, value in form.items():
-            if hasattr(value, "filename"):
-                files.append(value)
+        for key in form.keys():
+            if key.startswith("file"):
+                file = form[key]
+                if hasattr(file, "filename"):
+                    files.append(file)
 
         if not files:
             return Message.error(message="请选择要上传的文件", code=ErrorCode.BAD_REQUEST)
 
-        # 处理文件上传
-        uploader = FileUploader(upload_type, current_user_id)
-        if use_oss:
-            # TODO: 实现OSS上传逻辑
-            pass
-        
-        results = await uploader.process_files(files)
-        
-        # 如果全部失败
-        if not results["success"] and results["failed"]:
-            return Message.error(
-                message="所有文件上传失败",
-                code=ErrorCode.BAD_REQUEST,
-                data=results
-            )
-        
-        # 如果部分成功部分失败
-        if results["success"] and results["failed"]:
-            return Message.warning(
-                message="部分文件上传失败",
+        # 使用 FileUploader 处理上传
+        uploader = FileUploader(current_user_id)
+        result = await uploader.process_files(files)
+
+        # 检查是否有成功上传的文件
+        if not result["success"]:
+            # 如果所有文件都失败了
+            if result["failed"]:
+                # 返回第一个错误信息
+                return Message.error(
+                    message=result["failed"][0]["error"],
+                    code=ErrorCode.BAD_REQUEST,
+                    data=result
+                )
+            return Message.error(message="没有文件上传成功", code=ErrorCode.BAD_REQUEST)
+
+        # 如果有部分文件失败
+        if result["failed"]:
+            return Message(
                 code=ErrorCode.PARTIAL_SUCCESS,
-                data=results
+                message="部分文件上传成功",
+                data=result
             )
-        
-        # 全部成功
+
+        # 所有文件都成功
         return Message.success(
-            message="上传成功",
-            data=results
+            data=result,
+            message="文件上传成功"
         )
 
     except Exception as e:
-        globalLogger.exception(f"批量上传失败: {str(e)}")
+        globalLogger.exception(f"批量上传文件失败: {str(e)}")
         return Message.error(message=USER_ERROR["UPLOAD_FAILED"], code=ErrorCode.INTERNAL_ERROR)
