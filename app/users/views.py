@@ -30,10 +30,26 @@ from datetime import datetime
 from typing import List
 from fastapi import Request
 from pathlib import Path
+from tool.upload import FileUploader
+from config.upload_config import UPLOAD_TYPES, UPLOAD_DIR, IMAGE_CONFIG
 
-UPLOAD_DIR = Path("/Users/hooksvue/Desktop/python3.7demo/moodFastAPIProject/static/upload")
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
-ALLOWED_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.webp'}
+# 获取图片配置中的限制
+MAX_FILE_SIZE = IMAGE_CONFIG["max_size"]
+ALLOWED_EXTENSIONS = IMAGE_CONFIG["allowed_extensions"]
+
+# 加载环境变量
+redis_db = RedisDB()
+userApp = APIRouter(tags=["用户相关"])
+
+# 管理员账号配置
+ADMIN_ACCOUNTS = {
+    # 用户名登录的管理员
+    'admin': {'type': UserType.ADMIN, 'login_type': LoginType.USERNAME},
+    'superadmin': {'type': UserType.SUPER, 'login_type': LoginType.USERNAME},
+    # 邮箱登录的管理员
+    'admin@example.com': {'type': UserType.ADMIN, 'login_type': LoginType.EMAIL},
+    'super@example.com': {'type': UserType.SUPER, 'login_type': LoginType.EMAIL}
+}
 
 def get_file_md5(file_content: bytes) -> str:
     """计算文件内容的MD5值"""
@@ -65,20 +81,6 @@ def ensure_upload_dir(user_id: int) -> Path:
     avatar_dir = UPLOAD_DIR / today / f"avatar-{user_id}"
     avatar_dir.mkdir(parents=True, exist_ok=True)
     return avatar_dir
-
-# 加载环境变量
-redis_db = RedisDB()
-userApp = APIRouter(tags=["用户相关"])
-
-# 管理员账号配置
-ADMIN_ACCOUNTS = {
-    # 用户名登录的管理员
-    'admin': {'type': UserType.ADMIN, 'login_type': LoginType.USERNAME},
-    'superadmin': {'type': UserType.SUPER, 'login_type': LoginType.USERNAME},
-    # 邮箱登录的管理员
-    'admin@example.com': {'type': UserType.ADMIN, 'login_type': LoginType.EMAIL},
-    'super@example.com': {'type': UserType.SUPER, 'login_type': LoginType.EMAIL}
-}
 
 def is_valid_email(email: str) -> bool:
     """验证邮箱格式"""
@@ -737,12 +739,11 @@ async def upload_avatar(
 ):
     """
     上传用户头像
-    - 支持.png、.jpg、.jpeg、.webp格式
+    - 支持格式：.png、.jpg、.jpeg、.webp
     - 文件大小限制：10MB
-    - 存储路径格式：YYYY-MM-DD/avatar-{user_id}/{filename}
     """
     try:
-        # 获取上传的文件内容
+        # 获取上传的文件
         form = await request.form()
         if "file" not in form:
             return Message.error(message="请选择要上传的文件", code=ErrorCode.BAD_REQUEST)
@@ -750,51 +751,100 @@ async def upload_avatar(
         file = form["file"]
         if not hasattr(file, "filename"):
             return Message.error(message="无效的文件", code=ErrorCode.BAD_REQUEST)
-            
-        # 读取文件内容
+
+        # 使用 FileUploader 处理上传
+        uploader = FileUploader("image", current_user_id)
         file_content = await file.read()
+        success, message, path = await uploader.save_file(file_content, file.filename)
         
-        # 验证文件
-        is_valid, error_msg = is_valid_file(file.filename, len(file_content))
-        if not is_valid:
-            return Message.error(message=error_msg, code=ErrorCode.BAD_REQUEST)
-        
-        # 获取文件MD5
-        file_md5 = get_file_md5(file_content)
-        
-        # 获取文件扩展名
-        ext = Path(file.filename).suffix.lower()
-        
-        # 确保上传目录存在
-        upload_dir = ensure_upload_dir(current_user_id)
-        
-        # 构建新文件名
-        new_filename = f"{file_md5}{ext}"
-        file_path = upload_dir / new_filename
-        
-        if use_oss:
-            # TODO: 实现OSS上传逻辑
-            pass
-        else:
-            # 写入文件
-            with open(file_path, "wb") as f:
-                f.write(file_content)
+        if not success:
+            return Message.error(message=message, code=ErrorCode.BAD_REQUEST)
         
         # 更新用户头像路径
         user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
         if not user:
             return Message.error(message=USER_ERROR["USER_NOT_FOUND"], code=ErrorCode.USER_NOT_FOUND)
         
-        # 构建相对路径
-        relative_path = f"static/upload/{upload_dir.relative_to(UPLOAD_DIR)}/{new_filename}"
-        user.avatar = relative_path
+        user.avatar = path
         db.commit()
         
         return Message.success(
-            data={"url": relative_path},
+            data={"url": path},
             message="头像上传成功"
         )
         
     except Exception as e:
         globalLogger.exception(f"上传头像失败: {str(e)}")
+        return Message.error(message=USER_ERROR["UPLOAD_FAILED"], code=ErrorCode.INTERNAL_ERROR)
+
+@userApp.post(
+    "/upload/batch/{upload_type}",
+    response_model=Message[Dict[str, Any]],
+    summary="批量上传文件"
+)
+async def upload_batch(
+    request: Request,
+    upload_type: str,
+    use_oss: bool = False,
+    current_user_id: int = Depends(lambda: createToken.parse_token(required=True))
+):
+    """
+    批量上传文件
+    - upload_type: 上传类型 (image/video)
+    - 图片限制：
+        - 支持格式：.png、.jpg、.jpeg、.webp
+        - 单个文件大小：10MB
+        - 最大数量：9个
+    - 视频限制：
+        - 支持格式：.mp4、.mov、.avi
+        - 单个文件大小：100MB
+        - 最大数量：1个
+    """
+    try:
+        # 验证上传类型
+        if upload_type not in UPLOAD_TYPES:
+            return Message.error(message=f"不支持的上传类型: {upload_type}", code=ErrorCode.BAD_REQUEST)
+
+        # 获取上传的文件
+        form = await request.form()
+        files = []
+        for key, value in form.items():
+            if hasattr(value, "filename"):
+                files.append(value)
+
+        if not files:
+            return Message.error(message="请选择要上传的文件", code=ErrorCode.BAD_REQUEST)
+
+        # 处理文件上传
+        uploader = FileUploader(upload_type, current_user_id)
+        if use_oss:
+            # TODO: 实现OSS上传逻辑
+            pass
+        
+        results = await uploader.process_files(files)
+        
+        # 如果全部失败
+        if not results["success"] and results["failed"]:
+            return Message.error(
+                message="所有文件上传失败",
+                code=ErrorCode.BAD_REQUEST,
+                data=results
+            )
+        
+        # 如果部分成功部分失败
+        if results["success"] and results["failed"]:
+            return Message.warning(
+                message="部分文件上传失败",
+                code=ErrorCode.PARTIAL_SUCCESS,
+                data=results
+            )
+        
+        # 全部成功
+        return Message.success(
+            message="上传成功",
+            data=results
+        )
+
+    except Exception as e:
+        globalLogger.exception(f"批量上传失败: {str(e)}")
         return Message.error(message=USER_ERROR["UPLOAD_FAILED"], code=ErrorCode.INTERNAL_ERROR)

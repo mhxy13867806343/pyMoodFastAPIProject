@@ -15,6 +15,7 @@ class ErrorCode(IntEnum):
     INTERNAL_ERROR = base_error_code.INTERNAL_ERROR
     DB_ERROR = base_error_code.DB_ERROR
     REDIS_ERROR = base_error_code.REDIS_ERROR
+    PARTIAL_SUCCESS = 206
 
     # 认证相关 (2001-2099 成功, 4001-4099 失败)
     AUTH_SUCCESS = 2001
