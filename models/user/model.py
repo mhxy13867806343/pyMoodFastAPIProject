@@ -41,7 +41,7 @@ class UserLoginRecord(Base):
     __tablename__ = 'user_login_record'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey('user_inputs.id'), nullable=False, comment='用户ID')
+    user_uid = Column(String(28), ForeignKey('user_inputs.uid'), nullable=False, comment='用户UID')
     login_date = Column(Date, nullable=False, comment='登录日期')
     login_time = Column(Integer, nullable=False, comment='登录时间戳')
     continuous_days = Column(Integer, default=1, comment='连续登录天数')
@@ -49,10 +49,10 @@ class UserLoginRecord(Base):
     last_time = Column(Integer, nullable=False, default=lambda: int(time.time()))
     
     # 与用户表的关系
-    user = relationship("UserInputs", back_populates="login_records")
+    user = relationship("UserInputs", back_populates="login_records", foreign_keys=[user_uid])
 
-    def __init__(self, user_id: int, login_date: date, login_time: int, continuous_days: int = 1):
-        self.user_id = user_id
+    def __init__(self, user_uid: str, login_date: date, login_time: int, continuous_days: int = 1):
+        self.user_uid = user_uid
         self.login_date = login_date
         self.login_time = login_time
         self.continuous_days = continuous_days

@@ -61,7 +61,7 @@ def create_access_token(
 ) -> str:
     """
     创建访问令牌
-    :param data: 数据
+    :param data: 数据，必须包含 uid
     :param expires_delta: 过期时间
     :return: str
     """
@@ -94,9 +94,9 @@ def parse_token(token: str = Depends(oauth2_scheme), *, required: bool = True, f
         # 解析token
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         
-        # 提取用户ID
-        user_id = payload.get("sub")
-        if not user_id:
+        # 提取用户UID
+        uid = payload.get("sub")
+        if not uid:
             if required:
                 return Message.http_401_exception()
             return None
@@ -104,8 +104,8 @@ def parse_token(token: str = Depends(oauth2_scheme), *, required: bool = True, f
         # 返回结果
         if full_payload:
             return payload
-        return int(user_id)
-            
+        return uid
+
     except JWTError:
         if required:
             return Message.http_401_exception()

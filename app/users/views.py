@@ -87,37 +87,44 @@ def is_valid_email(email: str) -> bool:
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return bool(re.match(pattern, email))
 
-def handle_login_record(db: Session, user_id: int, current_time: int) -> int:
-    """处理登录记录，返回连续登录天数"""
-    today = date.today()
-    
-    # 获取最后一次登录记录
-    last_record = db.query(UserLoginRecord).filter(
-        UserLoginRecord.user_id == user_id
-    ).order_by(UserLoginRecord.login_date.desc()).first()
+async def record_user_login(db: Session, user: UserInputs) -> None:
+    """
+    记录用户登录
+    :param db: 数据库会话
+    :param user: 用户对象
+    """
+    try:
+        today = date.today()
+        current_time = int(time.time())
 
-    continuous_days = 1  # 默认为1天
-    if last_record:
-        days_diff = (today - last_record.login_date).days
-        if days_diff == 1:  # 连续登录
-            continuous_days = last_record.continuous_days + 1
-        elif days_diff == 0:  # 今天已经登录过
-            continuous_days = last_record.continuous_days
-        else:  # 断签，重置为1天
-            continuous_days = 1
-    
-    # 创建新的登录记录
-    login_record = UserLoginRecord(
-        user_id=user_id,
-        login_date=today,
-        login_time=current_time,
-        create_time=current_time,
-        last_time=current_time,
-        continuous_days=continuous_days
-    )
-    db.add(login_record)
-    
-    return continuous_days
+        # 查找最近的登录记录
+        last_record = db.query(UserLoginRecord).filter(
+            UserLoginRecord.user_uid == user.uid
+        ).order_by(UserLoginRecord.login_date.desc()).first()
+
+        continuous_days = 1
+        if last_record:
+            # 计算日期差
+            days_diff = (today - last_record.login_date).days
+            if days_diff == 1:  # 连续登录
+                continuous_days = last_record.continuous_days + 1
+            elif days_diff == 0:  # 今天已经登录过
+                return
+
+        # 创建新的登录记录
+        new_record = UserLoginRecord(
+            user_uid=user.uid,
+            login_date=today,
+            login_time=current_time,
+            continuous_days=continuous_days
+        )
+        db.add(new_record)
+        db.commit()
+
+    except Exception as e:
+        db.rollback()
+        globalLogger.error(f"记录用户登录失败: {str(e)}")
+        raise
 
 def prepare_user_data(
     user: UserInputs, 
@@ -349,7 +356,7 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
             token_expire = timedelta(seconds=EXPIRE_TIME * 2) if cached_user['type'] != UserType.NORMAL else timedelta(seconds=EXPIRE_TIME)
             token = createToken.create_token(
                 {
-                    "sub": str(cached_user["id"]),
+                    "sub": cached_user["uid"],
                     "type": cached_user['type'],
                     "login_type": cached_user['login_type']
                 }, 
@@ -377,7 +384,7 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
             redis_db.update_login_record(cached_user['id'], continuous_days)
             
             # 更新数据库登录记录
-            handle_login_record(db, cached_user['id'], current_time)
+            await record_user_login(db, cached_user)
             
             # 更新用户最后登录时间
             user = db.query(UserInputs).get(cached_user['id'])
@@ -459,7 +466,7 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
                 db.commit()
 
         # 处理登录记录并获取连续登录天数
-        continuous_days = handle_login_record(db, existing_user.id, current_time)
+        await record_user_login(db, existing_user)
         
         # 更新用户最后登录时间
         existing_user.last_time = current_time
@@ -469,7 +476,7 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
         token_expire = timedelta(seconds=EXPIRE_TIME * 2) if existing_user.type != UserType.NORMAL else timedelta(seconds=EXPIRE_TIME)
         token = createToken.create_token(
             {
-                "sub": str(existing_user.id),
+                "sub": existing_user.uid,
                 "type": int(existing_user.type),
                 "login_type": int(existing_user.login_type)
             }, 
@@ -477,11 +484,10 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
         )
         
         # 准备用户数据（包含密码用于缓存）
-        user_data = prepare_user_data(existing_user, token, continuous_days, include_password=True)
+        user_data = prepare_user_data(existing_user, token, 1, include_password=True)
         
         # 更新 Redis 缓存
         redis_db.cache_user_info(user_data)
-        redis_db.update_login_record(existing_user.id, continuous_days)
         
         # 删除敏感信息
         response_data = user_data.copy()
@@ -503,7 +509,7 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
     description=ApiDescriptions.GET_USER_INFO["description"]
 )
 async def get_current_user_info(
-    current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
+    current_user_uid: str = Depends(lambda: createToken.parse_token(required=True)),
     db: Session = Depends(getDbSession)
 ):
     """
@@ -513,7 +519,7 @@ async def get_current_user_info(
     """
     try:
         # 查找用户
-        current_user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
+        current_user = db.query(UserInputs).filter(UserInputs.uid == current_user_uid).first()
         if not current_user:
             return Message.error(
                 code=ErrorCode.USER_NOT_FOUND.value,
@@ -527,7 +533,7 @@ async def get_current_user_info(
         
         # 获取用户的连续登录天数
         login_record = db.query(UserLoginRecord).filter(
-            UserLoginRecord.user_id == current_user_id
+            UserLoginRecord.user_uid == current_user.uid
         ).order_by(UserLoginRecord.login_date.desc()).first()
         
         # 获取用户数据（包含私密信息）
@@ -553,7 +559,7 @@ async def get_current_user_info(
 @validate_params('user_id')
 async def get_user_info(
     user_id: int,
-    current_user_id: Optional[int] = Depends(lambda: createToken.parse_token(required=False)),
+    current_user_uid: Optional[str] = Depends(lambda: createToken.parse_token(required=False)),
     db: Session = Depends(getDbSession)
 ):
     """
@@ -572,13 +578,13 @@ async def get_user_info(
             )
 
         # 判断是否是查看自己的信息
-        is_self = current_user_id and current_user_id == user_id
+        is_self = current_user_uid and current_user_uid == target_user.uid
         user_data = get_user_data(target_user, include_private=is_self)
 
         # 如果是查看自己的信息，添加连续登录天数
         if is_self:
             login_record = db.query(UserLoginRecord).filter(
-                UserLoginRecord.user_id == user_id
+                UserLoginRecord.user_uid == user_id
             ).order_by(UserLoginRecord.login_date.desc()).first()
             user_data["continuous_days"] = login_record.continuous_days if login_record else 1
 
@@ -598,7 +604,7 @@ async def get_user_info(
 )
 async def update_user(
     request: UserUpdateRequest,
-    current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
+    current_user_uid: str = Depends(lambda: createToken.parse_token(required=True)),
     db: Session = Depends(getDbSession)
 ):
     """
@@ -616,7 +622,7 @@ async def update_user(
             )
 
         # 确保只能更新自己的信息
-        if request.uid != current_user_id:
+        if request.uid != current_user_uid:
             return Message.error(
                 message=USER_ERROR["PERMISSION_DENIED"],
                 code=ErrorCode.FORBIDDEN
@@ -654,7 +660,7 @@ async def update_user(
     description=ApiDescriptions.LOGOUT["description"]
 )
 async def logout(
-    current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
+    current_user_uid: str = Depends(lambda: createToken.parse_token(required=True)),
     db: Session = Depends(getDbSession)
 ):
     """
@@ -665,10 +671,10 @@ async def logout(
     """
     try:
         # 清除 Redis 缓存
-        redis_db.clear_user_cache(current_user_id)
+        redis_db.clear_user_cache(current_user_uid)
         
         # 更新用户最后登录时间
-        user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
+        user = db.query(UserInputs).filter(UserInputs.uid == current_user_uid).first()
         if user:
             user.last_time = int(time.time())
             db.commit()
@@ -689,7 +695,7 @@ async def logout(
 )
 async def bind_email(
     request: EmailBindRequest,
-    current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
+    current_user_uid: str = Depends(lambda: createToken.parse_token(required=True)),
     db: Session = Depends(getDbSession)
 ):
     """
@@ -706,7 +712,7 @@ async def bind_email(
             )
         
         # 绑定邮箱
-        success = await bind_user_email(db, current_user_id, request.email)
+        success = await bind_user_email(db, current_user_uid, request.email)
         if not success:
             return Message.error(
                 code=ErrorCode.INTERNAL_ERROR.value,
@@ -728,7 +734,7 @@ async def bind_email(
 )
 async def send_email_code(
     request: EmailCodeRequest,
-    current_user_id: int = Depends(lambda: createToken.parse_token(required=True))
+    current_user_uid: str = Depends(lambda: createToken.parse_token(required=True))
 ):
     """
     发送邮箱验证码
@@ -759,7 +765,7 @@ async def send_email_code(
 async def upload_avatar(
     request: Request,
     use_oss: bool = False,
-    current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
+    current_user_uid: str = Depends(lambda: createToken.parse_token(required=True)),
     db: Session = Depends(getDbSession)
 ):
     """
@@ -778,7 +784,7 @@ async def upload_avatar(
             return Message.error(message=USER_ERROR["INVALID_FILE"], code=ErrorCode.BAD_REQUEST)
 
         # 使用 FileUploader 处理上传
-        uploader = FileUploader(current_user_id)
+        uploader = FileUploader(current_user_uid)
         file_content = await file.read()
         success, message, path = await uploader.save_file(file_content, file.filename)
         
@@ -786,7 +792,7 @@ async def upload_avatar(
             return Message.error(message=message, code=ErrorCode.BAD_REQUEST)
         
         # 更新用户头像路径
-        user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
+        user = db.query(UserInputs).filter(UserInputs.uid == current_user_uid).first()
         if not user:
             return Message.error(message=USER_ERROR["USER_NOT_FOUND"], code=ErrorCode.USER_NOT_FOUND)
         
@@ -811,7 +817,7 @@ async def upload_avatar(
 async def batch_upload(
     request: Request,
     use_oss: bool = False,
-    current_user_id: int = Depends(lambda: createToken.parse_token(required=True))
+    current_user_uid: str = Depends(lambda: createToken.parse_token(required=True))
 ):
     """
     批量上传文件
@@ -833,7 +839,7 @@ async def batch_upload(
             return Message.error(message=USER_ERROR["NO_FILE_UPLOADED"], code=ErrorCode.BAD_REQUEST)
 
         # 使用 FileUploader 处理上传
-        uploader = FileUploader(current_user_id)
+        uploader = FileUploader(current_user_uid)
         result = await uploader.process_files(files)
 
         # 检查是否有成功上传的文件
@@ -872,7 +878,7 @@ async def batch_upload(
     description=ApiDescriptions.GET_USER_SIGNATURE["description"]
 )
 async def get_signature(
-    current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
+    current_user_uid: str = Depends(lambda: createToken.parse_token(required=True)),
     db: Session = Depends(getDbSession)
 ):
     """
@@ -882,7 +888,7 @@ async def get_signature(
     """
     try:
         # 获取当前用户
-        user = db.query(UserInputs).get(current_user_id)
+        user = db.query(UserInputs).filter(UserInputs.uid == current_user_uid).first()
         if not user:
             return Message.error(message=USER_ERROR["USER_NOT_FOUND"])
 
@@ -904,13 +910,13 @@ async def get_signature(
 )
 async def set_signature(
     request: SignatureRequest,
-    current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
+    current_user_uid: str = Depends(lambda: createToken.parse_token(required=True)),
     db: Session = Depends(getDbSession)
 ):
     """设置当前用户的签名"""
     try:
         # 获取当前用户
-        user = db.query(UserInputs).get(current_user_id)
+        user = db.query(UserInputs).filter(UserInputs.uid == current_user_uid).first()
         if not user:
             return Message.error(message=USER_ERROR["USER_NOT_FOUND"])
 
