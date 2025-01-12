@@ -2876,3 +2876,81 @@ WHERE user_inputs.id = %(id_1)s
 2025-01-12 00:25:35,341 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/h5/user/info
 2025-01-12 00:25:35,341 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
 2025-01-12 00:25:35,342 - tool.getLogger - INFO - Response time: 0.001s
+2025-01-12 09:36:01,776 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/h5/user/info/22
+2025-01-12 09:36:01,777 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-12 09:36:01,794 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-12 09:36:01,797 - sqlalchemy.engine.Engine - INFO - SELECT user_inputs.id AS user_inputs_id, user_inputs.uid AS user_inputs_uid, user_inputs.username AS user_inputs_username, user_inputs.email AS user_inputs_email, user_inputs.password AS user_inputs_password, user_inputs.type AS user_inputs_type, user_inputs.login_type AS user_inputs_login_type, user_inputs.create_time AS user_inputs_create_time, user_inputs.last_time AS user_inputs_last_time, user_inputs.name AS user_inputs_name, user_inputs.phone AS user_inputs_phone, user_inputs.`emailCode` AS `user_inputs_emailCode`, user_inputs.avatar AS user_inputs_avatar, user_inputs.is_registered AS user_inputs_is_registered, user_inputs.status AS user_inputs_status, user_inputs.sex AS user_inputs_sex, user_inputs.location AS user_inputs_location 
+FROM user_inputs 
+WHERE user_inputs.id = %(id_1)s 
+ LIMIT %(param_1)s
+2025-01-12 09:36:01,798 - sqlalchemy.engine.Engine - INFO - [generated in 0.00026s] {'id_1': 22, 'param_1': 1}
+2025-01-12 09:36:01,801 - tool.getLogger - INFO - Response time: 0.025s
+2025-01-12 09:36:09,059 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/h5/user/info/22
+2025-01-12 09:36:09,059 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-12 09:36:09,092 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-12 09:36:09,093 - sqlalchemy.engine.Engine - INFO - SELECT user_inputs.id AS user_inputs_id, user_inputs.uid AS user_inputs_uid, user_inputs.username AS user_inputs_username, user_inputs.email AS user_inputs_email, user_inputs.password AS user_inputs_password, user_inputs.type AS user_inputs_type, user_inputs.login_type AS user_inputs_login_type, user_inputs.create_time AS user_inputs_create_time, user_inputs.last_time AS user_inputs_last_time, user_inputs.name AS user_inputs_name, user_inputs.phone AS user_inputs_phone, user_inputs.`emailCode` AS `user_inputs_emailCode`, user_inputs.avatar AS user_inputs_avatar, user_inputs.is_registered AS user_inputs_is_registered, user_inputs.status AS user_inputs_status, user_inputs.sex AS user_inputs_sex, user_inputs.location AS user_inputs_location 
+FROM user_inputs 
+WHERE user_inputs.id = %(id_1)s 
+ LIMIT %(param_1)s
+2025-01-12 09:36:09,093 - sqlalchemy.engine.Engine - INFO - [cached since 7.296s ago] {'id_1': 22, 'param_1': 1}
+2025-01-12 09:36:09,109 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-12 09:36:09,110 - tool.getLogger - INFO - Response time: 0.051s
+2025-01-12 09:36:12,930 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/h5/user/info/22
+2025-01-12 09:36:12,930 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-12 09:36:12,933 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-12 09:36:12,933 - sqlalchemy.engine.Engine - INFO - SELECT user_inputs.id AS user_inputs_id, user_inputs.uid AS user_inputs_uid, user_inputs.username AS user_inputs_username, user_inputs.email AS user_inputs_email, user_inputs.password AS user_inputs_password, user_inputs.type AS user_inputs_type, user_inputs.login_type AS user_inputs_login_type, user_inputs.create_time AS user_inputs_create_time, user_inputs.last_time AS user_inputs_last_time, user_inputs.name AS user_inputs_name, user_inputs.phone AS user_inputs_phone, user_inputs.`emailCode` AS `user_inputs_emailCode`, user_inputs.avatar AS user_inputs_avatar, user_inputs.is_registered AS user_inputs_is_registered, user_inputs.status AS user_inputs_status, user_inputs.sex AS user_inputs_sex, user_inputs.location AS user_inputs_location 
+FROM user_inputs 
+WHERE user_inputs.id = %(id_1)s 
+ LIMIT %(param_1)s
+2025-01-12 09:36:12,933 - sqlalchemy.engine.Engine - INFO - [cached since 11.14s ago] {'id_1': 22, 'param_1': 1}
+2025-01-12 09:36:12,935 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-12 09:36:12,935 - tool.getLogger - INFO - Response time: 0.005s
+2025-01-12 09:44:29,350 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-12 09:44:30,373 - fastapi - ERROR - Form data requires "python-multipart" to be installed. 
+You can install "python-multipart" with: 
+
+pip install python-multipart
+
+2025-01-12 09:44:47,327 - fastapi - ERROR - Form data requires "python-multipart" to be installed. 
+You can install "python-multipart" with: 
+
+pip install python-multipart
+
+2025-01-12 09:45:02,196 - fastapi - ERROR - Form data requires "python-multipart" to be installed. 
+You can install "python-multipart" with: 
+
+pip install python-multipart
+
+2025-01-12 09:47:41,067 - fastapi - ERROR - Form data requires "python-multipart" to be installed. 
+You can install "python-multipart" with: 
+
+pip install python-multipart
+
+2025-01-12 09:49:01,445 - fastapi - ERROR - Form data requires "python-multipart" to be installed. 
+You can install "python-multipart" with: 
+
+pip install python-multipart
+
+2025-01-12 09:50:39,401 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-12 09:50:39,454 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-12 09:50:39,454 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 09:50:39,456 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-12 09:50:39,456 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 09:50:39,457 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-12 09:50:39,457 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 09:50:39,457 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-12 09:50:39,458 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-12 09:50:39,458 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 09:50:39,470 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-12 09:50:39,470 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-12 09:50:39,471 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-12 09:50:39,471 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-12 09:50:42,288 - tool.getLogger - INFO - Request: GET http://localhost:8000/docs
+2025-01-12 09:50:42,289 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'cache-control': 'max-age=0', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-ch-ua-platform': '"macOS"', 'upgrade-insecure-requests': '1', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'navigate', 'sec-fetch-user': '?1', 'sec-fetch-dest': 'document', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-12 09:50:42,290 - tool.getLogger - INFO - Response time: 0.000s
+2025-01-12 09:50:42,593 - tool.getLogger - INFO - Request: GET http://localhost:8000/openapi.json
+2025-01-12 09:50:42,593 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json,*/*', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-12 09:50:42,643 - tool.getLogger - INFO - Response time: 0.050s
+2025-01-12 09:50:48,008 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/h5/user/upload/avatar?use_oss=false
+2025-01-12 09:50:48,009 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '0', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-12 09:50:48,012 - tool.getLogger - INFO - Response time: 0.004s

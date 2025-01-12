@@ -24,6 +24,47 @@ from models.user.model import UserInputs, UserType, UserStatus, UserLoginRecord,
 from tool.db import getDbSession
 from tool.dbRedis import RedisDB
 from app.users.schemas import UserUpdateRequest, EmailBindRequest, EmailCodeRequest
+import os
+import hashlib
+from datetime import datetime
+from typing import List
+from fastapi import Request
+from pathlib import Path
+
+UPLOAD_DIR = Path("/Users/hooksvue/Desktop/python3.7demo/moodFastAPIProject/static/upload")
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+ALLOWED_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.webp'}
+
+def get_file_md5(file_content: bytes) -> str:
+    """计算文件内容的MD5值"""
+    return hashlib.md5(file_content).hexdigest()
+
+def is_valid_file(filename: str, filesize: int) -> tuple[bool, str]:
+    """
+    检查文件是否有效
+    :return: (是否有效, 错误信息)
+    """
+    # 检查文件大小
+    if filesize > MAX_FILE_SIZE:
+        return False, "文件大小不能超过10MB"
+    
+    # 检查文件扩展名
+    ext = Path(filename).suffix.lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        return False, f"只支持以下格式: {', '.join(ALLOWED_EXTENSIONS)}"
+    
+    return True, ""
+
+def ensure_upload_dir(user_id: int) -> Path:
+    """
+    确保上传目录存在
+    :return: 上传目录路径
+    """
+    # 创建日期目录
+    today = datetime.now().strftime("%Y-%m-%d")
+    avatar_dir = UPLOAD_DIR / today / f"avatar-{user_id}"
+    avatar_dir.mkdir(parents=True, exist_ok=True)
+    return avatar_dir
 
 # 加载环境变量
 redis_db = RedisDB()
@@ -627,7 +668,7 @@ async def bind_email(
     db: Session = Depends(getDbSession)
 ):
     """
-    绑定邮箱
+    绑定用户邮箱
     - 需要登录
     - 需要验证码
     """
@@ -682,3 +723,78 @@ async def send_email_code(
             code=ErrorCode.INTERNAL_ERROR.value,
             message=USER_ERROR["SEND_CODE_FAILED"]
         )
+
+@userApp.post(
+    "/upload/avatar",
+    response_model=Message[Dict[str, Any]],
+    summary="上传用户头像"
+)
+async def upload_avatar(
+    request: Request,
+    use_oss: bool = False,
+    current_user_id: int = Depends(lambda: createToken.parse_token(required=True)),
+    db: Session = Depends(getDbSession)
+):
+    """
+    上传用户头像
+    - 支持.png、.jpg、.jpeg、.webp格式
+    - 文件大小限制：10MB
+    - 存储路径格式：YYYY-MM-DD/avatar-{user_id}/{filename}
+    """
+    try:
+        # 获取上传的文件内容
+        form = await request.form()
+        if "file" not in form:
+            return Message.error(message="请选择要上传的文件", code=ErrorCode.BAD_REQUEST)
+            
+        file = form["file"]
+        if not hasattr(file, "filename"):
+            return Message.error(message="无效的文件", code=ErrorCode.BAD_REQUEST)
+            
+        # 读取文件内容
+        file_content = await file.read()
+        
+        # 验证文件
+        is_valid, error_msg = is_valid_file(file.filename, len(file_content))
+        if not is_valid:
+            return Message.error(message=error_msg, code=ErrorCode.BAD_REQUEST)
+        
+        # 获取文件MD5
+        file_md5 = get_file_md5(file_content)
+        
+        # 获取文件扩展名
+        ext = Path(file.filename).suffix.lower()
+        
+        # 确保上传目录存在
+        upload_dir = ensure_upload_dir(current_user_id)
+        
+        # 构建新文件名
+        new_filename = f"{file_md5}{ext}"
+        file_path = upload_dir / new_filename
+        
+        if use_oss:
+            # TODO: 实现OSS上传逻辑
+            pass
+        else:
+            # 写入文件
+            with open(file_path, "wb") as f:
+                f.write(file_content)
+        
+        # 更新用户头像路径
+        user = db.query(UserInputs).filter(UserInputs.id == current_user_id).first()
+        if not user:
+            return Message.error(message=USER_ERROR["USER_NOT_FOUND"], code=ErrorCode.USER_NOT_FOUND)
+        
+        # 构建相对路径
+        relative_path = f"static/upload/{upload_dir.relative_to(UPLOAD_DIR)}/{new_filename}"
+        user.avatar = relative_path
+        db.commit()
+        
+        return Message.success(
+            data={"url": relative_path},
+            message="头像上传成功"
+        )
+        
+    except Exception as e:
+        globalLogger.exception(f"上传头像失败: {str(e)}")
+        return Message.error(message=USER_ERROR["UPLOAD_FAILED"], code=ErrorCode.INTERNAL_ERROR)

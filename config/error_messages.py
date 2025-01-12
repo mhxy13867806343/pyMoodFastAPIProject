@@ -96,6 +96,11 @@ USER_ERROR = {
     "PHONE_VERIFY_CODE_NOT_FOUND": "验证码不存在",
     "PHONE_SEND_ERROR": "短信发送失败",
     
+    # 头像上传相关错误
+    "UPLOAD_FAILED": "上传失败",
+    "FILE_TOO_LARGE": "文件大小不能超过10MB",
+    "INVALID_FILE_TYPE": "不支持的文件类型",
+    
     # 权限相关错误
     "PERMISSION_DENIED": "权限不足",
     "PERMISSION_ERROR": "权限错误",
