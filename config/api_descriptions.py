@@ -111,3 +111,13 @@ class ApiDescriptions:
 - 签名长度限制：32字
 """
     }
+    POST_USER_CHECK_NAME={
+        "summary": "检查用户名是否可用",
+        "description": """检查指定的用户名是否可用，如果不可用则返回建议的用户名列表
+    """
+    }
+    PUT_USER_CHANGE_NAME_={
+        "summary": "修改用户名称",
+        "description": """修改当前用户的显示名称
+      """
+    }

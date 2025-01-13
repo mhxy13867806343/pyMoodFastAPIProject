@@ -49,7 +49,7 @@ app = FastAPI(lifespan=lifespan)
 v1_router = APIRouter(prefix="/v1")
 
 # 将各个模块的路由添加到带前缀的路由器
-v1_router.include_router(userAppRouterApi, prefix="/h5/user")
+v1_router.include_router(userAppRouterApi, prefix="/user")
 
 # 将带有前缀的路由器添加到主应用
 app.include_router(v1_router)

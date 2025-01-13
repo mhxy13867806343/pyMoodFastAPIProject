@@ -1,4 +1,6 @@
 import datetime
+import string
+import random
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import SQLAlchemyError
@@ -23,7 +25,7 @@ from .model import UserAuth, UserInfo
 from models.user.model import UserInputs, UserType, UserStatus, UserLoginRecord, LoginType, UserSex
 from tool.db import getDbSession
 from tool.dbRedis import RedisDB
-from app.users.schemas import UserUpdateRequest, EmailBindRequest, EmailCodeRequest, SignatureRequest
+from app.users.schemas import UserUpdateRequest, EmailBindRequest, EmailCodeRequest, SignatureRequest, CheckNameRequest, CheckNameResponse
 import os
 import hashlib
 from datetime import datetime
@@ -949,3 +951,121 @@ async def set_signature(
     except Exception as e:
         globalLogger.error(f"{LOG_MESSAGES['SET_SIGNATURE_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"], code=ErrorCode.INTERNAL_ERROR)
+
+def generate_name_suggestions(name: str, db: Session) -> List[str]:
+    """
+    生成用户名建议
+    :param name: 原始用户名
+    :param db: 数据库会话
+    :return: 建议名称列表
+    """
+    suggestions = []
+    max_suggestions = 20  # 最多返回20个建议
+    
+    # 创建一个查询来一次性获取所有已存在的名称
+    existing_names = set(
+        row[0] for row in 
+        db.query(UserInputs.name)
+        .filter(UserInputs.name.like(f"{name}%"))
+        .all()
+    )
+    
+    # 数字后缀（0-25）
+    for i in range(0, 26):
+        if len(suggestions) >= max_suggestions:
+            break
+        suggestion = f"{name}{i}"
+        if suggestion not in existing_names:
+            suggestions.append(suggestion)
+    
+    # 字母后缀（大小写字母）
+    for suffix in string.ascii_letters:
+        if len(suggestions) >= max_suggestions:
+            break
+        suggestion = f"{name}{suffix}"
+        if suggestion not in existing_names:
+            suggestions.append(suggestion)
+    
+    # 年份后缀
+    if len(suggestions) < max_suggestions:
+        current_year = datetime.now().year
+        suggestion = f"{name}{current_year}"
+        if suggestion not in existing_names:
+            suggestions.append(suggestion)
+    
+    # 随机字母数字组合（如果建议数量还不够）
+    while len(suggestions) < max_suggestions:
+        # 生成2位随机字符（字母+数字）
+        suffix = ''.join(random.choices(string.ascii_letters + string.digits, k=2))
+        suggestion = f"{name}{suffix}"
+        if suggestion not in existing_names and suggestion not in suggestions:
+            suggestions.append(suggestion)
+    
+    return suggestions[:max_suggestions]
+
+@userApp.post(
+    "/check-name",
+    response_model=CheckNameResponse,
+    summary=ApiDescriptions.POST_USER_CHECK_NAME["summary"],
+    description=ApiDescriptions.POST_USER_CHECK_NAME["description"]
+)
+async def check_name(
+    request: CheckNameRequest,
+        current_user_uid: str = Depends(lambda: createToken.parse_token(required=True)),
+    db: Session = Depends(getDbSession)
+):
+    try:
+        # 检查名称是否已存在
+        existing_user = db.query(UserInputs).filter(UserInputs.name == request.name).first()
+        
+        if not existing_user:
+            return CheckNameResponse(available=True, suggestions=[])
+        
+        # 如果名称已存在，生成建议
+        suggestions = generate_name_suggestions(request.name, db)
+        return CheckNameResponse(available=False, suggestions=suggestions)
+
+    except Exception as e:
+        globalLogger.error(f"检查用户名时发生错误: {str(e)}")
+        return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
+
+@userApp.put(
+    "/change-name",
+    summary=ApiDescriptions.PUT_USER_CHANGE_NAME_["summary"],
+    description=ApiDescriptions.PUT_USER_CHANGE_NAME_["description"]
+)
+async def update_name(
+    request: CheckNameRequest,
+    current_user_uid: str = Depends(lambda: createToken.parse_token(required=True)),
+    db: Session = Depends(getDbSession)
+):
+    try:
+        # 获取当前用户
+        user = db.query(UserInputs).filter(UserInputs.uid == current_user_uid).first()
+        if not user:
+            return Message.error(message=USER_ERROR["USER_NOT_FOUND"])
+
+        # 检查新名称是否已存在
+        if db.query(UserInputs).filter(
+            UserInputs.name == request.name,
+            UserInputs.uid != current_user_uid
+        ).first():
+            suggestions = generate_name_suggestions(request.name, db)
+            return Message.error(
+                message=USER_ERROR["NAME_ALREADY_EXISTS"],
+                data={"suggestions": suggestions}
+            )
+
+        # 更新用户名称
+        user.name = request.name
+        db.commit()
+
+        return Message.ok(data={"name": user.name})
+
+    except SQLAlchemyError as e:
+        db.rollback()
+        globalLogger.error(f"更新用户名称时发生数据库错误: {str(e)}")
+        return Message.error(message=SYSTEM_ERROR["DATABASE_ERROR"])
+    except Exception as e:
+        globalLogger.error(f"更新用户名称时发生错误: {str(e)}")
+        return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])

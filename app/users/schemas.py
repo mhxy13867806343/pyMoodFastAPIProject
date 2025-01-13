@@ -1,4 +1,5 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
+from typing import List
 import re
 
 class UserBase(BaseModel):
@@ -108,3 +109,12 @@ class SignatureRequest(BaseModel):
         if v and len(v) > 32:
             raise ValueError('签名不能超过32个字符')
         return v
+
+class CheckNameRequest(BaseModel):
+    """检查用户名是否可用的请求模型"""
+    name: str = Field(..., description="要检查的用户名")
+
+class CheckNameResponse(BaseModel):
+    """检查用户名响应模型"""
+    available: bool = Field(..., description="用户名是否可用")
+    suggestions: List[str] = Field(default=[], description="如果用户名不可用，提供的建议名称列表")

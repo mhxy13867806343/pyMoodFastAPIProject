@@ -74,6 +74,9 @@ USER_ERROR = {
     "USERNAME_INVALID": "用户名无效",
     "USERNAME_TOO_SHORT": "用户名太短",
     "USERNAME_TOO_LONG": "用户名太长",
+    "INVALID_PARAMS": "无效的参数",
+    "USER_NOT_FOUND": "用户不存在",
+    "NAME_ALREADY_EXISTS": "该名称已被使用",
     
     # 用户信息相关错误
     "USER_NOT_FOUND": "用户不存在",
