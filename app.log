@@ -3876,3 +3876,18 @@ WHERE user_inputs.name = %(name_1)s
 2025-01-13 13:55:05,440 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
 2025-01-13 13:55:05,441 - sqlalchemy.engine.Engine - INFO - COMMIT
 2025-01-13 13:55:05,441 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-13 13:57:00,649 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-13 13:57:01,490 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-13 13:57:01,551 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-13 13:57:01,551 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-13 13:57:01,551 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-13 13:57:01,551 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-13 13:57:01,552 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-13 13:57:01,552 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-13 13:57:01,552 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-13 13:57:01,552 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-13 13:57:01,552 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-13 13:57:01,555 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-13 13:57:01,555 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-13 13:57:01,557 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-13 13:57:01,557 - tool.getLogger - INFO - 数据库初始化成功

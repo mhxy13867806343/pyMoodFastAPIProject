@@ -271,49 +271,64 @@ async def update_user_info(db: Session, request: UserUpdateRequest) -> Optional[
         if not db_user:
             return None
 
-        # 更新用户信息
+        # 准备更新的数据
+        update_data = {}
         if request.username is not None:
-            db_user.username = request.username
+            update_data['username'] = request.username
         if request.email is not None:
-            db_user.email = request.email
+            update_data['email'] = request.email
         if request.phone is not None:
-            db_user.phone = request.phone
+            update_data['phone'] = request.phone
         if request.name is not None:
-            db_user.name = request.name
+            update_data['name'] = request.name
         if request.sex is not None:
-            db_user.sex = UserSex(request.sex)
+            update_data['sex'] = UserSex(request.sex)
         if request.location is not None:
-            db_user.location = request.location
+            update_data['location'] = request.location
         if request.avatar is not None:
-            db_user.avatar = request.avatar
+            update_data['avatar'] = request.avatar
         if request.is_registered is not None:
-            db_user.is_registered = request.is_registered
+            update_data['is_registered'] = request.is_registered
         if request.signature is not None:  # 允许设置空字符串
-            db_user.signature = request.signature
+            update_data['signature'] = request.signature
 
-        db_user.last_time = int(time.time())
-        db.commit()
-        db.refresh(db_user)
-        
-        # 返回更新后的用户信息
-        return get_user_data(db_user, include_private=True)
+        # 更新时间戳
+        current_time = int(time.time())
+        update_data['last_time'] = current_time
+
+        try:
+            # 1. 先从 Redis 获取当前用户数据
+            cached_user_data = await redis_db.get_user_data(request.uid)
+            
+            if cached_user_data:
+                # 2. 更新 Redis 中的数据
+                cached_user_data.update(update_data)
+                await redis_db.set_user_data(request.uid, cached_user_data)
+
+            # 3. 更新数据库
+            for key, value in update_data.items():
+                setattr(db_user, key, value)
+            
+            db.commit()
+            db.refresh(db_user)
+            
+            # 4. 如果 Redis 更新失败但数据库更新成功，重新设置 Redis
+            if not cached_user_data:
+                user_data = get_user_data(db_user, include_private=True)
+                await redis_db.set_user_data(request.uid, user_data)
+            
+            return get_user_data(db_user, include_private=True)
+
+        except Exception as e:
+            # 如果发生错误，回滚数据库并清除 Redis 缓存
+            db.rollback()
+            await redis_db.clear_user_cache(request.uid)
+            raise e
+
     except Exception as e:
         db.rollback()
         globalLogger.exception(f"{USER_ERROR['USER_UPDATE_FAILED']}: {str(e)}")
         return None
-
-def check_user_status(user: UserInputs) -> Optional[Message]:
-    """
-    检查用户状态
-    - 如果是普通用户且状态为禁用，则返回错误消息
-    - 如果状态正常，返回 None
-    """
-    if user.type == UserType.NORMAL and user.status == UserStatus.DISABLED:
-        return Message.custom(
-            code=ErrorCode.FORBIDDEN.value,
-            message=USER_ERROR["FORBIDDEN"],
-        )
-    return None
 
 @userApp.post(
     "/auth",
