@@ -118,3 +118,15 @@ class CheckNameResponse(BaseModel):
     """检查用户名响应模型"""
     available: bool = Field(..., description="用户名是否可用")
     suggestions: List[str] = Field(default=[], description="如果用户名不可用，提供的建议名称列表")
+
+class UserLvResponse(BaseModel):
+    """用户等级信息响应模型"""
+    lv: int
+    max_lv: int
+    exp: int
+    next_lv: int
+    exp_to_next_lv: int
+
+class UserExpUpdateRequest(BaseModel):
+    """用户经验值更新请求"""
+    exp_gained: int = Field(..., description="获得的经验值", ge=0)

@@ -96,7 +96,7 @@ class UserLvNext(Base):
     last_time = Column(Integer, nullable=False, default=lambda: int(time.time()), comment='最后更新时间')
 
     # 与用户表的关系
-    user = relationship("UserInputs", back_populates="user_lv_next", foreign_keys=[user_uid])
+    user = relationship("UserInputs", back_populates="next_lv", foreign_keys=[user_uid])
 
     def __init__(self, user_uid: str):
         self.user_uid = user_uid
@@ -115,27 +115,20 @@ class UserLvNext(Base):
         
         返回：包含当前等级、当前等级经验、下一级所需总经验的字典
         """
-        lv_list = self.lv_sum(max_lv, base_exp, growth_factor)
+        current_lv = 0
+        next_lv_exp = base_exp
         
-        for i, level_info in enumerate(lv_list):
-            if total_exp < level_info['exp']:
-                current_lv = i - 1
-                current_lv_exp = lv_list[current_lv]['exp']
-                next_lv_total_exp = level_info['exp']
-                
-                return {
-                    'current_lv': current_lv,
-                    'current_lv_exp': current_lv_exp,
-                    'next_lv_total_exp': next_lv_total_exp,
-                    'exp_to_next_lv': next_lv_total_exp - total_exp
-                }
+        while current_lv < max_lv:
+            if total_exp < next_lv_exp:
+                break
+            current_lv += 1
+            next_lv_exp = int(base_exp * (growth_factor ** current_lv))
         
-        # 如果经验值超过最大等级
         return {
-            'current_lv': max_lv,
-            'current_lv_exp': lv_list[-1]['exp'],
-            'next_lv_total_exp': None,
-            'exp_to_next_lv': 0
+            'current_lv': current_lv,
+            'current_lv_exp': total_exp,
+            'next_lv_total_exp': next_lv_exp if current_lv < max_lv else None,
+            'exp_to_next_lv': (next_lv_exp - total_exp) if current_lv < max_lv else 0
         }
 
     def update_exp(self, exp_gained: int) -> dict:
@@ -144,7 +137,7 @@ class UserLvNext(Base):
         self.last_time = int(time.time())
         level_info = self.get_level_by_exp(self.exp)
         self.lv = level_info['current_lv']
-        self.next_lv = level_info['next_lv_total_exp']
+        self.next_lv = level_info['next_lv_total_exp'] or 0
         return level_info
 
     def can_level_up(self) -> bool:

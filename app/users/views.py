@@ -9,7 +9,8 @@ import time
 from datetime import date, timedelta
 import re
 from typing import Optional, Dict, Any
-from sqlalchemy import or_
+from sqlalchemy import or_, text
+from extend.db import LOCSESSION
 
 from config.api_descriptions import ApiDescriptions
 from config.error_messages import USER_ERROR, SYSTEM_ERROR, LOG_MESSAGES
@@ -22,10 +23,13 @@ from tool.token import EXPIRE_TIME
 from tool.validationTools import ValidationError
 from tool import token as createToken
 from .model import UserAuth, UserInfo
-from models.user.model import UserInputs, UserType, UserStatus, UserLoginRecord, LoginType, UserSex
+from models.user.model import UserInputs, UserType, UserStatus, UserLoginRecord, LoginType, UserSex, UserLvNext
 from tool.db import getDbSession
 from tool.dbRedis import RedisDB
-from app.users.schemas import UserUpdateRequest, EmailBindRequest, EmailCodeRequest, SignatureRequest, CheckNameRequest, CheckNameResponse
+from app.users.schemas import (
+    UserUpdateRequest, EmailBindRequest, EmailCodeRequest, SignatureRequest, 
+    CheckNameRequest, CheckNameResponse, UserLvResponse, UserExpUpdateRequest
+)
 import os
 import hashlib
 from datetime import datetime
@@ -1083,4 +1087,94 @@ async def update_name(
         return Message.error(message=SYSTEM_ERROR["DATABASE_ERROR"])
     except Exception as e:
         globalLogger.error(f"更新用户名称时发生错误: {str(e)}")
+        return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
+
+@userApp.get(
+    "/level",
+    summary=ApiDescriptions.GET_USER_LEVEL_["summary"],
+    description=ApiDescriptions.GET_USER_LEVEL_["description"]
+)
+async def get_user_level(
+    current_user_uid: str = Depends(lambda: createToken.parse_token(required=True)),
+    db: Session = Depends(getDbSession)
+):
+    """获取用户等级信息"""
+    try:
+        # 获取用户等级信息
+        user_lv = db.query(UserLvNext).filter(UserLvNext.user_uid == current_user_uid).first()
+        
+        # 如果用户没有等级记录，创建一个
+        if not user_lv:
+            user_lv = UserLvNext(user_uid=current_user_uid)
+            db.add(user_lv)
+            db.commit()
+            db.refresh(user_lv)
+        
+        # 获取下一级所需经验
+        level_info = user_lv.get_level_by_exp(user_lv.exp)
+        
+        return {
+            "code": 200,
+            "msg": "success",
+            "data": {
+                "lv": user_lv.lv,
+                "max_lv": user_lv.max_lv,
+                "exp": user_lv.exp,
+                "next_lv": user_lv.next_lv,
+                "exp_to_next_lv": level_info['exp_to_next_lv']
+            }
+        }
+    
+    except SQLAlchemyError as e:
+        globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
+        return Message.error(message=SYSTEM_ERROR["DATABASE_ERROR"])
+    except Exception as e:
+        globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
+        return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
+
+@userApp.put(
+    "/level/exp",
+    summary=ApiDescriptions.PUT_USER_EXP_["summary"],
+    description=ApiDescriptions.PUT_USER_EXP_["description"]
+)
+async def update_user_exp(
+    request: UserExpUpdateRequest,
+    current_user_uid: str = Depends(lambda: createToken.parse_token(required=True)),
+    db: Session = Depends(getDbSession)
+):
+    """更新用户经验值"""
+    try:
+        # 获取用户等级信息
+        user_lv = db.query(UserLvNext).filter(UserLvNext.user_uid == current_user_uid).first()
+        
+        # 如果用户没有等级记录，创建一个
+        if not user_lv:
+            user_lv = UserLvNext(user_uid=current_user_uid)
+            db.add(user_lv)
+            db.commit()
+            db.refresh(user_lv)
+        
+        # 更新经验值
+        level_info = user_lv.update_exp(request.exp_gained)
+        db.commit()
+        
+        return {
+            "code": 200,
+            "msg": "success",
+            "data": {
+                "lv": user_lv.lv,
+                "max_lv": user_lv.max_lv,
+                "exp": user_lv.exp,
+                "next_lv": user_lv.next_lv,
+                "exp_to_next_lv": level_info['exp_to_next_lv']
+            }
+        }
+    
+    except SQLAlchemyError as e:
+        db.rollback()
+        globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
+        return Message.error(message=SYSTEM_ERROR["DATABASE_ERROR"])
+    except Exception as e:
+        db.rollback()
+        globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
