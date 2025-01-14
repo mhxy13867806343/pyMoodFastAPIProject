@@ -28,6 +28,8 @@ class UserInputs(Base): # 用户信息
 
     # 与登录记录表的关系，使用 lazy='dynamic' 实现延迟加载
     login_records = relationship("UserLoginRecord", back_populates="user", lazy='dynamic')
+    logout_records = relationship("UserLogoutRecords", back_populates="user", lazy='dynamic')
+    next_lv = relationship("UserLvNext", back_populates="user", lazy='dynamic')
 
     # 创建联合索引
     __table_args__ = (
@@ -49,13 +51,35 @@ class UserLoginRecord(Base):
     last_time = Column(Integer, nullable=False, default=lambda: int(time.time()))
     
     # 与用户表的关系
-    user = relationship("UserInputs", back_populates="login_records", foreign_keys=[user_uid])
+    userLogout = relationship("UserInputs", back_populates="login_records", foreign_keys=[user_uid])
 
     def __init__(self, user_uid: str, login_date: date, login_time: int, continuous_days: int = 1):
         self.user_uid = user_uid
         self.login_date = login_date
         self.login_time = login_time
         self.continuous_days = continuous_days
+
+
+class UserLogoutRecords(Base):
+    """用户登出记录表"""
+    __tablename__ = 'user_logout_records'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_uid = Column(String(28), ForeignKey('user_inputs.uid'), nullable=False, comment='用户UID')
+    logout_time = Column(BigInteger, nullable=False, comment='登出时间戳')
+    logout_date = Column(Date, nullable=False, comment='登出日期')
+    create_time = Column(Integer, nullable=False, default=lambda: int(time.time()))
+    last_time = Column(Integer, nullable=False, default=lambda: int(time.time()))
+    
+    # 与用户表的关系
+    user = relationship("UserInputs", back_populates="logout_records", foreign_keys=[user_uid])
+
+    def __init__(self, user_uid: str, logout_date: date, logout_time: int):
+        self.user_uid = user_uid
+        self.logout_date = logout_date
+        self.logout_time = logout_time
+        self.create_time = int(time.time())
+        self.last_time = int(time.time())
 
 
 class UserLvNext(Base):
@@ -83,13 +107,13 @@ class UserLvNext(Base):
         """
         根据总经验值计算当前等级和升级所需经验
         
-        参数:
+        参数：
         - total_exp: 当前总经验值
         - max_lv: 最大等级
         - base_exp: 基础经验值
         - growth_factor: 经验值增长系数
         
-        返回: 包含当前等级、当前等级经验、下一级所需总经验的字典
+        返回：包含当前等级、当前等级经验、下一级所需总经验的字典
         """
         lv_list = self.lv_sum(max_lv, base_exp, growth_factor)
         
