@@ -1,8 +1,6 @@
-
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from typing import List, Optional
 import uuid
 import time
 
@@ -11,11 +9,12 @@ from config.error_messages import SYSTEM_ERROR, USER_ERROR
 from models.dicts.model import SYSDict, SYSDictItem
 from app.dicts.schemas import (
     DictCreate, DictUpdate, DictResponse, DictListResponse,
-    DictItemCreate, DictItemUpdate, DictItemResponse, DictItemListResponse
+    DictItemCreate, DictItemUpdate, DictItemResponse,
+    DictQuery, DictItemQuery
 )
 from tool.db import getDbSession
-from tool.message import Message
-from tool.logger import globalLogger
+from tool.getLogger import globalLogger
+from tool.msg import Message
 
 dictApp = APIRouter(tags=["字典管理"])
 
@@ -25,29 +24,19 @@ dictApp = APIRouter(tags=["字典管理"])
     response_model=DictListResponse
 )
 async def get_dict_list(
-    type: Optional[str] = Query(None, description="字典类型"),
-    status: Optional[int] = Query(None, description="状态"),
+    query: DictQuery = Depends(),
     db: Session = Depends(getDbSession)
 ):
     """获取字典列表"""
     try:
-        query = db.query(SYSDict)
-        if type:
-            query = query.filter(SYSDict.type == type)
-        if status is not None:
-            query = query.filter(SYSDict.status == status)
+        query_obj = db.query(SYSDict)
+        if query.type:
+            query_obj = query_obj.filter(SYSDict.type == query.type)
         
-        total = query.count()
-        items = query.all()
+        total = query_obj.count()
+        items = query_obj.offset((query.page - 1) * query.page_size).limit(query.page_size).all()
         
-        return {
-            "code": 200,
-            "msg": "success",
-            "data": {
-                "total": total,
-                "items": items
-            }
-        }
+        return Message.success(data={"total": total, "items": items})
     except Exception as e:
         globalLogger.error(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
@@ -67,11 +56,7 @@ async def get_dict_detail(
         if not dict_item:
             return Message.error(message="字典不存在")
         
-        return {
-            "code": 200,
-            "msg": "success",
-            "data": dict_item
-        }
+        return Message.success(data=dict_item)
     except Exception as e:
         globalLogger.error(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
@@ -99,18 +84,14 @@ async def create_dict(
             key=request.key,
             value=request.value,
             type=request.type,
-            status=request.status
+            status=0  # 默认正常状态
         )
         
         db.add(dict_item)
         db.commit()
         db.refresh(dict_item)
         
-        return {
-            "code": 200,
-            "msg": "success",
-            "data": dict_item
-        }
+        return Message.success(data=dict_item)
     except SQLAlchemyError as e:
         db.rollback()
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
@@ -146,16 +127,11 @@ async def update_dict(
         dict_item.key = request.key
         dict_item.value = request.value
         dict_item.type = request.type
-        dict_item.status = request.status
         
         db.commit()
         db.refresh(dict_item)
         
-        return {
-            "code": 200,
-            "msg": "success",
-            "data": dict_item
-        }
+        return Message.success(data=dict_item)
     except SQLAlchemyError as e:
         db.rollback()
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
@@ -185,11 +161,7 @@ async def delete_dict(
         db.delete(dict_item)
         db.commit()
         
-        return {
-            "code": 200,
-            "msg": "success",
-            "data": None
-        }
+        return Message.success(data=None)
     except SQLAlchemyError as e:
         db.rollback()
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
@@ -202,11 +174,11 @@ async def delete_dict(
 @dictApp.get(
     "/dict/items/{dict_code}",
     summary="获取字典项列表",
-    response_model=DictItemListResponse
+    response_model=DictItemResponse
 )
 async def get_dict_items(
     dict_code: str,
-    status: Optional[int] = Query(None, description="状态"),
+    query: DictItemQuery = Depends(),
     db: Session = Depends(getDbSession)
 ):
     """获取字典项列表"""
@@ -217,21 +189,12 @@ async def get_dict_items(
             return Message.error(message="字典不存在")
         
         # 查询字典项
-        query = db.query(SYSDictItem).filter(SYSDictItem.dict_id == dict_item.id)
-        if status is not None:
-            query = query.filter(SYSDictItem.status == status)
+        query_obj = db.query(SYSDictItem).filter(SYSDictItem.dict_id == dict_item.id)
         
-        total = query.count()
-        items = query.all()
+        total = query_obj.count()
+        items = query_obj.offset((query.page - 1) * query.page_size).limit(query.page_size).all()
         
-        return {
-            "code": 200,
-            "msg": "success",
-            "data": {
-                "total": total,
-                "items": items
-            }
-        }
+        return Message.success(data={"total": total, "items": items})
     except Exception as e:
         globalLogger.error(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
@@ -268,18 +231,14 @@ async def create_dict_item(
             key=request.key,
             value=request.value,
             type=request.type,
-            status=request.status
+            status=0  # 默认正常状态
         )
         
         db.add(dict_item)
         db.commit()
         db.refresh(dict_item)
         
-        return {
-            "code": 200,
-            "msg": "success",
-            "data": dict_item
-        }
+        return Message.success(data=dict_item)
     except SQLAlchemyError as e:
         db.rollback()
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
@@ -316,16 +275,11 @@ async def update_dict_item(
         dict_item.key = request.key
         dict_item.value = request.value
         dict_item.type = request.type
-        dict_item.status = request.status
         
         db.commit()
         db.refresh(dict_item)
         
-        return {
-            "code": 200,
-            "msg": "success",
-            "data": dict_item
-        }
+        return Message.success(data=dict_item)
     except SQLAlchemyError as e:
         db.rollback()
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
@@ -351,11 +305,7 @@ async def delete_dict_item(
         db.delete(dict_item)
         db.commit()
         
-        return {
-            "code": 200,
-            "msg": "success",
-            "data": None
-        }
+        return Message.success(data=None)
     except SQLAlchemyError as e:
         db.rollback()
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")

@@ -14,6 +14,7 @@ from fastapi.exceptions import RequestValidationError
 
 import uvicorn
 from app.users.views import userApp as userAppRouterApi
+from app.dicts.views import dictApp as dictAppRouterApi
 from tool.classDb import HttpStatus
 from tool.getLogger import globalLogger
 from config.error_messages import SYSTEM_ERROR
@@ -50,6 +51,7 @@ v1_router = APIRouter(prefix="/v1")
 
 # 将各个模块的路由添加到带前缀的路由器
 v1_router.include_router(userAppRouterApi, prefix="/user")
+v1_router.include_router(dictAppRouterApi, prefix="/dict")
 
 # 将带有前缀的路由器添加到主应用
 app.include_router(v1_router)
