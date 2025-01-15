@@ -40,6 +40,8 @@ class SYSDictItem(Base):
     id = Column(Integer, primary_key=True, autoincrement=True, comment="主键")
     #code由系统生成，不可修改
     item_code=Column(String(50), nullable=False, unique=True,default="", comment="字典code")
+    #外键关联字典表
+    dict_code = Column(String(50), ForeignKey('sys_dict.code'), nullable=False, comment="字典code")
     dict_id = Column(Integer, ForeignKey('sys_dict.id'), nullable=False, comment="字典id")
     name = Column(String(50), nullable=False, unique=True ,default="", comment="字典名称")
     key = Column(String(50), nullable=False, unique=True, default="", comment="字典key")
