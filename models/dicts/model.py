@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 import time
 from datetime import date
 from extend.db import Base
-from tool.dbEnum import  DictStatus
+from tool.dbEnum import DictStatus
 
 
 class SYSDict(Base):
@@ -45,9 +45,9 @@ class SYSDictItem(Base):
     key = Column(String(50), nullable=False, unique=True, default="", comment="字典key")
     value = Column(String(50), nullable=False, default="", comment="字典value")
     type = Column(String(50), nullable=False, default="", comment="字典类型")
+    status = Column(Integer, nullable=False, default=DictStatus.NORMAL, comment="状态 0 正常 1 停用")
     create_time = Column(Integer, nullable=False, default=lambda: int(time.time()), comment="创建时间")
     last_time = Column(Integer, nullable=False, default=lambda: int(time.time()), onupdate=lambda: int(time.time()), comment="更新时间")
-    status = Column(Integer, nullable=False, default=DictStatus.NORMAL, comment="状态 0 正常 1 停用")
 
     def to_dict(self):
         """转换为字典"""
