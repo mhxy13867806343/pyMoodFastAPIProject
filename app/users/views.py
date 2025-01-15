@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 import time
 from datetime import date, timedelta
 import re
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Union, Tuple
 from sqlalchemy import or_, text
 from extend.db import LOCSESSION
 
@@ -367,14 +367,12 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
                 )
             
             # 检查用户状态
-            if cached_user["type"] == UserType.NORMAL.value and cached_user["status"] == UserStatus.DISABLED.value:
-                return Message.error(
-                    code=ErrorCode.FORBIDDEN.value,
-                    message=USER_ERROR["FORBIDDEN"],
-                )
+            status_check = check_cached_user_status(cached_user)
+            if status_check:
+                return status_check
             
             # 生成新的token
-            token_expire = timedelta(seconds=EXPIRE_TIME * 2) if cached_user['type'] != UserType.NORMAL else timedelta(seconds=EXPIRE_TIME)
+            token_expire = timedelta(seconds=EXPIRE_TIME * 2) if cached_user['type'] != UserType.NORMAL.value else timedelta(seconds=EXPIRE_TIME)
             token = createToken.create_token(
                 {
                     "sub": cached_user["uid"],
@@ -477,8 +475,9 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
             # 登录验证
             if not createToken.check_password(user_auth.password, existing_user.password):
                 return Message.error(message=USER_ERROR["ACCOUNT_OR_PASSWORD_ERROR"], code=ErrorCode.ACCOUNT_OR_PASSWORD_ERROR.value)
-            if existing_user.status == UserStatus.DISABLED:
-                return Message.error(message=USER_ERROR["ACCOUNT_DISABLED"])
+            status_check, user = get_check_user_status(existing_user.uid, db)
+            if status_check:
+                return status_check
             
             # 检查是否需要更新用户类型（比如普通用户被加入管理员白名单）
             admin_info = ADMIN_ACCOUNTS.get(user_auth.account)
@@ -539,37 +538,24 @@ async def get_current_user_info(
     - 返回用户的所有可见信息
     """
     try:
-        # 查找用户
-        current_user = db.query(UserInputs).filter(UserInputs.uid == current_user_uid).first()
-        if not current_user:
-            return Message.error(
-                code=ErrorCode.USER_NOT_FOUND.value,
-                message=USER_ERROR["USER_NOT_FOUND"]
-            )
-
-        # 检查用户状态
-        status_check = check_user_status(current_user)
+        # 获取并检查用户
+        status_check, user = get_check_user_status(current_user_uid, db)
         if status_check:
             return status_check
-        
-        # 获取用户的连续登录天数
+
+        # 获取用户的连续登录记录数
         login_record = db.query(UserLoginRecord).filter(
-            UserLoginRecord.user_uid == current_user.uid
+            UserLoginRecord.user_uid == user.uid
         ).order_by(UserLoginRecord.login_date.desc()).first()
         
         # 获取用户数据（包含私密信息）
-        user_data = get_user_data(current_user, include_private=True)
+        user_data = get_user_data(user, include_private=True)
         user_data["continuous_days"] = login_record.continuous_days if login_record else 1
 
         return Message.success(data=user_data)
-    except HTTPException as e:
-        return Message.error(code=ErrorCode.USER_DISABLED.value, message=str(e.detail))
     except Exception as e:
-        globalLogger.exception(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
-        return Message.error(
-            message=SYSTEM_ERROR["SYSTEM_ERROR"],
-            code=ErrorCode.INTERNAL_ERROR
-        )
+        globalLogger.error(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
+        return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
 
 @userApp.get(
     "/info/{user_id}",
@@ -590,32 +576,20 @@ async def get_user_info(
     - 如果未登录，只返回最基本的公开信息
     """
     try:
-        # 查找目标用户
-        target_user = db.query(UserInputs).filter(UserInputs.id == user_id).first()
-        if not target_user:
-            return Message.error(
-                code=ErrorCode.USER_NOT_FOUND.value,
-                message=USER_ERROR["USER_NOT_FOUND"]
-            )
+        # 获取并检查用户
+        status_check, user = get_check_user_status(str(user_id), db)
+        if status_check:
+            return status_check
 
         # 判断是否是查看自己的信息
-        is_self = current_user_uid and current_user_uid == target_user.uid
-        user_data = get_user_data(target_user, include_private=is_self)
+        is_self = current_user_uid and str(user_id) == current_user_uid
 
-        # 如果是查看自己的信息，添加连续登录天数
-        if is_self:
-            login_record = db.query(UserLoginRecord).filter(
-                UserLoginRecord.user_uid == user_id
-            ).order_by(UserLoginRecord.login_date.desc()).first()
-            user_data["continuous_days"] = login_record.continuous_days if login_record else 1
-
+        # 获取用户数据
+        user_data = get_user_data(user, include_private=is_self)
         return Message.success(data=user_data)
     except Exception as e:
-        globalLogger.exception(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
-        return Message.error(
-            message=SYSTEM_ERROR["SYSTEM_ERROR"],
-            code=ErrorCode.INTERNAL_ERROR
-        )
+        globalLogger.error(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
+        return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
 
 @userApp.put(
     "/update",
@@ -908,11 +882,10 @@ async def get_signature(
     - 只返回当前用户的签名信息
     """
     try:
-        # 获取当前用户
-        user = db.query(UserInputs).filter(UserInputs.uid == current_user_uid).first()
-        if not user:
-            return Message.error(message=USER_ERROR["USER_NOT_FOUND"])
-
+        status_check, user = get_check_user_status(current_user_uid, db)
+        if status_check:
+            return status_check
+        
         return Message.ok(data={
             "signature": user.signature or ""
         })
@@ -936,16 +909,10 @@ async def set_signature(
 ):
     """设置当前用户的签名"""
     try:
-        # 获取当前用户
-        user = db.query(UserInputs).filter(UserInputs.uid == current_user_uid).first()
-        if not user:
-            return Message.error(message=USER_ERROR["USER_NOT_FOUND"])
-
-        # 检查用户状态
-        status_check = check_user_status(user)
+        status_check, user = get_check_user_status(current_user_uid, db)
         if status_check:
             return status_check
-
+        
         # 验证签名长度
         if request.signature and len(request.signature) > 32:
             return Message.error(
@@ -1032,17 +999,16 @@ async def check_name(
     db: Session = Depends(getDbSession)
 ):
     try:
+        status_check, user = get_check_user_status(current_user_uid, db)
+        if status_check:
+            return status_check
+        
         # 检查名称是否已存在
         existing_user = db.query(UserInputs).filter(UserInputs.name == request.name).first()
         
         if not existing_user:
             return CheckNameResponse(available=True, suggestions=[])
-            # 检查用户状态
-        if existing_user.type == UserType.NORMAL and existing_user.status == UserStatus.DISABLED:
-            return Message.error(
-                message=USER_ERROR["FORBIDDEN"],
-                code=ErrorCode.FORBIDDEN
-            )
+        
         # 如果名称已存在，生成建议
         suggestions = generate_name_suggestions(request.name, db)
         return CheckNameResponse(available=False, suggestions=suggestions)
@@ -1062,14 +1028,10 @@ async def update_name(
     db: Session = Depends(getDbSession)
 ):
     try:
-        # 获取当前用户
-        user = db.query(UserInputs).filter(UserInputs.uid == current_user_uid).first()
-        if not user:
-            return Message.error(message=USER_ERROR["USER_NOT_FOUND"])
-            # 检查用户状态
-            status_check = check_user_status(user)
-            if status_check:
-                return status_check
+        status_check, user = get_check_user_status(current_user_uid, db)
+        if status_check:
+            return status_check
+        
         # 检查新名称是否已存在
         if db.query(UserInputs).filter(
             UserInputs.name == request.name,
@@ -1106,13 +1068,11 @@ async def get_user_level(
 ):
     """获取用户等级信息"""
     try:
-        # 获取用户等级信息
-        user=db.query(UserInputs).filter(UserInputs.uid == current_user_uid).first()
-        if not user:
-            return Message.error(message=USER_ERROR["USER_NOT_FOUND"])
-        status_check = check_user_status(user)
+        status_check, user = get_check_user_status(current_user_uid, db)
         if status_check:
             return status_check
+        
+        # 获取用户等级信息
         user_lv = db.query(UserLvNext).filter(UserLvNext.user_uid == current_user_uid).first()
 
         # 如果用户没有等级记录，创建一个
@@ -1152,12 +1112,10 @@ async def update_user_exp(
 ):
     """更新用户经验值"""
     try:
-        user = db.query(UserInputs).filter(UserInputs.uid == current_user_uid).first()
-        if not user:
-            return Message.error(message=USER_ERROR["USER_NOT_FOUND"])
-        status_check = check_user_status(user)
+        status_check, user = get_check_user_status(current_user_uid, db)
         if status_check:
             return status_check
+        
         # 获取用户等级信息
         user_lv = db.query(UserLvNext).filter(UserLvNext.user_uid == current_user_uid).first()
         
@@ -1189,13 +1147,34 @@ async def update_user_exp(
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
 
-def check_user_status(user: UserInputs) -> Optional[Message]:
+def get_check_user_status(user_id: str, db: Session) -> Tuple[Optional[Message], Optional[Union[UserInputs, Dict]]]:
     """
     检查用户状态
-    :param user: 用户对象
+    :param user_id: 用户ID
+    :param db: 数据库会话
+    :return: (错误消息, 用户对象) 如果有错误返回 (错误消息, None)，否则返回 (None, 用户对象)
+    """
+    # 查找用户
+    user = db.query(UserInputs).filter(UserInputs.uid == user_id).first()
+    if not user:
+        return Message.error(message=USER_ERROR["USER_NOT_FOUND"]), None
+
+    # 检查用户状态
+    if user.type == UserType.NORMAL and user.status == UserStatus.DISABLED:
+        return Message.error(
+            code=ErrorCode.USER_DISABLED.value,
+            message=USER_ERROR["USER_DISABLED"]
+        ), None
+    
+    return None, user
+
+def check_cached_user_status(user_data: Dict) -> Optional[Message]:
+    """
+    检查缓存用户状态
+    :param user_data: 用户数据字典
     :return: 如果用户状态异常返回错误消息，否则返回 None
     """
-    if user.type == UserType.NORMAL and user.status == UserStatus.DISABLED:
+    if user_data["type"] == UserType.NORMAL.value and user_data["status"] == UserStatus.DISABLED.value:
         return Message.error(
             code=ErrorCode.USER_DISABLED.value,
             message=USER_ERROR["USER_DISABLED"]
