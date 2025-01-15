@@ -6906,3 +6906,214 @@ WHERE sys_dict.id = %(id_1)s AND sys_dict.status = %(status_1)s
 2025-01-16 00:38:07,079 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
 2025-01-16 00:38:07,080 - sqlalchemy.engine.Engine - INFO - COMMIT
 2025-01-16 00:38:07,080 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 00:39:17,977 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 00:39:18,790 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 00:39:18,836 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 00:39:18,836 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:39:18,837 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 00:39:18,838 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:39:18,838 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 00:39:18,838 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:39:18,839 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 00:39:18,839 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 00:39:18,839 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:39:18,840 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 00:39:18,840 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:39:18,841 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 00:39:18,841 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:39:18,842 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 00:39:18,842 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:39:18,843 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 00:39:18,843 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:39:18,844 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 00:39:18,844 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:39:18,844 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 00:39:18,845 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 00:40:15,949 - tool.getLogger - INFO - Request: GET http://localhost:8000/docs
+2025-01-16 00:40:15,950 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'cache-control': 'max-age=0', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-ch-ua-platform': '"macOS"', 'upgrade-insecure-requests': '1', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'navigate', 'sec-fetch-user': '?1', 'sec-fetch-dest': 'document', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 00:40:15,951 - tool.getLogger - INFO - Response time: 0.002s
+2025-01-16 00:40:16,040 - tool.getLogger - INFO - Request: GET http://localhost:8000/openapi.json
+2025-01-16 00:40:16,041 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json,*/*', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 00:40:16,087 - tool.getLogger - INFO - Response time: 0.047s
+2025-01-16 00:40:30,921 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/list?page=1&page_size=10
+2025-01-16 00:40:30,921 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 00:40:30,948 - tool.getLogger - ERROR - 数据库错误: Could not determine join condition between parent/child tables on relationship SYSDict.items - there are multiple foreign key paths linking the tables.  Specify the 'foreign_keys' argument, providing a list of those columns which should be counted as containing a foreign key reference to the parent table.
+2025-01-16 00:40:30,949 - tool.getLogger - INFO - Response time: 0.028s
+2025-01-16 00:40:44,404 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/1
+2025-01-16 00:40:44,404 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 00:40:44,406 - tool.getLogger - ERROR - 系统错误，请稍后再试: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[SYSDict(sys_dict)]'. Original exception was: Could not determine join condition between parent/child tables on relationship SYSDict.items - there are multiple foreign key paths linking the tables.  Specify the 'foreign_keys' argument, providing a list of those columns which should be counted as containing a foreign key reference to the parent table.
+2025-01-16 00:40:44,407 - tool.getLogger - INFO - Response time: 0.003s
+2025-01-16 00:41:38,954 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 00:41:39,818 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 00:41:39,868 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 00:41:39,868 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:41:39,869 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 00:41:39,869 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:41:39,870 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 00:41:39,870 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:41:39,872 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 00:41:39,872 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 00:41:39,872 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:41:39,874 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 00:41:39,874 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:41:39,879 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 00:41:39,879 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:41:39,882 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 00:41:39,882 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:41:39,884 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 00:41:39,884 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:41:39,887 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 00:41:39,887 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:41:39,890 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 00:41:39,890 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 00:42:34,481 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 00:42:35,305 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 00:42:35,356 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 00:42:35,356 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:42:35,356 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 00:42:35,356 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:42:35,357 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 00:42:35,357 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:42:35,357 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 00:42:35,357 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 00:42:35,357 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:42:35,360 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 00:42:35,360 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:42:35,362 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 00:42:35,362 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:42:35,363 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 00:42:35,363 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:42:35,365 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 00:42:35,365 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:42:35,366 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 00:42:35,366 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:42:35,368 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 00:42:35,368 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 00:42:56,749 - tool.getLogger - INFO - Request: GET http://localhost:8000/docs
+2025-01-16 00:42:56,753 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'cache-control': 'max-age=0', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-ch-ua-platform': '"macOS"', 'upgrade-insecure-requests': '1', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'navigate', 'sec-fetch-user': '?1', 'sec-fetch-dest': 'document', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 00:42:56,757 - tool.getLogger - INFO - Response time: 0.009s
+2025-01-16 00:42:56,872 - tool.getLogger - INFO - Request: GET http://localhost:8000/openapi.json
+2025-01-16 00:42:56,872 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json,*/*', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 00:42:56,900 - tool.getLogger - INFO - Response time: 0.029s
+2025-01-16 00:43:00,988 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/1
+2025-01-16 00:43:00,988 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 00:43:01,011 - tool.getLogger - ERROR - 系统错误，请稍后再试: Could not determine join condition between parent/child tables on relationship SYSDict.items - there are multiple foreign key paths linking the tables.  Specify the 'foreign_keys' argument, providing a list of those columns which should be counted as containing a foreign key reference to the parent table.
+2025-01-16 00:43:01,014 - tool.getLogger - INFO - Response time: 0.026s
+2025-01-16 00:43:08,656 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/list?page=1&page_size=10
+2025-01-16 00:43:08,656 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 00:43:08,660 - tool.getLogger - ERROR - 数据库错误: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[SYSDict(sys_dict)]'. Original exception was: Could not determine join condition between parent/child tables on relationship SYSDict.items - there are multiple foreign key paths linking the tables.  Specify the 'foreign_keys' argument, providing a list of those columns which should be counted as containing a foreign key reference to the parent table.
+2025-01-16 00:43:08,661 - tool.getLogger - INFO - Response time: 0.005s
+2025-01-16 00:43:39,759 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 00:46:50,128 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 00:46:50,174 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 00:46:50,174 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:46:50,175 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 00:46:50,175 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:46:50,175 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 00:46:50,175 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:46:50,176 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 00:46:50,176 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 00:46:50,176 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:46:50,179 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 00:46:50,179 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:46:50,181 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 00:46:50,181 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:46:50,182 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 00:46:50,184 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:46:50,185 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 00:46:50,185 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:46:50,189 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 00:46:50,189 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:46:50,192 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 00:46:50,194 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 00:46:53,814 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/list?page=1&page_size=10
+2025-01-16 00:46:53,814 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 00:46:53,835 - tool.getLogger - ERROR - 数据库错误: Could not determine join condition between parent/child tables on relationship SYSDict.items - there are multiple foreign key paths linking the tables.  Specify the 'foreign_keys' argument, providing a list of those columns which should be counted as containing a foreign key reference to the parent table.
+2025-01-16 00:46:53,837 - tool.getLogger - INFO - Response time: 0.022s
+2025-01-16 00:47:12,310 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 00:47:12,947 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 00:47:12,990 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 00:47:12,990 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:47:12,991 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 00:47:12,991 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:47:12,991 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 00:47:12,991 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:47:12,991 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 00:47:12,991 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 00:47:12,991 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:47:12,993 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 00:47:12,993 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:47:12,995 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 00:47:12,995 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:47:12,996 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 00:47:12,996 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:47:12,998 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 00:47:12,998 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:47:12,999 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 00:47:12,999 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:47:13,000 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 00:47:13,001 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 00:47:15,757 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/list?page=1&page_size=10
+2025-01-16 00:47:15,758 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 00:47:15,766 - tool.getLogger - ERROR - 数据库错误: Could not determine join condition between parent/child tables on relationship SYSDict.items - there are multiple foreign key paths linking the tables.  Specify the 'foreign_keys' argument, providing a list of those columns which should be counted as containing a foreign key reference to the parent table.
+2025-01-16 00:47:15,771 - tool.getLogger - INFO - Response time: 0.015s
+2025-01-16 00:48:45,987 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 00:53:01,980 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 00:53:02,028 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 00:53:02,028 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:53:02,029 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 00:53:02,029 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:53:02,029 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 00:53:02,029 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:53:02,029 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 00:53:02,029 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 00:53:02,029 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:53:02,032 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 00:53:02,032 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:53:02,036 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 00:53:02,036 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:53:02,038 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 00:53:02,038 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:53:02,040 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 00:53:02,040 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:53:02,043 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 00:53:02,043 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:53:02,045 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 00:53:02,045 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 00:53:04,880 - tool.getLogger - INFO - Request: GET http://localhost:8000/docs
+2025-01-16 00:53:04,880 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'cache-control': 'max-age=0', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-ch-ua-platform': '"macOS"', 'upgrade-insecure-requests': '1', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'navigate', 'sec-fetch-user': '?1', 'sec-fetch-dest': 'document', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 00:53:04,882 - tool.getLogger - INFO - Response time: 0.002s
+2025-01-16 00:53:04,995 - tool.getLogger - INFO - Request: GET http://localhost:8000/openapi.json
+2025-01-16 00:53:04,996 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json,*/*', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 00:53:05,027 - tool.getLogger - INFO - Response time: 0.032s
+2025-01-16 00:53:10,500 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/list?page=1&page_size=10
+2025-01-16 00:53:10,501 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 00:53:10,527 - tool.getLogger - ERROR - 数据库错误: Could not determine join condition between parent/child tables on relationship SYSDict.items - there are multiple foreign key paths linking the tables.  Specify the 'foreign_keys' argument, providing a list of those columns which should be counted as containing a foreign key reference to the parent table.
+2025-01-16 00:53:10,528 - tool.getLogger - INFO - Response time: 0.028s
+2025-01-16 00:53:29,509 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 00:53:30,344 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 00:53:30,405 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 00:53:30,405 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:53:30,406 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 00:53:30,407 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:53:30,407 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 00:53:30,407 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:53:30,408 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 00:53:30,408 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 00:53:30,408 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:53:30,411 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 00:53:30,411 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:53:30,413 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 00:53:30,413 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:53:30,415 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 00:53:30,415 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:53:30,416 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 00:53:30,417 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:53:30,419 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 00:53:30,419 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:53:30,423 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 00:53:30,423 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 00:53:32,497 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/list?page=1&page_size=10
+2025-01-16 00:53:32,499 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 00:53:32,513 - tool.getLogger - ERROR - 数据库错误: Could not determine join condition between parent/child tables on relationship SYSDict.items - there are multiple foreign key paths linking the tables.  Specify the 'foreign_keys' argument, providing a list of those columns which should be counted as containing a foreign key reference to the parent table.
+2025-01-16 00:53:32,516 - tool.getLogger - INFO - Response time: 0.019s

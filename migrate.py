@@ -10,6 +10,8 @@ def run_migrations():
             session.execute(text("DROP TABLE IF EXISTS user_lv_next;"))
             session.execute(text("DROP TABLE IF EXISTS user_login_record;"))
             session.execute(text("DROP TABLE IF EXISTS user_logout_records;"))
+            session.execute(text("DROP TABLE IF EXISTS sys_dict_item;"))
+            session.execute(text("DROP TABLE IF EXISTS sys_dict;"))
             
             # 创建登录记录表
             session.execute(text("""
@@ -53,6 +55,44 @@ def run_migrations():
                     last_time INT NOT NULL DEFAULT 0 COMMENT '最后更新时间',
                     PRIMARY KEY (id),
                     INDEX idx_user_uid (user_uid)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            """))
+
+            # 创建字典表
+            session.execute(text("""
+                CREATE TABLE IF NOT EXISTS sys_dict (
+                    id INT AUTO_INCREMENT,
+                    code VARCHAR(64) NOT NULL COMMENT '字典编码',
+                    name VARCHAR(64) NOT NULL COMMENT '字典名称',
+                    `key` VARCHAR(64) NOT NULL COMMENT '字典键',
+                    value VARCHAR(255) NOT NULL COMMENT '字典值',
+                    type INT NOT NULL DEFAULT 0 COMMENT '字典类型',
+                    status INT NOT NULL DEFAULT 0 COMMENT '状态：0正常 1禁用',
+                    create_time INT NOT NULL DEFAULT 0 COMMENT '创建时间',
+                    last_time INT NOT NULL DEFAULT 0 COMMENT '最后更新时间',
+                    PRIMARY KEY (id),
+                    UNIQUE INDEX idx_code (code),
+                    UNIQUE INDEX idx_name_key (name, `key`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+            """))
+
+            # 创建字典项表
+            session.execute(text("""
+                CREATE TABLE IF NOT EXISTS sys_dict_item (
+                    id INT AUTO_INCREMENT,
+                    dict_id INT NOT NULL COMMENT '所属字典ID',
+                    item_code VARCHAR(64) NOT NULL COMMENT '字典项编码',
+                    name VARCHAR(64) NOT NULL COMMENT '字典项名称',
+                    `key` VARCHAR(64) NOT NULL COMMENT '字典项键',
+                    value VARCHAR(255) NOT NULL COMMENT '字典项值',
+                    type INT NOT NULL DEFAULT 0 COMMENT '字典项类型',
+                    status INT NOT NULL DEFAULT 0 COMMENT '状态：0正常 1禁用',
+                    create_time INT NOT NULL DEFAULT 0 COMMENT '创建时间',
+                    last_time INT NOT NULL DEFAULT 0 COMMENT '最后更新时间',
+                    PRIMARY KEY (id),
+                    UNIQUE INDEX idx_item_code (item_code),
+                    UNIQUE INDEX idx_dict_name_key (dict_id, name, `key`),
+                    CONSTRAINT fk_dict_id FOREIGN KEY (dict_id) REFERENCES sys_dict(id)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             """))
             

@@ -60,13 +60,14 @@ async def get_dict_list(
             "data": [item.to_dict() for item in items]
         })
     except Exception as e:
+        print(4,55555,e)
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
 
 @dictApp.get(
     "/{dict_id}",
-    summary=ApiDescriptions.DICT_GET_BY_ID_DESC["summary"],
-    description=ApiDescriptions.DICT_GET_BY_ID_DESC["description"]
+    summary=ApiDescriptions.DICT_GET_DESC["summary"],
+    description=ApiDescriptions.DICT_GET_DESC["description"]
 )
 async def get_dict_by_id(
     dict_id: int,
@@ -150,8 +151,8 @@ async def update_dict(
 
 @dictApp.put(
     "/status/{dict_id}",
-    summary=ApiDescriptions.DICT_STATUS_DESC["summary"],
-    description=ApiDescriptions.DICT_STATUS_DESC["description"]
+    summary=ApiDescriptions.DICT_STATUS_PUT_DESC["summary"],
+    description=ApiDescriptions.DICT_STATUS_PUT_DESC["description"]
 )
 async def update_dict_status(
     dict_id: int,

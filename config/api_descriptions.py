@@ -144,65 +144,59 @@ class ApiDescriptions:
         - 返回更新后的等级信息
         """
     }
-    # 字典相关
-    DICT_GET_DESC = {
+    # 字典管理相关
+    DICT_LIST_GET_DESC = {
         "summary": "获取字典列表",
-        "description": """获取字典列表
-- 支持按名称、类型、状态筛选
-- 默认只返回正常状态的字典
-- 分页返回结果"""
+        "description": "获取系统字典列表，支持分页和条件查询"
     }
 
-    DICT_GET_BY_ID_DESC = {
+    DICT_GET_DESC = {
         "summary": "获取字典详情",
-        "description": """获取单个字典的详细信息
-- 只能获取正常状态的字典
-- 返回字典的所有信息"""
+        "description": "根据字典ID获取字典详情"
     }
 
     DICT_POST_DESC = {
         "summary": "创建字典",
-        "description": """创建新的字典
-- 字典名称和key不能重复
-- 默认为正常状态"""
+        "description": "创建新的系统字典"
     }
 
     DICT_PUT_DESC = {
         "summary": "更新字典",
-        "description": """更新字典信息
-- 禁用状态的字典不能修改
-- 字典名称和key不能与其他字典重复"""
+        "description": "更新现有的系统字典"
     }
 
-    DICT_STATUS_DESC = {
+    DICT_STATUS_PUT_DESC = {
         "summary": "更新字典状态",
-        "description": """更新字典的状态
-- 可以启用或禁用字典
-- status=0 表示正常
-- status=1 表示禁用"""
+        "description": "启用或禁用系统字典"
     }
 
-    DICT_CODE_DESC = {
-        "summary": "获取字典详情",
-        "description": """获取指定字典的详细信息"""
-    }
-    DICT_DEL_DESC = {
+    DICT_DELETE_DESC = {
         "summary": "删除字典",
-        "description": """删除指定的字典"""
+        "description": "删除系统字典"
     }
+
+    # 字典项管理相关
     DICT_ITEMS_GET_DESC = {
         "summary": "获取字典项列表",
-        "description": """获取指定字典下的所有字典项"""
+        "description": "获取指定字典下的字典项列表，支持分页和条件查询"
     }
+
     DICT_ITEM_POST_DESC = {
         "summary": "创建字典项",
-        "description": """在指定字典下创建新的字典项"""
+        "description": "在指定字典下创建新的字典项"
     }
+
     DICT_ITEM_PUT_DESC = {
         "summary": "更新字典项",
-        "description": """更新指定的字典项信息"""
+        "description": "更新指定字典下的字典项"
     }
-    DICT_ITEM_DEL_DESC = {
+
+    DICT_ITEM_STATUS_PUT_DESC = {
+        "summary": "更新字典项状态",
+        "description": "启用或禁用指定字典下的字典项"
+    }
+
+    DICT_ITEM_DELETE_DESC = {
         "summary": "删除字典项",
-        "description": """删除指定的字典项"""
+        "description": "删除指定字典下的字典项"
     }
