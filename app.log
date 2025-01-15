@@ -5714,3 +5714,467 @@ CREATE TABLE sys_dict_item (
 2025-01-15 23:50:46,339 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
 2025-01-15 23:50:46,343 - tool.getLogger - ERROR - 系统错误，请稍后再试: Mapper 'Mapper[UserLoginRecord(user_login_record)]' has no property 'user'.  If this property was indicated from other mappers or configure events, ensure registry.configure() has been called.
 2025-01-15 23:50:46,344 - tool.getLogger - INFO - Response time: 0.006s
+2025-01-15 23:52:00,846 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-15 23:52:01,659 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-15 23:52:01,705 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-15 23:52:01,705 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:52:01,706 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-15 23:52:01,706 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:52:01,707 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-15 23:52:01,707 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:52:01,707 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-15 23:52:01,707 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-15 23:52:01,707 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:52:01,709 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-15 23:52:01,709 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:52:01,710 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-15 23:52:01,710 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:52:01,711 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-15 23:52:01,711 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:52:01,712 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-15 23:52:01,712 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:52:01,713 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-15 23:52:01,713 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:52:01,714 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-15 23:52:01,715 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-15 23:52:18,888 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/list?page=1&page_size=10
+2025-01-15 23:52:18,888 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:52:18,894 - tool.getLogger - ERROR - 数据库错误: Mapper 'Mapper[UserLoginRecord(user_login_record)]' has no property 'user'.  If this property was indicated from other mappers or configure events, ensure registry.configure() has been called.
+2025-01-15 23:52:18,896 - tool.getLogger - INFO - Response time: 0.008s
+2025-01-15 23:52:27,840 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/list?page=1&page_size=10
+2025-01-15 23:52:27,841 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:52:27,843 - tool.getLogger - ERROR - 数据库错误: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[UserInputs(user_inputs)]'. Original exception was: Mapper 'Mapper[UserLoginRecord(user_login_record)]' has no property 'user'.  If this property was indicated from other mappers or configure events, ensure registry.configure() has been called.
+2025-01-15 23:52:27,843 - tool.getLogger - INFO - Response time: 0.003s
+2025-01-15 23:52:29,486 - tool.getLogger - INFO - Request: GET http://localhost:8000/docs
+2025-01-15 23:52:29,486 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'cache-control': 'max-age=0', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-ch-ua-platform': '"macOS"', 'upgrade-insecure-requests': '1', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'navigate', 'sec-fetch-user': '?1', 'sec-fetch-dest': 'document', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:52:29,487 - tool.getLogger - INFO - Response time: 0.001s
+2025-01-15 23:52:29,563 - tool.getLogger - INFO - Request: GET http://localhost:8000/openapi.json
+2025-01-15 23:52:29,564 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json,*/*', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:52:29,608 - tool.getLogger - INFO - Response time: 0.044s
+2025-01-15 23:52:34,007 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/list?page=1&page_size=10
+2025-01-15 23:52:34,010 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:52:34,016 - tool.getLogger - ERROR - 数据库错误: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[UserInputs(user_inputs)]'. Original exception was: Mapper 'Mapper[UserLoginRecord(user_login_record)]' has no property 'user'.  If this property was indicated from other mappers or configure events, ensure registry.configure() has been called.
+2025-01-15 23:52:34,017 - tool.getLogger - INFO - Response time: 0.011s
+2025-01-15 23:52:34,345 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/list?page=1&page_size=10
+2025-01-15 23:52:34,348 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:52:34,350 - tool.getLogger - ERROR - 数据库错误: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[UserInputs(user_inputs)]'. Original exception was: Mapper 'Mapper[UserLoginRecord(user_login_record)]' has no property 'user'.  If this property was indicated from other mappers or configure events, ensure registry.configure() has been called.
+2025-01-15 23:52:34,351 - tool.getLogger - INFO - Response time: 0.006s
+2025-01-15 23:53:00,191 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-15 23:53:00,957 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-15 23:53:01,005 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-15 23:53:01,005 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:53:01,006 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-15 23:53:01,006 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:53:01,007 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-15 23:53:01,007 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:53:01,007 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-15 23:53:01,007 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-15 23:53:01,007 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:53:01,009 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-15 23:53:01,009 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:53:01,009 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-15 23:53:01,009 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:53:01,010 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-15 23:53:01,010 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:53:01,011 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-15 23:53:01,011 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:53:01,012 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-15 23:53:01,012 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:53:01,012 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-15 23:53:01,013 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-15 23:53:02,931 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/list?page=1&page_size=10
+2025-01-15 23:53:02,933 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:53:02,943 - tool.getLogger - ERROR - 数据库错误: Mapper 'Mapper[UserLoginRecord(user_login_record)]' has no property 'user'.  If this property was indicated from other mappers or configure events, ensure registry.configure() has been called.
+2025-01-15 23:53:02,944 - tool.getLogger - INFO - Response time: 0.013s
+2025-01-15 23:53:58,064 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-15 23:53:58,836 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-15 23:53:58,879 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-15 23:53:58,879 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:53:58,880 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-15 23:53:58,880 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:53:58,880 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-15 23:53:58,880 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:53:58,881 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-15 23:53:58,881 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-15 23:53:58,881 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:53:58,882 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-15 23:53:58,883 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:53:58,884 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-15 23:53:58,884 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:53:58,884 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-15 23:53:58,884 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:53:58,885 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-15 23:53:58,885 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:53:58,886 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-15 23:53:58,886 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:53:58,887 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-15 23:53:58,887 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-15 23:54:10,379 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/list?page=1&page_size=10
+2025-01-15 23:54:10,379 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:54:10,391 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-15 23:54:10,394 - sqlalchemy.engine.Engine - INFO - SELECT count(*) AS count_1 
+FROM (SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict) AS anon_1
+2025-01-15 23:54:10,395 - sqlalchemy.engine.Engine - INFO - [generated in 0.00009s] {}
+2025-01-15 23:54:10,401 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+ LIMIT %(param_1)s, %(param_2)s
+2025-01-15 23:54:10,401 - sqlalchemy.engine.Engine - INFO - [generated in 0.00014s] {'param_1': 0, 'param_2': 10}
+2025-01-15 23:54:10,403 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-15 23:54:10,404 - tool.getLogger - INFO - Response time: 0.025s
+2025-01-15 23:54:34,738 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-15 23:54:35,391 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-15 23:54:35,432 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-15 23:54:35,432 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:54:35,433 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-15 23:54:35,433 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:54:35,433 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-15 23:54:35,433 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:54:35,434 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-15 23:54:35,434 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-15 23:54:35,434 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:54:35,435 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-15 23:54:35,435 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:54:35,436 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-15 23:54:35,436 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:54:35,439 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-15 23:54:35,439 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:54:35,440 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-15 23:54:35,440 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:54:35,440 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-15 23:54:35,440 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:54:35,441 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-15 23:54:35,442 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-15 23:54:37,262 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-15 23:54:37,859 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-15 23:54:37,925 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-15 23:54:37,925 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:54:37,925 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-15 23:54:37,925 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:54:37,925 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-15 23:54:37,926 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:54:37,926 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-15 23:54:37,926 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-15 23:54:37,926 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:54:37,928 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-15 23:54:37,928 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:54:37,930 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-15 23:54:37,930 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:54:37,931 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-15 23:54:37,931 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:54:37,932 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-15 23:54:37,932 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:54:37,932 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-15 23:54:37,932 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:54:37,933 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-15 23:54:37,934 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-15 23:54:40,272 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/list?page=1&page_size=10
+2025-01-15 23:54:40,272 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:54:40,282 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-15 23:54:40,287 - sqlalchemy.engine.Engine - INFO - SELECT count(*) AS count_1 
+FROM (SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict) AS anon_1
+2025-01-15 23:54:40,290 - sqlalchemy.engine.Engine - INFO - [generated in 0.00293s] {}
+2025-01-15 23:54:40,292 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+ LIMIT %(param_1)s, %(param_2)s
+2025-01-15 23:54:40,294 - sqlalchemy.engine.Engine - INFO - [generated in 0.00238s] {'param_1': 0, 'param_2': 10}
+2025-01-15 23:54:40,296 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-15 23:54:40,299 - tool.getLogger - INFO - Response time: 0.027s
+2025-01-15 23:55:30,065 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-15 23:55:30,749 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-15 23:55:30,791 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-15 23:55:30,791 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:55:30,792 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-15 23:55:30,792 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:55:30,792 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-15 23:55:30,792 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:55:30,793 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-15 23:55:30,793 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-15 23:55:30,793 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:55:30,795 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-15 23:55:30,795 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:55:30,796 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-15 23:55:30,796 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:55:30,796 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-15 23:55:30,796 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:55:30,797 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-15 23:55:30,797 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:55:30,797 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-15 23:55:30,798 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:55:30,799 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-15 23:55:30,799 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-15 23:55:32,808 - tool.getLogger - INFO - Request: GET http://localhost:8000/docs
+2025-01-15 23:55:32,808 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'cache-control': 'max-age=0', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-ch-ua-platform': '"macOS"', 'upgrade-insecure-requests': '1', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'navigate', 'sec-fetch-user': '?1', 'sec-fetch-dest': 'document', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:55:32,809 - tool.getLogger - INFO - Response time: 0.001s
+2025-01-15 23:55:32,887 - tool.getLogger - INFO - Request: GET http://localhost:8000/openapi.json
+2025-01-15 23:55:32,888 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json,*/*', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:55:32,921 - tool.getLogger - INFO - Response time: 0.034s
+2025-01-15 23:55:37,777 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/list?page=1&page_size=10
+2025-01-15 23:55:37,778 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:56:07,089 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-15 23:56:07,839 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-15 23:56:07,881 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-15 23:56:07,881 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:56:07,882 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-15 23:56:07,882 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:56:07,883 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-15 23:56:07,883 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:56:07,883 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-15 23:56:07,883 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-15 23:56:07,883 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:56:07,885 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-15 23:56:07,885 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:56:07,886 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-15 23:56:07,886 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:56:07,887 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-15 23:56:07,887 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:56:07,887 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-15 23:56:07,887 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:56:07,888 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-15 23:56:07,888 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:56:07,889 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-15 23:56:07,889 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-15 23:56:12,326 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/list?page=1&page_size=10
+2025-01-15 23:56:12,326 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:56:12,350 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-15 23:56:12,353 - sqlalchemy.engine.Engine - INFO - SELECT count(*) AS count_1 
+FROM (SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict) AS anon_1
+2025-01-15 23:56:12,353 - sqlalchemy.engine.Engine - INFO - [generated in 0.00010s] {}
+2025-01-15 23:56:12,356 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+ LIMIT %(param_1)s, %(param_2)s
+2025-01-15 23:56:12,356 - sqlalchemy.engine.Engine - INFO - [generated in 0.00012s] {'param_1': 0, 'param_2': 10}
+2025-01-15 23:56:12,357 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-15 23:56:12,357 - tool.getLogger - INFO - Response time: 0.031s
+2025-01-15 23:56:22,580 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/111
+2025-01-15 23:56:22,580 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:56:22,583 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-15 23:56:22,586 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+WHERE sys_dict.code = %(code_1)s 
+ LIMIT %(param_1)s
+2025-01-15 23:56:22,587 - sqlalchemy.engine.Engine - INFO - [generated in 0.00040s] {'code_1': '111', 'param_1': 1}
+2025-01-15 23:56:22,594 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-15 23:56:22,595 - tool.getLogger - INFO - Response time: 0.016s
+2025-01-15 23:58:16,975 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-15 23:58:17,679 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-15 23:58:17,723 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-15 23:58:17,723 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:58:17,724 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-15 23:58:17,724 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:58:17,724 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-15 23:58:17,724 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:58:17,724 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-15 23:58:17,724 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-15 23:58:17,724 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:58:17,728 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-15 23:58:17,728 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:58:17,729 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-15 23:58:17,729 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:58:17,730 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-15 23:58:17,730 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:58:17,731 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-15 23:58:17,731 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:58:17,731 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-15 23:58:17,731 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:58:17,732 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-15 23:58:17,733 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-15 23:58:20,084 - tool.getLogger - INFO - Request: GET http://localhost:8000/docs
+2025-01-15 23:58:20,086 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'cache-control': 'max-age=0', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-ch-ua-platform': '"macOS"', 'upgrade-insecure-requests': '1', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'navigate', 'sec-fetch-user': '?1', 'sec-fetch-dest': 'document', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:58:20,088 - tool.getLogger - INFO - Response time: 0.004s
+2025-01-15 23:58:20,194 - tool.getLogger - INFO - Request: GET http://localhost:8000/openapi.json
+2025-01-15 23:58:20,196 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json,*/*', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:58:20,230 - tool.getLogger - INFO - Response time: 0.035s
+2025-01-15 23:58:47,494 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/dict/add
+2025-01-15 23:58:47,495 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '71', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'content-type': 'application/json', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:58:47,516 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-15 23:58:47,518 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+WHERE sys_dict.`key` = %(key_1)s 
+ LIMIT %(param_1)s
+2025-01-15 23:58:47,519 - sqlalchemy.engine.Engine - INFO - [generated in 0.00024s] {'key_1': 'sex', 'param_1': 1}
+2025-01-15 23:58:47,526 - sqlalchemy.engine.Engine - INFO - INSERT INTO sys_dict (code, name, `key`, value, type, status, create_time, last_time) VALUES (%(code)s, %(name)s, %(key)s, %(value)s, %(type)s, %(status)s, %(create_time)s, %(last_time)s)
+2025-01-15 23:58:47,526 - sqlalchemy.engine.Engine - INFO - [generated in 0.00025s] {'code': 'DICT_6dcfa02a380342069980982783f51f4b', 'name': '性别', 'key': 'sex', 'value': 'sex', 'type': '0', 'status': 0, 'create_time': 1736956727, 'last_time': 1736956727}
+2025-01-15 23:58:47,532 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-15 23:58:47,534 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-15 23:58:47,534 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id, sys_dict.code, sys_dict.name, sys_dict.`key`, sys_dict.value, sys_dict.type, sys_dict.status, sys_dict.create_time, sys_dict.last_time 
+FROM sys_dict 
+WHERE sys_dict.id = %(pk_1)s
+2025-01-15 23:58:47,534 - sqlalchemy.engine.Engine - INFO - [generated in 0.00009s] {'pk_1': 1}
+2025-01-15 23:58:47,537 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-15 23:58:55,656 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/dict/add
+2025-01-15 23:58:55,656 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '71', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'content-type': 'application/json', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:58:55,660 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-15 23:58:55,661 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+WHERE sys_dict.`key` = %(key_1)s 
+ LIMIT %(param_1)s
+2025-01-15 23:58:55,661 - sqlalchemy.engine.Engine - INFO - [cached since 8.142s ago] {'key_1': 'sex', 'param_1': 1}
+2025-01-15 23:58:55,664 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-15 23:58:55,666 - tool.getLogger - INFO - Response time: 0.010s
+2025-01-15 23:59:38,920 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-15 23:59:39,641 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-15 23:59:39,686 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-15 23:59:39,686 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:59:39,687 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-15 23:59:39,687 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:59:39,687 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-15 23:59:39,687 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:59:39,687 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-15 23:59:39,687 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-15 23:59:39,687 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:59:39,691 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-15 23:59:39,691 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:59:39,692 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-15 23:59:39,692 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:59:39,692 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-15 23:59:39,692 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:59:39,693 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-15 23:59:39,693 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:59:39,694 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-15 23:59:39,694 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 23:59:39,694 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-15 23:59:39,695 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-15 23:59:45,338 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/dict/add
+2025-01-15 23:59:45,338 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '72', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'content-type': 'application/json', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-15 23:59:45,358 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-15 23:59:45,360 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+WHERE sys_dict.`key` = %(key_1)s 
+ LIMIT %(param_1)s
+2025-01-15 23:59:45,360 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] {'key_1': 'sex1', 'param_1': 1}
+2025-01-15 23:59:45,362 - sqlalchemy.engine.Engine - INFO - INSERT INTO sys_dict (code, name, `key`, value, type, status, create_time, last_time) VALUES (%(code)s, %(name)s, %(key)s, %(value)s, %(type)s, %(status)s, %(create_time)s, %(last_time)s)
+2025-01-15 23:59:45,362 - sqlalchemy.engine.Engine - INFO - [generated in 0.00014s] {'code': 'DICT_d7934927b0b54113be23ef972fb888db', 'name': '性别', 'key': 'sex1', 'value': 'sex', 'type': '0', 'status': 0, 'create_time': 1736956785, 'last_time': 1736956785}
+2025-01-15 23:59:45,368 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-15 23:59:45,369 - tool.getLogger - ERROR - 数据库错误: (pymysql.err.IntegrityError) (1062, "Duplicate entry '性别' for key 'name'")
+[SQL: INSERT INTO sys_dict (code, name, `key`, value, type, status, create_time, last_time) VALUES (%(code)s, %(name)s, %(key)s, %(value)s, %(type)s, %(status)s, %(create_time)s, %(last_time)s)]
+[parameters: {'code': 'DICT_d7934927b0b54113be23ef972fb888db', 'name': '性别', 'key': 'sex1', 'value': 'sex', 'type': '0', 'status': 0, 'create_time': 1736956785, 'last_time': 1736956785}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-01-15 23:59:45,369 - tool.getLogger - INFO - Response time: 0.032s
+2025-01-16 00:00:08,129 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 00:00:08,882 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 00:00:08,923 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 00:00:08,923 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:00:08,923 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 00:00:08,923 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:00:08,924 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 00:00:08,924 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:00:08,924 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 00:00:08,924 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 00:00:08,924 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:00:08,925 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 00:00:08,925 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:00:08,926 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 00:00:08,926 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:00:08,928 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 00:00:08,928 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:00:08,928 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 00:00:08,928 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:00:08,929 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 00:00:08,929 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:00:08,930 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 00:00:08,930 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 00:00:12,955 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/dict/add
+2025-01-16 00:00:12,955 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '72', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'content-type': 'application/json', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 00:00:12,968 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 00:00:12,970 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+WHERE sys_dict.`key` = %(key_1)s 
+ LIMIT %(param_1)s
+2025-01-16 00:00:12,970 - sqlalchemy.engine.Engine - INFO - [generated in 0.00026s] {'key_1': 'sex1', 'param_1': 1}
+2025-01-16 00:00:12,972 - sqlalchemy.engine.Engine - INFO - INSERT INTO sys_dict (code, name, `key`, value, type, status, create_time, last_time) VALUES (%(code)s, %(name)s, %(key)s, %(value)s, %(type)s, %(status)s, %(create_time)s, %(last_time)s)
+2025-01-16 00:00:12,972 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] {'code': 'DICT_f28e8c0cfde84048b4d0f0ee0c0054e6', 'name': '性别', 'key': 'sex1', 'value': 'sex', 'type': '0', 'status': 0, 'create_time': 1736956812, 'last_time': 1736956812}
+2025-01-16 00:00:12,973 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-16 00:00:12,975 - tool.getLogger - ERROR - 数据库错误: (pymysql.err.IntegrityError) (1062, "Duplicate entry '性别' for key 'name'")
+[SQL: INSERT INTO sys_dict (code, name, `key`, value, type, status, create_time, last_time) VALUES (%(code)s, %(name)s, %(key)s, %(value)s, %(type)s, %(status)s, %(create_time)s, %(last_time)s)]
+[parameters: {'code': 'DICT_f28e8c0cfde84048b4d0f0ee0c0054e6', 'name': '性别', 'key': 'sex1', 'value': 'sex', 'type': '0', 'status': 0, 'create_time': 1736956812, 'last_time': 1736956812}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-01-16 00:00:12,975 - tool.getLogger - INFO - Response time: 0.021s
+2025-01-16 00:00:30,929 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/dict/add
+2025-01-16 00:00:30,929 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '73', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'content-type': 'application/json', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 00:00:30,930 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 00:00:30,931 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+WHERE sys_dict.`key` = %(key_1)s 
+ LIMIT %(param_1)s
+2025-01-16 00:00:30,931 - sqlalchemy.engine.Engine - INFO - [cached since 17.96s ago] {'key_1': 'sex1', 'param_1': 1}
+2025-01-16 00:00:30,932 - sqlalchemy.engine.Engine - INFO - INSERT INTO sys_dict (code, name, `key`, value, type, status, create_time, last_time) VALUES (%(code)s, %(name)s, %(key)s, %(value)s, %(type)s, %(status)s, %(create_time)s, %(last_time)s)
+2025-01-16 00:00:30,932 - sqlalchemy.engine.Engine - INFO - [cached since 17.96s ago] {'code': 'DICT_45e650721c614a8bb0d50f3978374acf', 'name': '性别1', 'key': 'sex1', 'value': 'sex', 'type': '0', 'status': 0, 'create_time': 1736956830, 'last_time': 1736956830}
+2025-01-16 00:00:30,934 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 00:00:30,936 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 00:00:30,936 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id, sys_dict.code, sys_dict.name, sys_dict.`key`, sys_dict.value, sys_dict.type, sys_dict.status, sys_dict.create_time, sys_dict.last_time 
+FROM sys_dict 
+WHERE sys_dict.id = %(pk_1)s
+2025-01-16 00:00:30,936 - sqlalchemy.engine.Engine - INFO - [generated in 0.00012s] {'pk_1': 4}
+2025-01-16 00:00:30,937 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-16 00:01:58,493 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 00:01:59,298 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 00:01:59,365 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 00:01:59,365 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:01:59,365 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 00:01:59,366 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:01:59,366 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 00:01:59,366 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:01:59,366 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 00:01:59,367 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 00:01:59,367 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:01:59,368 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 00:01:59,368 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:01:59,371 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 00:01:59,371 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:01:59,372 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 00:01:59,372 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:01:59,372 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 00:01:59,373 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:01:59,374 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 00:01:59,374 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:01:59,375 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 00:01:59,376 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 00:02:14,591 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 00:02:15,302 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 00:02:15,346 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 00:02:15,346 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:02:15,347 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 00:02:15,347 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:02:15,347 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 00:02:15,347 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:02:15,348 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 00:02:15,348 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 00:02:15,348 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:02:15,350 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 00:02:15,351 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:02:15,352 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 00:02:15,352 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:02:15,352 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 00:02:15,353 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:02:15,353 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 00:02:15,353 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:02:15,354 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 00:02:15,354 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:02:15,355 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 00:02:15,355 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 00:02:42,694 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 00:02:43,481 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 00:02:43,531 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 00:02:43,531 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:02:43,532 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 00:02:43,532 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:02:43,532 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 00:02:43,532 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:02:43,533 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 00:02:43,533 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 00:02:43,533 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:02:43,535 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 00:02:43,535 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:02:43,537 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 00:02:43,537 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:02:43,538 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 00:02:43,539 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:02:43,539 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 00:02:43,539 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:02:43,540 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 00:02:43,540 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 00:02:43,541 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 00:02:43,541 - tool.getLogger - INFO - 数据库初始化成功

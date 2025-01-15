@@ -30,16 +30,33 @@ async def get_dict_list(
     """获取字典列表"""
     try:
         query_obj = db.query(SYSDict)
-        if query.key or query.name or query.type:
-            query_obj = query_obj.filter(SYSDict.key == query.key, SYSDict.name == query.name, SYSDict.type == query.type)
+        
+        # 构建查询条件
+        conditions = []
+        if query.key:
+            conditions.append(SYSDict.key == query.key)
+        if query.name:
+            conditions.append(SYSDict.name == query.name)
+        if query.type:
+            conditions.append(SYSDict.type == query.type)
+        if query.status:
+            conditions.append(SYSDict.status == query.status)
+            
+        # 如果有查询条件，添加到查询对象中
+        if conditions:
+            query_obj = query_obj.filter(*conditions)
         
         total = query_obj.count()
         items = query_obj.offset((query.page - 1) * query.page_size).limit(query.page_size).all()
         
-        return Message.success(data={"total": total, "items": items})
+        return Message.success(data={
+            "total": total,
+            "page": query.page,
+            "page_size": query.page_size,
+            "data": [item.to_dict() for item in items]  # 确保返回的是可序列化的字典
+        })
     except Exception as e:
-        print(e,222222)
-        globalLogger.error(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
+        globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
 
 @dictApp.get(
@@ -57,7 +74,7 @@ async def get_dict_detail(
         if not dict_item:
             return Message.error(message="字典不存在")
         
-        return Message.success(data=dict_item)
+        return Message.success(data=dict_item.to_dict()) # 修改此处
     except Exception as e:
         globalLogger.error(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
@@ -76,7 +93,10 @@ async def create_dict(
         # 检查key是否已存在
         if db.query(SYSDict).filter(SYSDict.key == request.key).first():
             return Message.error(message="字典key已存在")
-        
+        if not request.name:
+            return Message.error(message="字典名称不能为空")
+        if not request.value:
+            return Message.error(message="字典value不能为空")
         # 生成唯一code
         code = f"DICT_{str(uuid.uuid4()).replace('-', '')}"
         
@@ -85,7 +105,7 @@ async def create_dict(
             name=request.name,
             key=request.key,
             value=request.value,
-            type=request.type,
+            type=request.type or 0,
             status=0  # 默认正常状态
         )
         
@@ -93,7 +113,7 @@ async def create_dict(
         db.commit()
         db.refresh(dict_item)
         
-        return Message.success(data=dict_item)
+        return Message.success(data=dict_item.to_dict()) # 修改此处
     except SQLAlchemyError as e:
         db.rollback()
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
@@ -134,7 +154,7 @@ async def update_dict(
         db.commit()
         db.refresh(dict_item)
         
-        return Message.success(data=dict_item)
+        return Message.success(data=dict_item.to_dict()) # 修改此处
     except SQLAlchemyError as e:
         db.rollback()
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
@@ -198,7 +218,7 @@ async def get_dict_items(
         total = query_obj.count()
         items = query_obj.offset((query.page - 1) * query.page_size).limit(query.page_size).all()
         
-        return Message.success(data={"total": total, "items": items})
+        return Message.success(data={"total": total, "items": [item.to_dict() for item in items]}) # 修改此处
     except Exception as e:
         globalLogger.error(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
@@ -243,7 +263,7 @@ async def create_dict_item(
         db.commit()
         db.refresh(dict_item)
         
-        return Message.success(data=dict_item)
+        return Message.success(data=dict_item.to_dict()) # 修改此处
     except SQLAlchemyError as e:
         db.rollback()
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
@@ -285,7 +305,7 @@ async def update_dict_item(
         db.commit()
         db.refresh(dict_item)
         
-        return Message.success(data=dict_item)
+        return Message.success(data=dict_item.to_dict()) # 修改此处
     except SQLAlchemyError as e:
         db.rollback()
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")

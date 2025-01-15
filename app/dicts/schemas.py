@@ -38,6 +38,7 @@ class DictQuery(BaseModel):
     type: str | None = Field(None, description="字典类型")
     name:str | None = Field(None, description="字典名称")
     key:str | None = Field(None, description="字典key")
+    status:int|None = Field(None, description="字典状态")
 
 class DictItemQuery(BaseModel):
     """字典项查询参数"""

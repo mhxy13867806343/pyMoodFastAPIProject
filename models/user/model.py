@@ -51,7 +51,7 @@ class UserLoginRecord(Base):
     last_time = Column(Integer, nullable=False, default=lambda: int(time.time()))
     
     # 与用户表的关系
-    userLogout = relationship("UserInputs", back_populates="login_records", foreign_keys=[user_uid])
+    user = relationship("UserInputs", back_populates="login_records", foreign_keys=[user_uid])
 
     def __init__(self, user_uid: str, login_date: date, login_time: int, continuous_days: int = 1):
         self.user_uid = user_uid
