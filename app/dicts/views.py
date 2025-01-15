@@ -19,7 +19,7 @@ from tool.msg import Message
 dictApp = APIRouter(tags=[ApiDescriptions.DICT_TAGS])
 
 @dictApp.get(
-    "/dict/list",
+    "/list",
     summary=ApiDescriptions.DICT_GET_DESC["summary"],
     description=ApiDescriptions.DICT_GET_DESC["description"]
 )
@@ -30,19 +30,20 @@ async def get_dict_list(
     """获取字典列表"""
     try:
         query_obj = db.query(SYSDict)
-        if query.type:
-            query_obj = query_obj.filter(SYSDict.type == query.type)
+        if query.key or query.name or query.type:
+            query_obj = query_obj.filter(SYSDict.key == query.key, SYSDict.name == query.name, SYSDict.type == query.type)
         
         total = query_obj.count()
         items = query_obj.offset((query.page - 1) * query.page_size).limit(query.page_size).all()
         
         return Message.success(data={"total": total, "items": items})
     except Exception as e:
+        print(e,222222)
         globalLogger.error(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
 
 @dictApp.get(
-    "/dict/{code}",
+    "/{code}",
     summary=ApiDescriptions.DICT_CODE_DESC["summary"],
     description=ApiDescriptions.DICT_CODE_DESC["description"]
 )
@@ -62,7 +63,7 @@ async def get_dict_detail(
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
 
 @dictApp.post(
-    "/dict",
+    "/add",
     summary=ApiDescriptions.DICT_POST_DESC["summary"],
     description=ApiDescriptions.DICT_POST_DESC["description"]
 )
@@ -102,7 +103,7 @@ async def create_dict(
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
 
 @dictApp.put(
-    "/dict/{code}",
+    "/{code}",
     summary=ApiDescriptions.DICT_PUT_DESC["summary"],
     description=ApiDescriptions.DICT_PUT_DESC["description"]
 )
