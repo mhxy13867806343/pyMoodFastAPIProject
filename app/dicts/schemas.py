@@ -47,7 +47,7 @@ class DictItemQuery(BaseModel):
 
 class DictItemBase(BaseModel):
     """字典项基础模型"""
-    dict_id: int = Field(..., description="字典ID")
+    code: str = Field(..., description="字典code")
     name: str = Field(..., description="字典项名称", max_length=50)
     key: str = Field(..., description="字典项key", max_length=50)
     value: str = Field(..., description="字典项value", max_length=50)
@@ -67,13 +67,6 @@ class DictItemBase(BaseModel):
             raise ValueError('key只能包含字母、数字和下划线，且必须以字母开头')
         return v
 
-    @field_validator('dict_id')
-    @classmethod
-    def validate_dict_id(cls, v):
-        if v <= 0:
-            raise ValueError('无效的字典ID')
-        return v
-
 class DictItemCreate(DictItemBase):
     """创建字典项请求模型"""
     pass
@@ -86,7 +79,7 @@ class DictItemResponse(BaseModel):
     """字典项响应模型"""
     id: int
     item_code: str
-    dict_id: int
+    code: str
     name: str
     key: str
     value: str
