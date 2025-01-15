@@ -368,7 +368,7 @@ async def auth(user_auth: UserAuth, db: Session = Depends(getDbSession)):
             
             # 检查用户状态
             if cached_user["type"] == UserType.NORMAL.value and cached_user["status"] == UserStatus.DISABLED.value:
-                return Message.custom(
+                return Message.error(
                     code=ErrorCode.FORBIDDEN.value,
                     message=USER_ERROR["FORBIDDEN"],
                 )
@@ -942,11 +942,9 @@ async def set_signature(
             return Message.error(message=USER_ERROR["USER_NOT_FOUND"])
 
         # 检查用户状态
-        if user.type == UserType.NORMAL and user.status == UserStatus.DISABLED:
-            return Message.error(
-                message=USER_ERROR["FORBIDDEN"],
-                code=ErrorCode.FORBIDDEN
-            )
+        status_check = check_user_status(user)
+        if status_check:
+            return status_check
 
         # 验证签名长度
         if request.signature and len(request.signature) > 32:
@@ -1068,11 +1066,10 @@ async def update_name(
         user = db.query(UserInputs).filter(UserInputs.uid == current_user_uid).first()
         if not user:
             return Message.error(message=USER_ERROR["USER_NOT_FOUND"])
-        if user.type == UserType.NORMAL and user.status == UserStatus.DISABLED:
-            return Message.error(
-                message=USER_ERROR["FORBIDDEN"],
-                code=ErrorCode.FORBIDDEN
-            )
+            # 检查用户状态
+            status_check = check_user_status(user)
+            if status_check:
+                return status_check
         # 检查新名称是否已存在
         if db.query(UserInputs).filter(
             UserInputs.name == request.name,
@@ -1113,11 +1110,9 @@ async def get_user_level(
         user=db.query(UserInputs).filter(UserInputs.uid == current_user_uid).first()
         if not user:
             return Message.error(message=USER_ERROR["USER_NOT_FOUND"])
-        if user.type == UserType.NORMAL and user.status == UserStatus.DISABLED:
-            return Message.error(
-                message=USER_ERROR["FORBIDDEN"],
-                code=ErrorCode.FORBIDDEN
-            )
+        status_check = check_user_status(user)
+        if status_check:
+            return status_check
         user_lv = db.query(UserLvNext).filter(UserLvNext.user_uid == current_user_uid).first()
 
         # 如果用户没有等级记录，创建一个
@@ -1160,11 +1155,9 @@ async def update_user_exp(
         user = db.query(UserInputs).filter(UserInputs.uid == current_user_uid).first()
         if not user:
             return Message.error(message=USER_ERROR["USER_NOT_FOUND"])
-        if user.type == UserType.NORMAL and user.status == UserStatus.DISABLED:
-            return Message.error(
-                message=USER_ERROR["FORBIDDEN"],
-                code=ErrorCode.FORBIDDEN
-            )
+        status_check = check_user_status(user)
+        if status_check:
+            return status_check
         # 获取用户等级信息
         user_lv = db.query(UserLvNext).filter(UserLvNext.user_uid == current_user_uid).first()
         
@@ -1195,3 +1188,16 @@ async def update_user_exp(
         db.rollback()
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
+
+def check_user_status(user: UserInputs) -> Optional[Message]:
+    """
+    检查用户状态
+    :param user: 用户对象
+    :return: 如果用户状态异常返回错误消息，否则返回 None
+    """
+    if user.type == UserType.NORMAL and user.status == UserStatus.DISABLED:
+        return Message.error(
+            code=ErrorCode.USER_DISABLED.value,
+            message=USER_ERROR["USER_DISABLED"]
+        )
+    return None
