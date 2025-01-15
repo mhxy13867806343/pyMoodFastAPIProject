@@ -8432,3 +8432,408 @@ WHERE sys_dict.name = %(name_1)s OR sys_dict.`key` = %(key_1)s
 2025-01-16 01:18:34,152 - sqlalchemy.engine.Engine - INFO - [cached since 56.99s ago] {'name_1': 'string', 'key_1': 'string', 'param_1': 1}
 2025-01-16 01:18:34,155 - sqlalchemy.engine.Engine - INFO - ROLLBACK
 2025-01-16 01:18:34,156 - tool.getLogger - INFO - Response time: 0.009s
+2025-01-16 01:19:11,296 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/dict/items?dict_code=DICT_8e628b31a2404dfe9dce407a397ef377
+2025-01-16 01:19:11,297 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '93', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'content-type': 'application/json', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:19:11,310 - tool.getLogger - ERROR - 参数验证错误: [{'type': 'missing', 'loc': ('body', 'code'), 'msg': 'Field required', 'input': {'dict_id': 0, 'name': 'string', 'key': 'string', 'value': 'string', 'type': '0'}}]
+2025-01-16 01:19:11,311 - tool.getLogger - INFO - Response time: 0.015s
+2025-01-16 01:19:43,809 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/DICT_8e628b31a2404dfe9dce407a397ef377
+2025-01-16 01:19:43,809 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:19:43,816 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 01:19:43,818 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+WHERE sys_dict.code = %(code_1)s 
+ LIMIT %(param_1)s
+2025-01-16 01:19:43,818 - sqlalchemy.engine.Engine - INFO - [cached since 88.77s ago] {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'param_1': 1}
+2025-01-16 01:19:43,822 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-16 01:19:43,825 - tool.getLogger - INFO - Response time: 0.016s
+2025-01-16 01:20:31,880 - tool.getLogger - INFO - Request: GET http://localhost:8000/docs
+2025-01-16 01:20:31,881 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'cache-control': 'max-age=0', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-ch-ua-platform': '"macOS"', 'upgrade-insecure-requests': '1', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'navigate', 'sec-fetch-user': '?1', 'sec-fetch-dest': 'document', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:20:31,881 - tool.getLogger - INFO - Response time: 0.001s
+2025-01-16 01:20:31,993 - tool.getLogger - INFO - Request: GET http://localhost:8000/openapi.json
+2025-01-16 01:20:31,993 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json,*/*', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:20:32,047 - tool.getLogger - INFO - Response time: 0.054s
+2025-01-16 01:20:38,975 - tool.getLogger - INFO - Request: GET http://localhost:8000/v1/dict/items?dict_code=DICT_8e628b31a2404dfe9dce407a397ef377&page=1&page_size=10
+2025-01-16 01:20:38,976 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:20:39,011 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 01:20:39,012 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+WHERE sys_dict.code = %(code_1)s 
+ LIMIT %(param_1)s
+2025-01-16 01:20:39,016 - sqlalchemy.engine.Engine - INFO - [cached since 144s ago] {'code_1': 'items', 'param_1': 1}
+2025-01-16 01:20:39,019 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-16 01:20:39,020 - tool.getLogger - INFO - Response time: 0.045s
+2025-01-16 01:20:58,166 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/dict/items?dict_code=DICT_8e628b31a2404dfe9dce407a397ef377
+2025-01-16 01:20:58,167 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '128', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'content-type': 'application/json', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:20:58,169 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 01:20:58,170 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+WHERE sys_dict.code = %(code_1)s AND sys_dict.status = %(status_1)s 
+ LIMIT %(param_1)s
+2025-01-16 01:20:58,170 - sqlalchemy.engine.Engine - INFO - [generated in 0.00017s] {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'status_1': 0, 'param_1': 1}
+2025-01-16 01:20:58,173 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict_item.id AS sys_dict_item_id, sys_dict_item.item_code AS sys_dict_item_item_code, sys_dict_item.code AS sys_dict_item_code, sys_dict_item.name AS sys_dict_item_name, sys_dict_item.`key` AS sys_dict_item_key, sys_dict_item.value AS sys_dict_item_value, sys_dict_item.type AS sys_dict_item_type, sys_dict_item.status AS sys_dict_item_status, sys_dict_item.create_time AS sys_dict_item_create_time, sys_dict_item.last_time AS sys_dict_item_last_time 
+FROM sys_dict_item 
+WHERE sys_dict_item.code = %(code_1)s AND (sys_dict_item.name = %(name_1)s OR sys_dict_item.`key` = %(key_1)s) 
+ LIMIT %(param_1)s
+2025-01-16 01:20:58,173 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'name_1': 'string', 'key_1': 'string', 'param_1': 1}
+2025-01-16 01:20:58,174 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-16 01:20:58,175 - tool.getLogger - ERROR - 数据库错误: (pymysql.err.OperationalError) (1054, "Unknown column 'sys_dict_item.code' in 'field list'")
+[SQL: SELECT sys_dict_item.id AS sys_dict_item_id, sys_dict_item.item_code AS sys_dict_item_item_code, sys_dict_item.code AS sys_dict_item_code, sys_dict_item.name AS sys_dict_item_name, sys_dict_item.`key` AS sys_dict_item_key, sys_dict_item.value AS sys_dict_item_value, sys_dict_item.type AS sys_dict_item_type, sys_dict_item.status AS sys_dict_item_status, sys_dict_item.create_time AS sys_dict_item_create_time, sys_dict_item.last_time AS sys_dict_item_last_time 
+FROM sys_dict_item 
+WHERE sys_dict_item.code = %(code_1)s AND (sys_dict_item.name = %(name_1)s OR sys_dict_item.`key` = %(key_1)s) 
+ LIMIT %(param_1)s]
+[parameters: {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'name_1': 'string', 'key_1': 'string', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-01-16 01:21:46,528 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 01:21:47,212 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 01:21:47,254 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 01:21:47,254 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:21:47,255 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 01:21:47,255 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:21:47,255 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 01:21:47,255 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:21:47,256 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 01:21:47,256 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 01:21:47,256 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:21:47,258 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 01:21:47,258 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:21:47,261 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 01:21:47,261 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:21:47,264 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 01:21:47,264 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:21:47,265 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 01:21:47,265 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:21:47,266 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 01:21:47,266 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:21:47,269 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 01:21:47,269 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 01:21:49,932 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 01:21:50,549 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 01:21:50,590 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 01:21:50,590 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:21:50,591 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 01:21:50,591 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:21:50,591 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 01:21:50,591 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:21:50,592 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 01:21:50,592 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 01:21:50,592 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:21:50,593 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 01:21:50,593 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:21:50,595 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 01:21:50,595 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:21:50,597 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 01:21:50,597 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:21:50,598 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 01:21:50,598 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:21:50,599 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 01:21:50,599 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:21:50,600 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 01:21:50,601 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 01:21:56,485 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/dict/items?dict_code=DICT_8e628b31a2404dfe9dce407a397ef377
+2025-01-16 01:21:56,485 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '128', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'content-type': 'application/json', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:21:56,505 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 01:21:56,507 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+WHERE sys_dict.code = %(code_1)s AND sys_dict.status = %(status_1)s 
+ LIMIT %(param_1)s
+2025-01-16 01:21:56,507 - sqlalchemy.engine.Engine - INFO - [generated in 0.00014s] {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'status_1': 0, 'param_1': 1}
+2025-01-16 01:21:56,510 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict_item.id AS sys_dict_item_id, sys_dict_item.item_code AS sys_dict_item_item_code, sys_dict_item.code AS sys_dict_item_code, sys_dict_item.name AS sys_dict_item_name, sys_dict_item.`key` AS sys_dict_item_key, sys_dict_item.value AS sys_dict_item_value, sys_dict_item.type AS sys_dict_item_type, sys_dict_item.status AS sys_dict_item_status, sys_dict_item.create_time AS sys_dict_item_create_time, sys_dict_item.last_time AS sys_dict_item_last_time 
+FROM sys_dict_item 
+WHERE sys_dict_item.code = %(code_1)s AND (sys_dict_item.name = %(name_1)s OR sys_dict_item.`key` = %(key_1)s) 
+ LIMIT %(param_1)s
+2025-01-16 01:21:56,510 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'name_1': 'string', 'key_1': 'string', 'param_1': 1}
+2025-01-16 01:21:56,510 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-16 01:21:56,511 - tool.getLogger - ERROR - 数据库错误: (pymysql.err.OperationalError) (1054, "Unknown column 'sys_dict_item.code' in 'field list'")
+[SQL: SELECT sys_dict_item.id AS sys_dict_item_id, sys_dict_item.item_code AS sys_dict_item_item_code, sys_dict_item.code AS sys_dict_item_code, sys_dict_item.name AS sys_dict_item_name, sys_dict_item.`key` AS sys_dict_item_key, sys_dict_item.value AS sys_dict_item_value, sys_dict_item.type AS sys_dict_item_type, sys_dict_item.status AS sys_dict_item_status, sys_dict_item.create_time AS sys_dict_item_create_time, sys_dict_item.last_time AS sys_dict_item_last_time 
+FROM sys_dict_item 
+WHERE sys_dict_item.code = %(code_1)s AND (sys_dict_item.name = %(name_1)s OR sys_dict_item.`key` = %(key_1)s) 
+ LIMIT %(param_1)s]
+[parameters: {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'name_1': 'string', 'key_1': 'string', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-01-16 01:22:08,211 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/dict/items?dict_code=DICT_8e628b31a2404dfe9dce407a397ef377
+2025-01-16 01:22:08,211 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '128', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'content-type': 'application/json', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:22:08,214 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 01:22:08,214 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+WHERE sys_dict.code = %(code_1)s AND sys_dict.status = %(status_1)s 
+ LIMIT %(param_1)s
+2025-01-16 01:22:08,214 - sqlalchemy.engine.Engine - INFO - [cached since 11.71s ago] {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'status_1': 0, 'param_1': 1}
+2025-01-16 01:22:08,216 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict_item.id AS sys_dict_item_id, sys_dict_item.item_code AS sys_dict_item_item_code, sys_dict_item.code AS sys_dict_item_code, sys_dict_item.name AS sys_dict_item_name, sys_dict_item.`key` AS sys_dict_item_key, sys_dict_item.value AS sys_dict_item_value, sys_dict_item.type AS sys_dict_item_type, sys_dict_item.status AS sys_dict_item_status, sys_dict_item.create_time AS sys_dict_item_create_time, sys_dict_item.last_time AS sys_dict_item_last_time 
+FROM sys_dict_item 
+WHERE sys_dict_item.code = %(code_1)s AND (sys_dict_item.name = %(name_1)s OR sys_dict_item.`key` = %(key_1)s) 
+ LIMIT %(param_1)s
+2025-01-16 01:22:08,216 - sqlalchemy.engine.Engine - INFO - [cached since 11.71s ago] {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'name_1': 'string', 'key_1': 'string', 'param_1': 1}
+2025-01-16 01:22:08,217 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-16 01:22:08,217 - tool.getLogger - ERROR - 数据库错误: (pymysql.err.OperationalError) (1054, "Unknown column 'sys_dict_item.code' in 'field list'")
+[SQL: SELECT sys_dict_item.id AS sys_dict_item_id, sys_dict_item.item_code AS sys_dict_item_item_code, sys_dict_item.code AS sys_dict_item_code, sys_dict_item.name AS sys_dict_item_name, sys_dict_item.`key` AS sys_dict_item_key, sys_dict_item.value AS sys_dict_item_value, sys_dict_item.type AS sys_dict_item_type, sys_dict_item.status AS sys_dict_item_status, sys_dict_item.create_time AS sys_dict_item_create_time, sys_dict_item.last_time AS sys_dict_item_last_time 
+FROM sys_dict_item 
+WHERE sys_dict_item.code = %(code_1)s AND (sys_dict_item.name = %(name_1)s OR sys_dict_item.`key` = %(key_1)s) 
+ LIMIT %(param_1)s]
+[parameters: {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'name_1': 'string', 'key_1': 'string', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-01-16 01:22:39,955 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 01:22:40,755 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 01:22:40,818 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 01:22:40,818 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:22:40,824 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 01:22:40,825 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:22:40,825 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 01:22:40,825 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:22:40,826 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 01:22:40,826 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 01:22:40,826 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:22:40,833 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 01:22:40,833 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:22:40,841 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 01:22:40,841 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:22:40,862 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 01:22:40,862 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:22:40,863 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 01:22:40,863 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:22:40,865 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 01:22:40,865 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:22:40,867 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 01:22:40,868 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 01:22:45,433 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/dict/items?dict_code=DICT_8e628b31a2404dfe9dce407a397ef377
+2025-01-16 01:22:45,433 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '128', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'content-type': 'application/json', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:22:45,444 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 01:22:45,446 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+WHERE sys_dict.code = %(code_1)s AND sys_dict.status = %(status_1)s 
+ LIMIT %(param_1)s
+2025-01-16 01:22:45,446 - sqlalchemy.engine.Engine - INFO - [generated in 0.00010s] {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'status_1': 0, 'param_1': 1}
+2025-01-16 01:22:45,448 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict_item.id AS sys_dict_item_id, sys_dict_item.item_code AS sys_dict_item_item_code, sys_dict_item.code AS sys_dict_item_code, sys_dict_item.name AS sys_dict_item_name, sys_dict_item.`key` AS sys_dict_item_key, sys_dict_item.value AS sys_dict_item_value, sys_dict_item.type AS sys_dict_item_type, sys_dict_item.status AS sys_dict_item_status, sys_dict_item.create_time AS sys_dict_item_create_time, sys_dict_item.last_time AS sys_dict_item_last_time 
+FROM sys_dict_item 
+WHERE sys_dict_item.code = %(code_1)s AND (sys_dict_item.name = %(name_1)s OR sys_dict_item.`key` = %(key_1)s) 
+ LIMIT %(param_1)s
+2025-01-16 01:22:45,448 - sqlalchemy.engine.Engine - INFO - [generated in 0.00008s] {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'name_1': 'string', 'key_1': 'string', 'param_1': 1}
+2025-01-16 01:22:45,449 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-16 01:22:45,449 - tool.getLogger - ERROR - 数据库错误: (pymysql.err.OperationalError) (1054, "Unknown column 'sys_dict_item.code' in 'field list'")
+[SQL: SELECT sys_dict_item.id AS sys_dict_item_id, sys_dict_item.item_code AS sys_dict_item_item_code, sys_dict_item.code AS sys_dict_item_code, sys_dict_item.name AS sys_dict_item_name, sys_dict_item.`key` AS sys_dict_item_key, sys_dict_item.value AS sys_dict_item_value, sys_dict_item.type AS sys_dict_item_type, sys_dict_item.status AS sys_dict_item_status, sys_dict_item.create_time AS sys_dict_item_create_time, sys_dict_item.last_time AS sys_dict_item_last_time 
+FROM sys_dict_item 
+WHERE sys_dict_item.code = %(code_1)s AND (sys_dict_item.name = %(name_1)s OR sys_dict_item.`key` = %(key_1)s) 
+ LIMIT %(param_1)s]
+[parameters: {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'name_1': 'string', 'key_1': 'string', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-01-16 01:22:45,450 - tool.getLogger - INFO - Response time: 0.017s
+2025-01-16 01:23:06,869 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 01:23:07,622 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 01:23:07,668 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 01:23:07,668 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:23:07,669 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 01:23:07,669 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:23:07,669 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 01:23:07,669 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:23:07,670 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 01:23:07,670 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 01:23:07,670 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:23:07,672 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 01:23:07,672 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:23:07,673 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 01:23:07,673 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:23:07,675 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 01:23:07,675 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:23:07,678 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 01:23:07,678 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:23:07,679 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 01:23:07,679 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:23:07,680 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 01:23:07,680 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 01:23:07,854 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/dict/items?dict_code=DICT_8e628b31a2404dfe9dce407a397ef377
+2025-01-16 01:23:07,855 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '128', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'content-type': 'application/json', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:23:07,869 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 01:23:07,871 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+WHERE sys_dict.code = %(code_1)s AND sys_dict.status = %(status_1)s 
+ LIMIT %(param_1)s
+2025-01-16 01:23:07,871 - sqlalchemy.engine.Engine - INFO - [generated in 0.00020s] {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'status_1': 0, 'param_1': 1}
+2025-01-16 01:23:07,876 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict_item.id AS sys_dict_item_id, sys_dict_item.item_code AS sys_dict_item_item_code, sys_dict_item.code AS sys_dict_item_code, sys_dict_item.name AS sys_dict_item_name, sys_dict_item.`key` AS sys_dict_item_key, sys_dict_item.value AS sys_dict_item_value, sys_dict_item.type AS sys_dict_item_type, sys_dict_item.status AS sys_dict_item_status, sys_dict_item.create_time AS sys_dict_item_create_time, sys_dict_item.last_time AS sys_dict_item_last_time 
+FROM sys_dict_item 
+WHERE sys_dict_item.code = %(code_1)s AND (sys_dict_item.name = %(name_1)s OR sys_dict_item.`key` = %(key_1)s) 
+ LIMIT %(param_1)s
+2025-01-16 01:23:07,876 - sqlalchemy.engine.Engine - INFO - [generated in 0.00025s] {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'name_1': 'string', 'key_1': 'string', 'param_1': 1}
+2025-01-16 01:23:07,877 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-16 01:23:07,878 - tool.getLogger - ERROR - 数据库错误: (pymysql.err.OperationalError) (1054, "Unknown column 'sys_dict_item.code' in 'field list'")
+[SQL: SELECT sys_dict_item.id AS sys_dict_item_id, sys_dict_item.item_code AS sys_dict_item_item_code, sys_dict_item.code AS sys_dict_item_code, sys_dict_item.name AS sys_dict_item_name, sys_dict_item.`key` AS sys_dict_item_key, sys_dict_item.value AS sys_dict_item_value, sys_dict_item.type AS sys_dict_item_type, sys_dict_item.status AS sys_dict_item_status, sys_dict_item.create_time AS sys_dict_item_create_time, sys_dict_item.last_time AS sys_dict_item_last_time 
+FROM sys_dict_item 
+WHERE sys_dict_item.code = %(code_1)s AND (sys_dict_item.name = %(name_1)s OR sys_dict_item.`key` = %(key_1)s) 
+ LIMIT %(param_1)s]
+[parameters: {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'name_1': 'string', 'key_1': 'string', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-01-16 01:23:07,879 - tool.getLogger - INFO - Response time: 0.024s
+2025-01-16 01:25:36,515 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 01:25:37,392 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 01:25:37,445 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 01:25:37,446 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:25:37,447 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 01:25:37,447 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:25:37,447 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 01:25:37,447 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:25:37,448 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 01:25:37,448 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 01:25:37,448 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:25:37,450 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 01:25:37,450 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:25:37,451 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 01:25:37,451 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:25:37,452 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 01:25:37,452 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:25:37,454 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 01:25:37,454 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:25:37,454 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 01:25:37,455 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:25:37,456 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 01:25:37,456 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 01:26:07,835 - tool.getLogger - INFO - Request: GET http://localhost:8000/docs
+2025-01-16 01:26:07,836 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'cache-control': 'max-age=0', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-ch-ua-platform': '"macOS"', 'upgrade-insecure-requests': '1', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'navigate', 'sec-fetch-user': '?1', 'sec-fetch-dest': 'document', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:26:07,837 - tool.getLogger - INFO - Response time: 0.002s
+2025-01-16 01:26:07,946 - tool.getLogger - INFO - Request: GET http://localhost:8000/openapi.json
+2025-01-16 01:26:07,947 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json,*/*', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:26:07,973 - tool.getLogger - INFO - Response time: 0.027s
+2025-01-16 01:26:26,683 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/dict/items/DICT_8e628b31a2404dfe9dce407a397ef377
+2025-01-16 01:26:26,690 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '128', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'content-type': 'application/json', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:26:26,717 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 01:26:26,719 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+WHERE sys_dict.code = %(code_1)s AND sys_dict.status = %(status_1)s 
+ LIMIT %(param_1)s
+2025-01-16 01:26:26,719 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'status_1': 0, 'param_1': 1}
+2025-01-16 01:26:26,724 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict_item.id AS sys_dict_item_id, sys_dict_item.item_code AS sys_dict_item_item_code, sys_dict_item.code AS sys_dict_item_code, sys_dict_item.name AS sys_dict_item_name, sys_dict_item.`key` AS sys_dict_item_key, sys_dict_item.value AS sys_dict_item_value, sys_dict_item.type AS sys_dict_item_type, sys_dict_item.status AS sys_dict_item_status, sys_dict_item.create_time AS sys_dict_item_create_time, sys_dict_item.last_time AS sys_dict_item_last_time 
+FROM sys_dict_item 
+WHERE sys_dict_item.code = %(code_1)s AND (sys_dict_item.name = %(name_1)s OR sys_dict_item.`key` = %(key_1)s) 
+ LIMIT %(param_1)s
+2025-01-16 01:26:26,724 - sqlalchemy.engine.Engine - INFO - [generated in 0.00013s] {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'name_1': 'string', 'key_1': 'string', 'param_1': 1}
+2025-01-16 01:26:26,725 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-16 01:26:26,725 - tool.getLogger - ERROR - 数据库错误: (pymysql.err.OperationalError) (1054, "Unknown column 'sys_dict_item.code' in 'field list'")
+[SQL: SELECT sys_dict_item.id AS sys_dict_item_id, sys_dict_item.item_code AS sys_dict_item_item_code, sys_dict_item.code AS sys_dict_item_code, sys_dict_item.name AS sys_dict_item_name, sys_dict_item.`key` AS sys_dict_item_key, sys_dict_item.value AS sys_dict_item_value, sys_dict_item.type AS sys_dict_item_type, sys_dict_item.status AS sys_dict_item_status, sys_dict_item.create_time AS sys_dict_item_create_time, sys_dict_item.last_time AS sys_dict_item_last_time 
+FROM sys_dict_item 
+WHERE sys_dict_item.code = %(code_1)s AND (sys_dict_item.name = %(name_1)s OR sys_dict_item.`key` = %(key_1)s) 
+ LIMIT %(param_1)s]
+[parameters: {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'name_1': 'string', 'key_1': 'string', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-01-16 01:26:26,726 - tool.getLogger - INFO - Response time: 0.042s
+2025-01-16 01:28:10,297 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 01:28:11,176 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 01:28:11,218 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 01:28:11,218 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:28:11,219 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 01:28:11,219 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:28:11,219 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 01:28:11,219 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:28:11,220 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 01:28:11,220 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 01:28:11,220 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:28:11,223 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 01:28:11,223 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:28:11,227 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 01:28:11,227 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:28:11,228 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 01:28:11,228 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:28:11,229 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 01:28:11,229 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:28:11,234 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 01:28:11,234 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:28:11,235 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 01:28:11,236 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 01:28:15,272 - tool.getLogger - INFO - Request: GET http://localhost:8000/docs
+2025-01-16 01:28:15,273 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'cache-control': 'max-age=0', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-ch-ua-platform': '"macOS"', 'upgrade-insecure-requests': '1', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'navigate', 'sec-fetch-user': '?1', 'sec-fetch-dest': 'document', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:28:15,273 - tool.getLogger - INFO - Response time: 0.001s
+2025-01-16 01:28:15,370 - tool.getLogger - INFO - Request: GET http://localhost:8000/openapi.json
+2025-01-16 01:28:15,370 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json,*/*', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:28:15,418 - tool.getLogger - INFO - Response time: 0.048s
+2025-01-16 01:29:20,829 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 01:29:21,599 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 01:29:21,683 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 01:29:21,683 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:29:21,685 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 01:29:21,685 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:29:21,686 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 01:29:21,686 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:29:21,686 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 01:29:21,686 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 01:29:21,686 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:29:21,690 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 01:29:21,690 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:29:21,693 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 01:29:21,693 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:29:21,695 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 01:29:21,695 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:29:21,697 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 01:29:21,697 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:29:21,699 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 01:29:21,699 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:29:21,702 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 01:29:21,703 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 01:29:24,235 - tool.getLogger - INFO - Request: GET http://localhost:8000/docs
+2025-01-16 01:29:24,236 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'cache-control': 'max-age=0', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-ch-ua-platform': '"macOS"', 'upgrade-insecure-requests': '1', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'navigate', 'sec-fetch-user': '?1', 'sec-fetch-dest': 'document', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:29:24,237 - tool.getLogger - INFO - Response time: 0.002s
+2025-01-16 01:29:24,348 - tool.getLogger - INFO - Request: GET http://localhost:8000/openapi.json
+2025-01-16 01:29:24,351 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json,*/*', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'sec-ch-ua-mobile': '?0', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:29:24,397 - tool.getLogger - INFO - Response time: 0.049s
+2025-01-16 01:29:35,759 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/dict/items/add
+2025-01-16 01:29:35,759 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '128', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'content-type': 'application/json', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:29:35,774 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 01:29:35,776 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+WHERE sys_dict.code = %(code_1)s AND sys_dict.status = %(status_1)s 
+ LIMIT %(param_1)s
+2025-01-16 01:29:35,776 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'status_1': 0, 'param_1': 1}
+2025-01-16 01:29:35,779 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict_item.id AS sys_dict_item_id, sys_dict_item.item_code AS sys_dict_item_item_code, sys_dict_item.code AS sys_dict_item_code, sys_dict_item.name AS sys_dict_item_name, sys_dict_item.`key` AS sys_dict_item_key, sys_dict_item.value AS sys_dict_item_value, sys_dict_item.type AS sys_dict_item_type, sys_dict_item.status AS sys_dict_item_status, sys_dict_item.create_time AS sys_dict_item_create_time, sys_dict_item.last_time AS sys_dict_item_last_time 
+FROM sys_dict_item 
+WHERE sys_dict_item.code = %(code_1)s AND (sys_dict_item.name = %(name_1)s OR sys_dict_item.`key` = %(key_1)s) 
+ LIMIT %(param_1)s
+2025-01-16 01:29:35,779 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'name_1': 'string', 'key_1': 'string', 'param_1': 1}
+2025-01-16 01:29:35,780 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-16 01:29:35,781 - tool.getLogger - ERROR - 数据库错误: (pymysql.err.OperationalError) (1054, "Unknown column 'sys_dict_item.code' in 'field list'")
+[SQL: SELECT sys_dict_item.id AS sys_dict_item_id, sys_dict_item.item_code AS sys_dict_item_item_code, sys_dict_item.code AS sys_dict_item_code, sys_dict_item.name AS sys_dict_item_name, sys_dict_item.`key` AS sys_dict_item_key, sys_dict_item.value AS sys_dict_item_value, sys_dict_item.type AS sys_dict_item_type, sys_dict_item.status AS sys_dict_item_status, sys_dict_item.create_time AS sys_dict_item_create_time, sys_dict_item.last_time AS sys_dict_item_last_time 
+FROM sys_dict_item 
+WHERE sys_dict_item.code = %(code_1)s AND (sys_dict_item.name = %(name_1)s OR sys_dict_item.`key` = %(key_1)s) 
+ LIMIT %(param_1)s]
+[parameters: {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'name_1': 'string', 'key_1': 'string', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-01-16 01:29:35,781 - tool.getLogger - INFO - Response time: 0.023s
+2025-01-16 01:29:51,966 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-16 01:29:52,643 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-16 01:29:52,716 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-16 01:29:52,716 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:29:52,722 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-16 01:29:52,722 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:29:52,723 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-16 01:29:52,723 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:29:52,725 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 01:29:52,725 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-16 01:29:52,725 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:29:52,728 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-16 01:29:52,728 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:29:52,729 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-16 01:29:52,729 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:29:52,731 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-16 01:29:52,731 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:29:52,734 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-16 01:29:52,734 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:29:52,738 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-16 01:29:52,738 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-16 01:29:52,740 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-16 01:29:52,740 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-16 01:29:56,049 - tool.getLogger - INFO - Request: POST http://localhost:8000/v1/dict/items/add
+2025-01-16 01:29:56,049 - tool.getLogger - INFO - Headers: Headers({'host': 'localhost:8000', 'connection': 'keep-alive', 'content-length': '128', 'sec-ch-ua-platform': '"macOS"', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'accept': 'application/json', 'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"', 'content-type': 'application/json', 'sec-ch-ua-mobile': '?0', 'origin': 'http://localhost:8000', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'http://localhost:8000/docs', 'accept-encoding': 'gzip, deflate, br, zstd', 'accept-language': 'zh-CN,zh;q=0.9'})
+2025-01-16 01:29:56,068 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-16 01:29:56,071 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict.id AS sys_dict_id, sys_dict.code AS sys_dict_code, sys_dict.name AS sys_dict_name, sys_dict.`key` AS sys_dict_key, sys_dict.value AS sys_dict_value, sys_dict.type AS sys_dict_type, sys_dict.status AS sys_dict_status, sys_dict.create_time AS sys_dict_create_time, sys_dict.last_time AS sys_dict_last_time 
+FROM sys_dict 
+WHERE sys_dict.code = %(code_1)s AND sys_dict.status = %(status_1)s 
+ LIMIT %(param_1)s
+2025-01-16 01:29:56,071 - sqlalchemy.engine.Engine - INFO - [generated in 0.00017s] {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'status_1': 0, 'param_1': 1}
+2025-01-16 01:29:56,074 - sqlalchemy.engine.Engine - INFO - SELECT sys_dict_item.id AS sys_dict_item_id, sys_dict_item.item_code AS sys_dict_item_item_code, sys_dict_item.code AS sys_dict_item_code, sys_dict_item.name AS sys_dict_item_name, sys_dict_item.`key` AS sys_dict_item_key, sys_dict_item.value AS sys_dict_item_value, sys_dict_item.type AS sys_dict_item_type, sys_dict_item.status AS sys_dict_item_status, sys_dict_item.create_time AS sys_dict_item_create_time, sys_dict_item.last_time AS sys_dict_item_last_time 
+FROM sys_dict_item 
+WHERE sys_dict_item.code = %(code_1)s AND (sys_dict_item.name = %(name_1)s OR sys_dict_item.`key` = %(key_1)s) 
+ LIMIT %(param_1)s
+2025-01-16 01:29:56,074 - sqlalchemy.engine.Engine - INFO - [generated in 0.00012s] {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'name_1': 'string', 'key_1': 'string', 'param_1': 1}
+2025-01-16 01:29:56,074 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-01-16 01:29:56,075 - tool.getLogger - ERROR - 数据库错误: (pymysql.err.OperationalError) (1054, "Unknown column 'sys_dict_item.code' in 'field list'")
+[SQL: SELECT sys_dict_item.id AS sys_dict_item_id, sys_dict_item.item_code AS sys_dict_item_item_code, sys_dict_item.code AS sys_dict_item_code, sys_dict_item.name AS sys_dict_item_name, sys_dict_item.`key` AS sys_dict_item_key, sys_dict_item.value AS sys_dict_item_value, sys_dict_item.type AS sys_dict_item_type, sys_dict_item.status AS sys_dict_item_status, sys_dict_item.create_time AS sys_dict_item_create_time, sys_dict_item.last_time AS sys_dict_item_last_time 
+FROM sys_dict_item 
+WHERE sys_dict_item.code = %(code_1)s AND (sys_dict_item.name = %(name_1)s OR sys_dict_item.`key` = %(key_1)s) 
+ LIMIT %(param_1)s]
+[parameters: {'code_1': 'DICT_8e628b31a2404dfe9dce407a397ef377', 'name_1': 'string', 'key_1': 'string', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-01-16 01:29:56,075 - tool.getLogger - INFO - Response time: 0.027s

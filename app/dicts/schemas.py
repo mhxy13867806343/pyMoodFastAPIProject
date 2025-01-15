@@ -73,6 +73,10 @@ class DictItemCreate(DictItemBase):
 
 class DictItemUpdate(DictItemBase):
     """更新字典项请求模型"""
+    code: str = Field(..., description="字典code")
+    name: str = Field(..., description="字典项名称", max_length=50)
+    key: str = Field(..., description="字典项key", max_length=50)
+    value: str = Field(..., description="字典项value", max_length=50)
     pass
 
 class DictItemResponse(BaseModel):
