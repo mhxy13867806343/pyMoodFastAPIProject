@@ -1129,18 +1129,14 @@ async def get_user_level(
 
         # 获取下一级所需经验
         level_info = user_lv.get_level_by_exp(user_lv.exp)
-        
-        return {
-            "code": 200,
-            "msg": "success",
-            "data": {
-                "lv": user_lv.lv,
-                "max_lv": user_lv.max_lv,
-                "exp": user_lv.exp,
-                "next_lv": user_lv.next_lv,
-                "exp_to_next_lv": level_info['exp_to_next_lv']
-            }
+        data={
+            "lv": user_lv.lv,
+            "max_lv": user_lv.max_lv,
+            "exp": user_lv.exp,
+            "next_lv": user_lv.next_lv,
+            "exp_to_next_lv": level_info['exp_to_next_lv']
         }
+        return Message.success(data=data)
     
     except SQLAlchemyError as e:
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
@@ -1182,19 +1178,15 @@ async def update_user_exp(
         # 更新经验值
         level_info = user_lv.update_exp(request.exp_gained)
         db.commit()
-        
-        return {
-            "code": 200,
-            "msg": "success",
-            "data": {
-                "lv": user_lv.lv,
-                "max_lv": user_lv.max_lv,
-                "exp": user_lv.exp,
-                "next_lv": user_lv.next_lv,
-                "exp_to_next_lv": level_info['exp_to_next_lv']
-            }
+        data = {
+            "lv": user_lv.lv,
+            "max_lv": user_lv.max_lv,
+            "exp": user_lv.exp,
+            "next_lv": user_lv.next_lv,
+            "exp_to_next_lv": level_info['exp_to_next_lv']
         }
-    
+        return Message.success(data=data)
+
     except SQLAlchemyError as e:
         db.rollback()
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
