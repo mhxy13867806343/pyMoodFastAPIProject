@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 import uuid
@@ -83,13 +84,56 @@ async def get_dict_by_id(
         globalLogger.error(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"], code=ErrorCode.SYSTEM_ERROR)
 
+@dictApp.post('/add',
+              summary=ApiDescriptions.DICT_ITEM_POST_DESC["summary"],
+              description=ApiDescriptions.DICT_ITEM_POST_DESC["description"]
+              )
+async def add_dict(
+    request: DictCreate,
+    db: Session = Depends(getDbSession)
+):
+    """添加字典"""
+    try:
+        if not request.name:
+            return Message.error(message="name不能为空", code=ErrorCode.BAD_REQUEST)
+        if not request.key:
+            return Message.error(message="key不能为空", code=ErrorCode.BAD_REQUEST)
+        if not request.value:
+            return Message.error(message="value不能为空", code=ErrorCode.BAD_REQUEST)
+        if not request.type:
+            return Message.error(message="type不能为空", code=ErrorCode.BAD_REQUEST)
+        dict_item = db.query(SYSDict).filter(SYSDict.key == request.key
+                                             ,SYSDict.name == request.name
+                                             ).first()
+        if dict_item :
+            return Message.error(message="字典已存在", code=ErrorCode.BAD_REQUEST)
+        code = f"DICTITEM_{uuid.uuid4().hex}"
+        dict_item = SYSDict(
+            code=code,
+            name=request.name,
+            key=request.key,
+            value=request.value,
+            type=request.type,
+            status=0
+        )
+        db.add(dict_item)
+        db.commit()
+        return Message.success(data=dict_item.to_dict())
+    except SQLAlchemyError as e:
+        print(11114,e)
+        db.rollback()
+        globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
+        return Message.error(message=SYSTEM_ERROR["DATABASE_ERROR"], code=ErrorCode.BAD_REQUEST)
+    except Exception as e:
+        print(11114,e)
+        globalLogger.error(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
+        return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"], code=ErrorCode.BAD_REQUEST)
 @dictApp.put(
-    "/update/{dict_id}",
+    "/update",
     summary=ApiDescriptions.DICT_PUT_DESC["summary"],
     description=ApiDescriptions.DICT_PUT_DESC["description"]
 )
 async def update_dict(
-    dict_id: int,
     request: DictUpdate,
     db: Session = Depends(getDbSession)
 ):
@@ -98,7 +142,7 @@ async def update_dict(
         if not request.name or not request.key or not request.value:
             return Message.error(message="name, key, value不能为空", code=ErrorCode.BAD_REQUEST)
 
-        dict_item = db.query(SYSDict).filter(SYSDict.id == dict_id).first()
+        dict_item = db.query(SYSDict).filter(SYSDict.code == request.code).first()
         if not dict_item:
             return Message.error(message="字典不存在", code=ErrorCode.BAD_REQUEST)
             
@@ -109,7 +153,7 @@ async def update_dict(
         # 检查name和key是否与其他记录冲突
         existing = db.query(SYSDict).filter(
             (SYSDict.name == request.name) | (SYSDict.key == request.key),
-            SYSDict.id != dict_id
+            SYSDict.code != request.code
         ).first()
         
         if existing:
@@ -142,25 +186,24 @@ async def update_dict(
     description=ApiDescriptions.DICT_STATUS_PUT_DESC["description"]
 )
 async def update_dict_status(
-    dict_id: int,
-    status: int,
+        request: DictUpdate,
     db: Session = Depends(getDbSession)
 ):
     """更新字典状态"""
     try:
-        if status not in [DictStatus.NORMAL.value, DictStatus.DISABLED.value]:
+        if request.status not in [DictStatus.NORMAL.value, DictStatus.DISABLED.value]:
             return Message.error(message="无效的状态值",code=ErrorCode.BAD_REQUEST)
 
-        dict_item = db.query(SYSDict).filter(SYSDict.id == dict_id).first()
+        dict_item = db.query(SYSDict).filter(SYSDict.code == request.code).first()
         if not dict_item:
             return Message.error(message="字典不存在",code=ErrorCode.BAD_REQUEST)
-        if dict_item.status == status:
+        if dict_item.status == request.status:
             return Message.error(message=f"当前字典状态未改变,无需更改",code=ErrorCode.BAD_REQUEST)
-        dict_item.status = status
+        dict_item.status = request.status
         db.commit()
         db.refresh(dict_item)
         
-        status_text = "启用" if status == DictStatus.NORMAL.value else "禁用"
+        status_text = "启用" if request.status == DictStatus.NORMAL.value else "禁用"
         return Message.success(data=dict_item.to_dict(), message=f"字典{status_text}成功")
     except SQLAlchemyError as e:
         db.rollback()
@@ -230,20 +273,22 @@ async def create_dict_item(
         
         return Message.success(data=dict_item.to_dict())
     except SQLAlchemyError as e:
+        print(333,e)
         db.rollback()
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["DATABASE_ERROR"], code=ErrorCode.BAD_REQUEST)
     except Exception as e:
+        print(333, e)
         globalLogger.error(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"], code=ErrorCode.SYSTEM_ERROR)
 
 @dictApp.get(
-    "/items/{dict_id}",
+    "/items/{code}",
     summary=ApiDescriptions.DICT_ITEMS_GET_DESC["summary"],
     description=ApiDescriptions.DICT_ITEMS_GET_DESC["description"]
 )
 async def get_dict_items(
-    dict_id: int,
+    code: str,
     query: DictItemQuery = Depends(),
     db: Session = Depends(getDbSession)
 ):
@@ -251,7 +296,7 @@ async def get_dict_items(
     try:
         # 获取字典
         dict_obj = db.query(SYSDict).filter(
-            SYSDict.id == dict_id,
+            SYSDict.code == code,
             SYSDict.status == DictStatus.NORMAL.value
         ).first()
         if not dict_obj:
@@ -287,6 +332,7 @@ async def get_dict_items(
             "items": [item.to_dict() for item in items]
         })
     except Exception as e:
+        print(33333,e)
         globalLogger.error(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"], code=ErrorCode.SYSTEM_ERROR)
 
@@ -303,7 +349,7 @@ async def update_dict_item(
     try:
         # 检查字典是否存在且状态正常
         dict_obj = db.query(SYSDict).filter(
-            SYSDict.id == request.dict_id,
+            SYSDict.code == request.code,
             SYSDict.status == DictStatus.NORMAL.value
         ).first()
         if not dict_obj:

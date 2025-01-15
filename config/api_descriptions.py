@@ -164,7 +164,10 @@ class ApiDescriptions:
         "summary": "更新字典",
         "description": "更新现有的系统字典"
     }
-
+    DICT_ADD_DESC = {
+        "summary": "添加字典",
+        "description": "添加字典"
+    }
     DICT_STATUS_PUT_DESC = {
         "summary": "更新字典状态",
         "description": "启用或禁用系统字典"
