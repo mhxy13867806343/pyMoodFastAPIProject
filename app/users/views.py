@@ -1039,13 +1039,18 @@ async def check_name(
         
         if not existing_user:
             return CheckNameResponse(available=True, suggestions=[])
-        
+            # 检查用户状态
+        if existing_user.type == UserType.NORMAL and existing_user.status == UserStatus.DISABLED:
+            return Message.error(
+                message=USER_ERROR["FORBIDDEN"],
+                code=ErrorCode.FORBIDDEN
+            )
         # 如果名称已存在，生成建议
         suggestions = generate_name_suggestions(request.name, db)
         return CheckNameResponse(available=False, suggestions=suggestions)
 
     except Exception as e:
-        globalLogger.error(f"检查用户名时发生错误: {str(e)}")
+        globalLogger.error(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
 
 @userApp.put(
@@ -1063,7 +1068,11 @@ async def update_name(
         user = db.query(UserInputs).filter(UserInputs.uid == current_user_uid).first()
         if not user:
             return Message.error(message=USER_ERROR["USER_NOT_FOUND"])
-
+        if user.type == UserType.NORMAL and user.status == UserStatus.DISABLED:
+            return Message.error(
+                message=USER_ERROR["FORBIDDEN"],
+                code=ErrorCode.FORBIDDEN
+            )
         # 检查新名称是否已存在
         if db.query(UserInputs).filter(
             UserInputs.name == request.name,
@@ -1083,10 +1092,10 @@ async def update_name(
 
     except SQLAlchemyError as e:
         db.rollback()
-        globalLogger.error(f"更新用户名称时发生数据库错误: {str(e)}")
+        globalLogger.error(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["DATABASE_ERROR"])
     except Exception as e:
-        globalLogger.error(f"更新用户名称时发生错误: {str(e)}")
+        globalLogger.error(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"])
 
 @userApp.get(
@@ -1101,15 +1110,23 @@ async def get_user_level(
     """获取用户等级信息"""
     try:
         # 获取用户等级信息
+        user=db.query(UserInputs).filter(UserInputs.uid == current_user_uid).first()
+        if not user:
+            return Message.error(message=USER_ERROR["USER_NOT_FOUND"])
+        if user.type == UserType.NORMAL and user.status == UserStatus.DISABLED:
+            return Message.error(
+                message=USER_ERROR["FORBIDDEN"],
+                code=ErrorCode.FORBIDDEN
+            )
         user_lv = db.query(UserLvNext).filter(UserLvNext.user_uid == current_user_uid).first()
-        
+
         # 如果用户没有等级记录，创建一个
         if not user_lv:
             user_lv = UserLvNext(user_uid=current_user_uid)
             db.add(user_lv)
             db.commit()
             db.refresh(user_lv)
-        
+
         # 获取下一级所需经验
         level_info = user_lv.get_level_by_exp(user_lv.exp)
         
@@ -1144,6 +1161,14 @@ async def update_user_exp(
 ):
     """更新用户经验值"""
     try:
+        user = db.query(UserInputs).filter(UserInputs.uid == current_user_uid).first()
+        if not user:
+            return Message.error(message=USER_ERROR["USER_NOT_FOUND"])
+        if user.type == UserType.NORMAL and user.status == UserStatus.DISABLED:
+            return Message.error(
+                message=USER_ERROR["FORBIDDEN"],
+                code=ErrorCode.FORBIDDEN
+            )
         # 获取用户等级信息
         user_lv = db.query(UserLvNext).filter(UserLvNext.user_uid == current_user_uid).first()
         
