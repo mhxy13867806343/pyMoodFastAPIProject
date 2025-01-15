@@ -47,7 +47,7 @@ class DictItemQuery(BaseModel):
 
 class DictItemBase(BaseModel):
     """字典项基础模型"""
-    code: str = Field(..., description="字典code")
+    dict_id: int = Field(..., description="字典ID")
     name: str = Field(..., description="字典项名称", max_length=50)
     key: str = Field(..., description="字典项key", max_length=50)
     value: str = Field(..., description="字典项value", max_length=50)
@@ -73,11 +73,7 @@ class DictItemCreate(DictItemBase):
 
 class DictItemUpdate(DictItemBase):
     """更新字典项请求模型"""
-    code: str = Field(..., description="字典code")
-    name: str = Field(..., description="字典项名称", max_length=50)
-    key: str = Field(..., description="字典项key", max_length=50)
-    value: str = Field(..., description="字典项value", max_length=50)
-    pass
+    code: str = Field(..., description="字典项code")
 
 class DictItemResponse(BaseModel):
     """字典项响应模型"""
@@ -106,7 +102,7 @@ class DictResponse(BaseModel):
     status: Optional[int]
     create_time: int
     last_time: int
-    items: List[DictItemResponse] = []
+    items: List[DictItemResponse] = Field(default=[], description="字典项列表")
 
     class Config:
         from_attributes = True

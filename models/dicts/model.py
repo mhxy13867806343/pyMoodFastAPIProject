@@ -18,7 +18,7 @@ class SYSDict(Base):
     status = Column(Integer, nullable=False, default=0, comment="状态 0 正常 1 停用")
     create_time = Column(Integer, nullable=False, default=lambda: int(time.time()), comment="创建时间")
     last_time = Column(Integer, nullable=False, default=lambda: int(time.time()), onupdate=lambda: int(time.time()), comment="更新时间")
-    items = relationship("SYSDictItem", backref="dict", lazy="dynamic", foreign_keys="[SYSDictItem.code]")
+    items = relationship("SYSDictItem", backref="dict", lazy="dynamic", foreign_keys="[SYSDictItem.dict_id]")
 
     def to_dict(self):
         """转换为字典"""
@@ -41,7 +41,7 @@ class SYSDictItem(Base):
     #code由系统生成，不可修改
     item_code=Column(String(50), nullable=False, unique=True,default="", comment="字典项code")
     #外键关联字典表
-    code = Column(String(50), ForeignKey('sys_dict.code'), nullable=False, comment="字典code")
+    dict_id = Column(Integer, ForeignKey('sys_dict.id'), nullable=False, comment="字典id")
     name = Column(String(50), nullable=False, unique=True ,default="", comment="字典项名称")
     key = Column(String(50), nullable=False, unique=True, default="", comment="字典项key")
     value = Column(String(50), nullable=False, default="", comment="字典项value")
@@ -52,10 +52,11 @@ class SYSDictItem(Base):
 
     def to_dict(self):
         """转换为字典"""
+        dict_obj = self.dict  # 获取关联的字典对象
         return {
             "id": self.id,
             "item_code": self.item_code,
-            "code": self.code,
+            "code": dict_obj.code if dict_obj else None,  # 从关联的字典对象获取code
             "name": self.name,
             "key": self.key,
             "value": self.value,
