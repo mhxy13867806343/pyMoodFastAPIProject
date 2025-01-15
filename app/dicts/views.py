@@ -16,12 +16,12 @@ from tool.db import getDbSession
 from tool.getLogger import globalLogger
 from tool.msg import Message
 
-dictApp = APIRouter(tags=["字典管理"])
+dictApp = APIRouter(tags=[ApiDescriptions.DICT_TAGS])
 
 @dictApp.get(
     "/dict/list",
-    summary="获取字典列表",
-    response_model=DictListResponse
+    summary=ApiDescriptions.DICT_GET_DESC["summary"],
+    description=ApiDescriptions.DICT_GET_DESC["description"]
 )
 async def get_dict_list(
     query: DictQuery = Depends(),
@@ -43,8 +43,8 @@ async def get_dict_list(
 
 @dictApp.get(
     "/dict/{code}",
-    summary="获取字典详情",
-    response_model=DictResponse
+    summary=ApiDescriptions.DICT_CODE_DESC["summary"],
+    description=ApiDescriptions.DICT_CODE_DESC["description"]
 )
 async def get_dict_detail(
     code: str,
@@ -63,7 +63,8 @@ async def get_dict_detail(
 
 @dictApp.post(
     "/dict",
-    summary="创建字典"
+    summary=ApiDescriptions.DICT_POST_DESC["summary"],
+    description=ApiDescriptions.DICT_POST_DESC["description"]
 )
 async def create_dict(
     request: DictCreate,
@@ -102,7 +103,8 @@ async def create_dict(
 
 @dictApp.put(
     "/dict/{code}",
-    summary="更新字典"
+    summary=ApiDescriptions.DICT_PUT_DESC["summary"],
+    description=ApiDescriptions.DICT_PUT_DESC["description"]
 )
 async def update_dict(
     code: str,
@@ -142,7 +144,8 @@ async def update_dict(
 
 @dictApp.delete(
     "/dict/{code}",
-    summary="删除字典"
+    summary=ApiDescriptions.DICT_DEL_DESC["summary"],
+    description=ApiDescriptions.DICT_DEL_DESC["description"]
 )
 async def delete_dict(
     code: str,
@@ -173,8 +176,8 @@ async def delete_dict(
 # 字典项接口
 @dictApp.get(
     "/dict/items/{dict_code}",
-    summary="获取字典项列表",
-    response_model=DictItemResponse
+    summary=ApiDescriptions.DICT_GET_DESC["summary"],
+    description=ApiDescriptions.DICT_GET_DESC["description"]
 )
 async def get_dict_items(
     dict_code: str,
@@ -201,7 +204,8 @@ async def get_dict_items(
 
 @dictApp.post(
     "/dict/item",
-    summary="创建字典项"
+summary=ApiDescriptions.DICT_POST_DESC["summary"],
+description=ApiDescriptions.DICT_POST_DESC["description"]
 )
 async def create_dict_item(
     request: DictItemCreate,
@@ -249,7 +253,8 @@ async def create_dict_item(
 
 @dictApp.put(
     "/dict/item/{code}",
-    summary="更新字典项"
+summary=ApiDescriptions.DICT_PUT_DESC["summary"],
+description=ApiDescriptions.DICT_PUT_DESC["description"]
 )
 async def update_dict_item(
     code: str,
@@ -290,7 +295,9 @@ async def update_dict_item(
 
 @dictApp.delete(
     "/dict/item/{code}",
-    summary="删除字典项"
+    summary=ApiDescriptions.DICT_DEL_DESC["summary"],
+description=ApiDescriptions.DICT_DEL_DESC["description"]
+
 )
 async def delete_dict_item(
     code: str,
@@ -301,7 +308,7 @@ async def delete_dict_item(
         dict_item = db.query(SYSDictItem).filter(SYSDictItem.item_code == code).first()
         if not dict_item:
             return Message.error(message="字典项不存在")
-        
+
         db.delete(dict_item)
         db.commit()
         

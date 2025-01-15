@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
-from typing import List
+from typing import List, ForwardRef
 import re
 
 class DictBase(BaseModel):
@@ -79,22 +79,6 @@ class DictItemUpdate(DictItemBase):
     """更新字典项请求模型"""
     pass
 
-class DictResponse(BaseModel):
-    """字典响应模型"""
-    id: int
-    code: str
-    name: str
-    key: str
-    value: str
-    type: str
-    status: int
-    create_time: int
-    last_time: int
-    items: List["DictItemResponse"] = []
-
-    class Config:
-        from_attributes = True
-
 class DictItemResponse(BaseModel):
     """字典项响应模型"""
     id: int
@@ -111,8 +95,21 @@ class DictItemResponse(BaseModel):
     class Config:
         from_attributes = True
 
-# 解决循环引用
-DictResponse.update_forward_refs(DictItemResponse=DictItemResponse)
+class DictResponse(BaseModel):
+    """字典响应模型"""
+    id: int
+    code: str
+    name: str
+    key: str
+    value: str
+    type: str
+    status: int
+    create_time: int
+    last_time: int
+    items: List[DictItemResponse] = []
+
+    class Config:
+        from_attributes = True
 
 class DictListResponse(BaseModel):
     """字典列表响应模型"""

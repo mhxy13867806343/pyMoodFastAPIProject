@@ -8,7 +8,8 @@ class ApiDescription(NamedTuple):
 
 class ApiDescriptions:
     """API 描述配置"""
-    
+    USER_TAGS="用户相关"
+    DICT_TAGS="字典管理"
     # 用户认证相关
     AUTH = {
         "summary": "用户认证",
@@ -142,4 +143,34 @@ class ApiDescriptions:
         - 自动计算是否升级
         - 返回更新后的等级信息
         """
+    }
+    DICT_GET_DESC = {
+        "summary": "获取字典项列表",
+        "description": """
+                   获取字典项列表
+                    """
+    }
+    DICT_POST_DESC = {
+        "summary": "创建字典项",
+        "description": """
+                 创建字典项
+                  """
+    }
+    DICT_CODE_DESC = {
+        "summary": "获取字典详情",
+        "description": """
+            获取字典详情
+              """
+    }
+    DICT_DEL_DESC={
+        "summary": "删除字典项",
+        "description": """
+        删除字典项
+          """
+    }
+    DICT_PUT_DESC = {
+        "summary": "更新字典",
+        "description": """
+             更新字典
+              """
     }

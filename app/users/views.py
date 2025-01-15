@@ -45,7 +45,7 @@ ALLOWED_EXTENSIONS = IMAGE_CONFIG["allowed_extensions"]
 
 # 加载环境变量
 redis_db = RedisDB()
-userApp = APIRouter(tags=["用户相关"])
+userApp = APIRouter(tags=[ApiDescriptions.USER_TAGS])
 
 # 管理员账号配置
 ADMIN_ACCOUNTS = {
