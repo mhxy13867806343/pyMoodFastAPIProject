@@ -176,8 +176,8 @@ async def delete_dict(
 # 字典项接口
 @dictApp.get(
     "/dict/items/{dict_code}",
-    summary=ApiDescriptions.DICT_GET_DESC["summary"],
-    description=ApiDescriptions.DICT_GET_DESC["description"]
+    summary=ApiDescriptions.DICT_ITEMS_GET_DESC["summary"],
+    description=ApiDescriptions.DICT_ITEMS_GET_DESC["description"]
 )
 async def get_dict_items(
     dict_code: str,
@@ -204,8 +204,8 @@ async def get_dict_items(
 
 @dictApp.post(
     "/dict/item",
-summary=ApiDescriptions.DICT_POST_DESC["summary"],
-description=ApiDescriptions.DICT_POST_DESC["description"]
+    summary=ApiDescriptions.DICT_ITEM_POST_DESC["summary"],
+    description=ApiDescriptions.DICT_ITEM_POST_DESC["description"]
 )
 async def create_dict_item(
     request: DictItemCreate,
@@ -253,8 +253,8 @@ async def create_dict_item(
 
 @dictApp.put(
     "/dict/item/{code}",
-summary=ApiDescriptions.DICT_PUT_DESC["summary"],
-description=ApiDescriptions.DICT_PUT_DESC["description"]
+    summary=ApiDescriptions.DICT_ITEM_PUT_DESC["summary"],
+    description=ApiDescriptions.DICT_ITEM_PUT_DESC["description"]
 )
 async def update_dict_item(
     code: str,
@@ -295,9 +295,8 @@ async def update_dict_item(
 
 @dictApp.delete(
     "/dict/item/{code}",
-    summary=ApiDescriptions.DICT_DEL_DESC["summary"],
-description=ApiDescriptions.DICT_DEL_DESC["description"]
-
+    summary=ApiDescriptions.DICT_ITEM_DEL_DESC["summary"],
+    description=ApiDescriptions.DICT_ITEM_DEL_DESC["description"]
 )
 async def delete_dict_item(
     code: str,

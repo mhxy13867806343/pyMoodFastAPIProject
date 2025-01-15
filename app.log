@@ -5263,3 +5263,26 @@ CREATE TABLE sys_dict_item (
 2025-01-15 20:35:08,826 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
 2025-01-15 20:35:08,828 - sqlalchemy.engine.Engine - INFO - COMMIT
 2025-01-15 20:35:08,828 - tool.getLogger - INFO - 数据库初始化成功
+2025-01-15 20:56:31,754 - tool.getLogger - INFO - 应用正在关闭...
+2025-01-15 20:57:04,403 - asyncio - DEBUG - Using selector: KqueueSelector
+2025-01-15 20:57:04,450 - sqlalchemy.engine.Engine - INFO - SELECT DATABASE()
+2025-01-15 20:57:04,451 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 20:57:04,452 - sqlalchemy.engine.Engine - INFO - SELECT @@sql_mode
+2025-01-15 20:57:04,452 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 20:57:04,452 - sqlalchemy.engine.Engine - INFO - SELECT @@lower_case_table_names
+2025-01-15 20:57:04,453 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 20:57:04,453 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-01-15 20:57:04,453 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_inputs`
+2025-01-15 20:57:04,453 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 20:57:04,459 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_login_record`
+2025-01-15 20:57:04,459 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 20:57:04,460 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_logout_records`
+2025-01-15 20:57:04,460 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 20:57:04,461 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`user_lv_next`
+2025-01-15 20:57:04,461 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 20:57:04,462 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict`
+2025-01-15 20:57:04,462 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 20:57:04,468 - sqlalchemy.engine.Engine - INFO - DESCRIBE `mood`.`sys_dict_item`
+2025-01-15 20:57:04,468 - sqlalchemy.engine.Engine - INFO - [raw sql] {}
+2025-01-15 20:57:04,474 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-01-15 20:57:04,474 - tool.getLogger - INFO - 数据库初始化成功

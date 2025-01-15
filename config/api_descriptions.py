@@ -145,32 +145,38 @@ class ApiDescriptions:
         """
     }
     DICT_GET_DESC = {
-        "summary": "获取字典项列表",
-        "description": """
-                   获取字典项列表
-                    """
+        "summary": "获取字典列表",
+        "description": """获取字典列表"""
     }
     DICT_POST_DESC = {
-        "summary": "创建字典项",
-        "description": """
-                 创建字典项
-                  """
+        "summary": "创建字典",
+        "description": """创建新的字典"""
     }
     DICT_CODE_DESC = {
         "summary": "获取字典详情",
-        "description": """
-            获取字典详情
-              """
+        "description": """获取指定字典的详细信息"""
     }
-    DICT_DEL_DESC={
-        "summary": "删除字典项",
-        "description": """
-        删除字典项
-          """
+    DICT_DEL_DESC = {
+        "summary": "删除字典",
+        "description": """删除指定的字典"""
     }
     DICT_PUT_DESC = {
         "summary": "更新字典",
-        "description": """
-             更新字典
-              """
+        "description": """更新指定字典的信息"""
+    }
+    DICT_ITEMS_GET_DESC = {
+        "summary": "获取字典项列表",
+        "description": """获取指定字典下的所有字典项"""
+    }
+    DICT_ITEM_POST_DESC = {
+        "summary": "创建字典项",
+        "description": """在指定字典下创建新的字典项"""
+    }
+    DICT_ITEM_PUT_DESC = {
+        "summary": "更新字典项",
+        "description": """更新指定的字典项信息"""
+    }
+    DICT_ITEM_DEL_DESC = {
+        "summary": "删除字典项",
+        "description": """删除指定的字典项"""
     }
