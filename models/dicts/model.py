@@ -15,10 +15,10 @@ class SYSDict(Base):
     key = Column(String(50), nullable=False, unique=True, default="", comment="字典key")
     value = Column(String(50), nullable=False, default="", comment="字典value")
     type = Column(String(50), nullable=False, default="", comment="字典类型")
-    status = Column(Integer, nullable=False, default=DictStatus.NORMAL, comment="状态 0 正常 1 停用")
+    status = Column(Integer, nullable=False, default=0, comment="状态 0 正常 1 停用")
     create_time = Column(Integer, nullable=False, default=lambda: int(time.time()), comment="创建时间")
     last_time = Column(Integer, nullable=False, default=lambda: int(time.time()), onupdate=lambda: int(time.time()), comment="更新时间")
-    items = relationship("SYSDictItem", backref="dict", lazy="dynamic")
+    items = relationship("SYSDictItem", backref="dict", lazy="dynamic", foreign_keys="[SYSDictItem.dict_id]")
 
     def to_dict(self):
         """转换为字典"""
@@ -41,13 +41,12 @@ class SYSDictItem(Base):
     #code由系统生成，不可修改
     item_code=Column(String(50), nullable=False, unique=True,default="", comment="字典code")
     #外键关联字典表
-    dict_code = Column(String(50), ForeignKey('sys_dict.code'), nullable=False, comment="字典code")
     dict_id = Column(Integer, ForeignKey('sys_dict.id'), nullable=False, comment="字典id")
     name = Column(String(50), nullable=False, unique=True ,default="", comment="字典名称")
     key = Column(String(50), nullable=False, unique=True, default="", comment="字典key")
     value = Column(String(50), nullable=False, default="", comment="字典value")
     type = Column(String(50), nullable=False, default="", comment="字典类型")
-    status = Column(Integer, nullable=False, default=DictStatus.NORMAL, comment="状态 0 正常 1 停用")
+    status = Column(Integer, nullable=False, default=0, comment="状态 0 正常 1 停用")
     create_time = Column(Integer, nullable=False, default=lambda: int(time.time()), comment="创建时间")
     last_time = Column(Integer, nullable=False, default=lambda: int(time.time()), onupdate=lambda: int(time.time()), comment="更新时间")
 

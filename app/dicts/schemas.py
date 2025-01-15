@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator
-from typing import List, ForwardRef
+from typing import List, ForwardRef, Optional
 import re
 
 class DictBase(BaseModel):
@@ -7,7 +7,7 @@ class DictBase(BaseModel):
     name: str = Field(..., description="字典名称", max_length=50)
     key: str = Field(..., description="字典key", max_length=50)
     value: str = Field(..., description="字典value", max_length=50)
-    type: str = Field(..., description="字典类型", max_length=50)
+    type: str = Field("0", description="字典类型", max_length=50)  # 默认为 "0"
 
     @field_validator('*')
     @classmethod
@@ -35,10 +35,10 @@ class DictQuery(BaseModel):
     """字典查询参数"""
     page: int = Field(1, description="页码", ge=1)
     page_size: int = Field(10, description="每页数量", ge=1, le=100)
-    type: str | None = Field(None, description="字典类型")
-    name:str | None = Field(None, description="字典名称")
-    key:str | None = Field(None, description="字典key")
-    status:int|None = Field(None, description="字典状态")
+    type: Optional[str] = Field(None, description="字典类型")
+    name: Optional[str] = Field(None, description="字典名称")
+    key: Optional[str] = Field(None, description="字典key")
+    status: Optional[int] = Field(None, description="字典状态")
 
 class DictItemQuery(BaseModel):
     """字典项查询参数"""
@@ -51,7 +51,7 @@ class DictItemBase(BaseModel):
     name: str = Field(..., description="字典项名称", max_length=50)
     key: str = Field(..., description="字典项key", max_length=50)
     value: str = Field(..., description="字典项value", max_length=50)
-    type: str = Field(..., description="字典项类型", max_length=50)
+    type: str = Field("0", description="字典项类型", max_length=50)  # 默认为 "0"
 
     @field_validator('*')
     @classmethod
@@ -91,7 +91,7 @@ class DictItemResponse(BaseModel):
     key: str
     value: str
     type: str
-    status: int
+    status: Optional[int]
     create_time: int
     last_time: int
 
@@ -106,7 +106,7 @@ class DictResponse(BaseModel):
     key: str
     value: str
     type: str
-    status: int
+    status: Optional[int]
     create_time: int
     last_time: int
     items: List[DictItemResponse] = []
