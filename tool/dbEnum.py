@@ -29,6 +29,7 @@ class DictStatus(IntEnum):
     """用户状态枚举"""
     NORMAL = 0   # 正常
     DISABLED = 1 # 禁用
+    ALL=2
 class EmailStatus(IntEnum):
     """邮箱绑定状态枚举"""
     UNBOUND = 0    # 未绑定

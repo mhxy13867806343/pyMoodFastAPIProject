@@ -1,8 +1,12 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import List, ForwardRef, Optional
 import re
+
+from tool.dbEnum import DictStatus
+
+
 class DictBaseStatus(BaseModel):
-    status: Optional[int] = Field(0, description="字典状态")
+    status: Optional[int] = Field(DictStatus.ALL, description="字典状态")
 class DictBase(DictBaseStatus):
     """字典基础模型"""
     name: Optional[str] = Field(None, description="字典名称", max_length=50)

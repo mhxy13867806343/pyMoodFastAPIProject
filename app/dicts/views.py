@@ -19,7 +19,7 @@ from app.dicts.schemas import (
     DictBaseListMore, DictCreate, DictBaseModelCode
 )
 from tool.db import getDbSession
-from tool.dbTools import sysHex4randCode, get_pagination, get_total_count
+from tool.dbTools import sysHex4randCode, get_pagination
 from tool.getLogger import globalLogger
 from tool.msg import Message
 
@@ -36,31 +36,32 @@ async def get_dict_list(
 ):
     """获取字典列表"""
     try:
-        query_obj = db.query(SYSDict)
+        kwargs = {}
         
-        # 构建查询条件
-        conditions = []
-        if query.key:
-            conditions.append(SYSDict.key == query.key)
-        if query.name:
-            conditions.append(SYSDict.name == query.name)
-        if query.type:
-            conditions.append(SYSDict.type == query.type)
-        if query.status is not None:  # 如果status有值（包括0），则添加条件
-            conditions.append(SYSDict.status == query.status)
+        # status: 只有 0 和 1 才过滤，其他值都查询所有
+        if query.status in [0, 1]:
+            kwargs['status'] = query.status
             
-        # 如果有查询条件，添加到查询对象中
-        if conditions:
-            query_obj = query_obj.filter(*conditions)
-
-        total = query_obj.count()
-        items = query_obj.offset((query.page - 1) * query.page_size).limit(query.page_size).all()
-        return Message.success(data={
-            "total": total,
-            "page": query.page,
-            "page_size": query.page_size,
-            "data": [item.to_dict() for item in items]
-        })
+        # 其他字段：空字符串查询所有，有值才过滤
+        if query.type is not None and query.type != "":
+            kwargs['type'] = query.type
+        if query.key is not None and query.key != "":
+            kwargs['key'] = query.key
+        if query.name is not None and query.name != "":
+            kwargs['name'] = query.name
+        if query.value is not None and query.value != "":
+            kwargs['value'] = query.value
+            
+        print("Query parameters:", kwargs)  # 调试日志
+        
+        pagination = get_pagination(
+            model=SYSDict,
+            session=db,
+            pageNum=query.page,
+            pageSize=query.page_size,
+            **kwargs
+        )
+        return Message.success(data=pagination)
     except Exception as e:
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["DATABASE_ERROR"], code=ErrorCode.DATABASE_ERROR)

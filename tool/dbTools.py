@@ -1,48 +1,98 @@
 import string
 import uuid
-
-from sqlalchemy.orm import Session
-from typing import Optional, List, Dict, Any, Union, TypeVar, Type, Callable, cast
+from sqlalchemy import and_, not_, inspect, desc
+from sqlalchemy.orm import Session, Query
+from typing import Optional, List, Dict, Any, Union, TypeVar, Type, Callable, cast, Tuple
 import re
 import secrets
 import time
 import random
 from hashlib import md5
 from fastapi import status
+from datetime import datetime
+
 
 def get_pagination(
-    db: Session,
-    model: Any,
-    page: int = 1,
-    page_size: int = 20
-) -> Optional[List[Dict[str, Any]]]:
+        model,
+        session: Session,
+        pageNum: int = 1,
+        pageSize: int = 20,
+        **kwargs
+):
+    offset = (pageNum - 1) * pageSize
+    query = session.query(model)
+
+    # 动态过滤
+    query = apply_filters(query, model, **kwargs)
+
+    # 排序、分页
+    total = query.count()
+    items = query.offset(offset).limit(pageSize).all()
+
+    # 将 SQLAlchemy 模型对象转换为字典
+    result_list = []
+    for item in items:
+        if hasattr(item, 'to_dict'):
+            result_list.append(item.to_dict())
+        else:
+            item_dict = {}
+            for column in item.__table__.columns:
+                value = getattr(item, column.name)
+                if isinstance(value, (datetime.date, datetime.datetime)):
+                    value = value.isoformat()
+                item_dict[column.name] = value
+            result_list.append(item_dict)
+
+    return {
+        "total": total,
+        "pageNum": pageNum,
+        "pageSize": pageSize,
+        "data": result_list,
+    }
+
+
+def apply_filters(query, model, **kwargs):
     """
-    获取分页数据
-
-    参数:
-    db (Session): 数据库会话
-    model: 数据库模型
-    page (int): 当前页码，默认为1
-    page_size (int): 每页数量，默认为20
-
-    返回:
-    List: 分页后的数据列表
+    向查询中动态添加过滤条件。
+    :param query: 当前的 SQLAlchemy 查询对象。
+    :param model: 要查询的 SQLAlchemy 模型类。
+    :param kwargs: 动态过滤条件。
+    :return: 过滤后的查询对象。
     """
-    offset = (page - 1) * page_size
-    return db.query(model).offset(offset).limit(page_size).all()
+    print("Filter conditions:", kwargs)  # 调试日志
+    
+    # 如果没有过滤条件，返回所有记录
+    if not kwargs:
+        return query
+        
+    for attr, value in kwargs.items():
+        if hasattr(model, attr):
+            model_field = getattr(model, attr)
+            if isinstance(value, str):
+                # 字符串字段使用模糊查询
+                query = query.filter(model_field.like(f"%{value}%"))
+            else:
+                # 非字符串字段使用精确匹配
+                query = query.filter(model_field == value)
+    
+    print("Final SQL:", str(query))  # 调试日志
+    return query
 
-def get_total_count(db: Session, model: Any) -> int:
-    """
-    获取总条数
 
-    参数:
-    db (Session): 数据库会话
-    model: 数据库模型
+def get_total_count(query_obj: Query) -> int:
+    """获取查询结果总数"""
+    return query_obj.count()
 
-    返回:
-    int: 总条数
-    """
-    return db.query(model).count()
+def sysHex4randCode(prefix: str = "DICTITEM_", length: int = 8) -> str:
+    """生成指定长度的随机编码"""
+    import random
+    import string
+    
+    # 生成随机字符串
+    chars = string.ascii_uppercase + string.digits
+    random_str = ''.join(random.choice(chars) for _ in range(length))
+    
+    return f"{prefix}{random_str}"
 
 def generate_dynamic_cookies() -> Dict[str, str]:
     """
@@ -98,8 +148,3 @@ def httpStatus(code: int = status.HTTP_400_BAD_REQUEST, message: str = "获取�
         "message": message,
         "data": data
     }
-def sysHex4randCode(sdict:str="sys_dict_DICTITEM_")->str:
-    alphabet = string.ascii_letters
-    random_letters_with_duplicates = ''.join(random.choices(alphabet, k=4))
-    code = f"{sdict}{uuid.uuid4().hex}_{random_letters_with_duplicates}"
-    return code
