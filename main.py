@@ -62,23 +62,26 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     """处理请求参数验证错误"""
     globalLogger.error(f"{SYSTEM_ERROR['PARAM_ERROR']}: {str(exc.errors())}")
     return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content=HttpStatus.custom(
-            code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            message=SYSTEM_ERROR['PARAM_ERROR'],
-            data={"detail": exc.errors()}
-        )
+        status_code=status.HTTP_200_OK,  
+        content={
+            "code": status.HTTP_422_UNPROCESSABLE_ENTITY,
+            "message": SYSTEM_ERROR['PARAM_ERROR'],
+            "data": {"detail": str(exc.errors())}  
+        }
     )
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     """处理所有未捕获的异常"""
-    globalLogger.exception(f"{SYSTEM_ERROR['SERVER_ERROR']}:", exc)
+    error_msg = str(exc)  
+    globalLogger.exception(f"{SYSTEM_ERROR['SERVER_ERROR']}: {error_msg}")
     return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=HttpStatus.server_error(
-            message=SYSTEM_ERROR['SERVER_ERROR']
-        )
+        status_code=status.HTTP_200_OK,  
+        content={
+            "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+            "message": SYSTEM_ERROR['SERVER_ERROR'],
+            "data": {"detail": error_msg}  
+        }
     )
 
 # 请求日志和响应处理中间件
@@ -108,26 +111,31 @@ class CustomHeaderMiddleware(BaseHTTPMiddleware):
             response: Response = await call_next(request)
             response.headers['X-Frame-Options'] = 'ALLOW-FROM https://lcs200.icu/#/'
             response.headers['Content-Security-Policy'] = "frame-ancestors 'self' https://lcs200.icu/#/"
-            # 添加安全相关的响应头
             response.headers['X-Content-Type-Options'] = 'nosniff'
             response.headers['X-XSS-Protection'] = '1; mode=block'
             response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
             return response
         except SQLAlchemyError as e:
-            globalLogger.exception(f"{SYSTEM_ERROR['DB_ERROR']}:", e)
+            error_msg = str(e)
+            globalLogger.exception(f"{SYSTEM_ERROR['DB_ERROR']}: {error_msg}")
             return JSONResponse(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                content=HttpStatus.server_error(
-                    message=SYSTEM_ERROR['DB_ERROR']
-                )
+                status_code=status.HTTP_200_OK,
+                content={
+                    "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    "message": SYSTEM_ERROR['DB_ERROR'],
+                    "data": {"detail": error_msg}
+                }
             )
         except Exception as e:
-            globalLogger.exception(f"{SYSTEM_ERROR['REQUEST_ERROR']}:", e)
+            error_msg = str(e)
+            globalLogger.exception(f"{SYSTEM_ERROR['REQUEST_ERROR']}: {error_msg}")
             return JSONResponse(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                content=HttpStatus.server_error(
-                    message=SYSTEM_ERROR['REQUEST_ERROR']
-                )
+                status_code=status.HTTP_200_OK,
+                content={
+                    "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    "message": SYSTEM_ERROR['REQUEST_ERROR'],
+                    "data": {"detail": error_msg}
+                }
             )
 
 # 添加中间件（顺序很重要）

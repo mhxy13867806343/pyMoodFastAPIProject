@@ -35,29 +35,41 @@ class Message(BaseModel, Generic[T]):
         return d
 
     @classmethod
-    def success(cls, data: Optional[T] = None, message: str = "操作成功", code: int = ErrorCode.SUCCESS) -> "Message[T]":
+    def success(cls, data: Optional[T] = None, message: str = "操作成功", code: int = ErrorCode.SUCCESS) -> JSONResponse:
         """成功响应"""
-        return cls(code=code, message=message, data=data)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=cls(code=code, message=message, data=data).dict()
+        )
 
     @classmethod
-    def error(cls, message: Optional[str] = None, code: int = ErrorCode.INTERNAL_ERROR, data: Optional[T] = None) -> "Message[T]":
+    def error(cls, message: Optional[str] = None, code: int = ErrorCode.INTERNAL_ERROR, data: Optional[T] = None) -> JSONResponse:
         """错误响应"""
         if message is None:
             message = USER_ERROR.get("SYSTEM_ERROR", "操作失败")
-        return cls(code=code, message=message, data=data)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=cls(code=code, message=message, data=data).dict()
+        )
 
     @classmethod
-    def warning(cls, message: str = "警告", code: int = ErrorCode.BAD_REQUEST, data: Optional[T] = None) -> "Message[T]":
+    def warning(cls, message: str = "警告", code: int = ErrorCode.BAD_REQUEST, data: Optional[T] = None) -> JSONResponse:
         """警告响应"""
-        return cls(code=code, message=message, data=data)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=cls(code=code, message=message, data=data).dict()
+        )
 
     @classmethod
-    def info(cls, message: str = "提示", code: int = ErrorCode.SUCCESS, data: Optional[T] = None) -> "Message[T]":
+    def info(cls, message: str = "提示", code: int = ErrorCode.SUCCESS, data: Optional[T] = None) -> JSONResponse:
         """信息响应"""
-        return cls(code=code, message=message, data=data)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=cls(code=code, message=message, data=data).dict()
+        )
 
     @classmethod
-    def server_error(cls, message: Optional[str] = None) -> "Message[T]":
+    def server_error(cls, message: Optional[str] = None) -> JSONResponse:
         """服务器错误响应"""
         return cls.error(
             message=message or SYSTEM_ERROR["SYSTEM_ERROR"],
@@ -66,8 +78,10 @@ class Message(BaseModel, Generic[T]):
 
     @classmethod
     def custom(cls, code: int, message: str, data: Optional[T] = None) -> JSONResponse:
-        return cls(code=code, message=message, data=data)
-
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=cls(code=code, message=message, data=data).dict()
+        )
 
     @classmethod
     def http_401_exception(cls) -> JSONResponse:
@@ -75,14 +89,6 @@ class Message(BaseModel, Generic[T]):
         返回401未授权响应
         :param message: 自定义错误消息，如果不提供则使用默认的TOKEN_INVALID消息
         """
-        # raise HTTPException(
-        #     status_code=status.HTTP_401_UNAUTHORIZED,
-        #     detail={
-        #         "message": USER_ERROR["TOKEN_INVALID"],
-        #         "code": status.HTTP_401_UNAUTHORIZED
-        #     },
-        #     headers={"WWW-Authenticate": "Bearer"},
-        # )
         unauthorized=ErrorCode.UNAUTHORIZED
         message=USER_ERROR.get("TOKEN_EXPIRED")
         response_data={

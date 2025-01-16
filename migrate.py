@@ -80,7 +80,7 @@ def run_migrations():
             session.execute(text("""
                 CREATE TABLE IF NOT EXISTS sys_dict_item (
                     id INT AUTO_INCREMENT,
-                    dict_id INT NOT NULL COMMENT '所属字典ID',
+                    parent_code VARCHAR(64) NOT NULL COMMENT '父字典编码',
                     item_code VARCHAR(64) NOT NULL COMMENT '字典项编码',
                     name VARCHAR(64) NOT NULL COMMENT '字典项名称',
                     `key` VARCHAR(64) NOT NULL COMMENT '字典项键',
@@ -91,8 +91,8 @@ def run_migrations():
                     last_time INT NOT NULL DEFAULT 0 COMMENT '最后更新时间',
                     PRIMARY KEY (id),
                     UNIQUE INDEX idx_item_code (item_code),
-                    UNIQUE INDEX idx_dict_name_key (dict_id, name, `key`),
-                    CONSTRAINT fk_dict_id FOREIGN KEY (dict_id) REFERENCES sys_dict(id)
+                    UNIQUE INDEX idx_parent_name_key (parent_code, name, `key`),
+                    CONSTRAINT fk_parent_code FOREIGN KEY (parent_code) REFERENCES sys_dict(code)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
             """))
             
