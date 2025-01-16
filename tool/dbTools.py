@@ -45,8 +45,8 @@ def get_pagination(
 
     return {
         "total": total,
-        "pageNum": pageNum,
-        "pageSize": pageSize,
+        "num": pageNum,
+        "size": pageSize,
         "data": result_list,
     }
 

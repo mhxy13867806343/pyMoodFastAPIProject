@@ -39,7 +39,32 @@ def check_parent_dict(db: Session, parent_code: str, check_status: bool = True) 
     if check_status and parent_dict.status == DictStatus.DISABLED.value:
         return parent_dict, False
     return parent_dict, True
+def getPaginationQuery(model,query,db,parent_code:str=None):
+    kwargs = {}
+    if parent_code:
+        kwargs['parent_code'] = parent_code
+    # status: 只有 0 和 1 才过滤，其他值都查询所有
+    if query.status in [0, 1]:
+        kwargs['status'] = query.status
 
+    # 其他字段：空字符串查询所有，有值才过滤
+    if query.type is not None and query.type != "":
+        kwargs['type'] = query.type
+    if query.key is not None and query.key != "":
+        kwargs['key'] = query.key
+    if query.name is not None and query.name != "":
+        kwargs['name'] = query.name
+    if query.value is not None and query.value != "":
+        kwargs['value'] = query.value
+
+    pagination = get_pagination(
+        model=model,
+        session=db,
+        pageNum=query.page,
+        pageSize=query.page_size,
+        **kwargs
+    )
+    return Message.success(data=pagination)
 @dictApp.get(
     "/list",
     summary=ApiDescriptions.DICT_GET_DESC["summary"],
@@ -51,31 +76,13 @@ async def get_dict_list(
 ):
     """获取字典列表"""
     try:
-        kwargs = {}
-        
-        # status: 只有 0 和 1 才过滤，其他值都查询所有
-        if query.status in [0, 1]:
-            kwargs['status'] = query.status
-            
-        # 其他字段：空字符串查询所有，有值才过滤
-        if query.type is not None and query.type != "":
-            kwargs['type'] = query.type
-        if query.key is not None and query.key != "":
-            kwargs['key'] = query.key
-        if query.name is not None and query.name != "":
-            kwargs['name'] = query.name
-        if query.value is not None and query.value != "":
-            kwargs['value'] = query.value
-
-        
-        pagination = get_pagination(
+        return getPaginationQuery(
             model=SYSDict,
-            session=db,
-            pageNum=query.page,
-            pageSize=query.page_size,
-            **kwargs
+            query=query,
+            db=db,
+            parent_code=None
         )
-        return Message.success(data=pagination)
+
     except Exception as e:
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["DATABASE_ERROR"], code=ErrorCode.DATABASE_ERROR)
@@ -269,33 +276,13 @@ async def get_item_data(
             return Message.error(message="字典不存在", code=ErrorCode.BAD_REQUEST)
         if parent_dict.status == DictStatus.DISABLED.value:
             return Message.error(message="禁用状态的字典不允许查询", code=ErrorCode.BAD_REQUEST)
-            
-        kwargs = {
-            'parent_code': parent_code  
-        }
 
-        # status: 只有 0 和 1 才过滤，其他值都查询所有
-        if query.status in [0, 1]:
-            kwargs['status'] = query.status
-
-        # 其他字段：空字符串查询所有，有值才过滤
-        if query.type is not None and query.type != "":
-            kwargs['type'] = query.type
-        if query.key is not None and query.key != "":
-            kwargs['key'] = query.key
-        if query.name is not None and query.name != "":
-            kwargs['name'] = query.name
-        if query.value is not None and query.value != "":
-            kwargs['value'] = query.value
-
-        pagination = get_pagination(
+        return getPaginationQuery(
             model=SYSDictItem,
-            session=db,
-            pageNum=query.page,
-            pageSize=query.page_size,
-            **kwargs
+            query=query,
+            db=db,
+            parent_code=parent_code
         )
-        return Message.success(data=pagination)
     except Exception as e:
 
         db.rollback()
