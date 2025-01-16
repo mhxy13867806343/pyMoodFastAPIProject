@@ -11,7 +11,7 @@ import time
 
 from config.api_descriptions import ApiDescriptions
 from config.error_code import ErrorCode
-from config.error_messages import SYSTEM_ERROR, USER_ERROR
+from config.error_messages import SYSTEM_ERROR, USER_ERROR, DICT_MESSAGE_MSG
 from models.dicts.model import SYSDict, SYSDictItem
 from tool.dbEnum import DictStatus
 from app.dicts.schemas import (
@@ -103,7 +103,7 @@ async def get_dict_by_id(
         ).first()
         
         if not dict_item:
-            return Message.error(message="字典不存在或已禁用",code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("PARNTERROR2"),code=ErrorCode.BAD_REQUEST)
         
         return Message.success(data=dict_item.to_dict())
     except Exception as e:
@@ -152,7 +152,7 @@ async def add_dict(
         )
         db.add(dict_item)
         db.commit()
-        return Message.success(data=dict_item.to_dict(), message="添加字典成功")
+        return Message.success(data=dict_item.to_dict(), message=DICT_MESSAGE_MSG.get("SUCCESSMSG"))
     except SQLAlchemyError as e:
         db.rollback()
         error_msg = str(e)
@@ -185,11 +185,11 @@ async def update_dict(
 
         dict_item = db.query(SYSDict).filter(SYSDict.code == request.code).first()
         if not dict_item:
-            return Message.error(message="字典不存在", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("NONDEV"), code=ErrorCode.BAD_REQUEST)
             
         # 如果字典已禁用，不允许修改
         if dict_item.status == DictStatus.DISABLED.value:
-            return Message.error(message="禁用状态的字典不允许修改", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("STATUSERROR"), code=ErrorCode.BAD_REQUEST)
 
         # 检查name和key是否与其他记录冲突
         existing = db.query(SYSDict).filter(
@@ -234,13 +234,13 @@ async def update_dict_status(
     """更新字典状态"""
     try:
         if request.status not in [DictStatus.NORMAL.value, DictStatus.DISABLED.value]:
-            return Message.error(message="无效的状态值",code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("MSG"),code=ErrorCode.BAD_REQUEST)
 
         dict_item = db.query(SYSDict).filter(SYSDict.code == request.code).first()
         if not dict_item:
-            return Message.error(message="字典不存在",code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("NONDEV"),code=ErrorCode.BAD_REQUEST)
         if dict_item.status == request.status:
-            return Message.error(message=f"当前字典状态未改变,无需更改",code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("PARNTERROR1"),code=ErrorCode.BAD_REQUEST)
         dict_item.status = request.status
         db.commit()
         db.refresh(dict_item)
@@ -268,14 +268,14 @@ async def get_item_data(
     """获取字典项列表"""
     try:
         if not parent_code:
-            return Message.error(message="父字典编码不能为空", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("PARNTERROR3"), code=ErrorCode.BAD_REQUEST)
             
         # 检查父字典是否存在
         parent_dict = db.query(SYSDict).filter(SYSDict.code == parent_code).first()
         if not parent_dict:
-            return Message.error(message="字典不存在", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("NONDEV"), code=ErrorCode.BAD_REQUEST)
         if parent_dict.status == DictStatus.DISABLED.value:
-            return Message.error(message="禁用状态的字典不允许查询", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("PARNTERROR2"), code=ErrorCode.BAD_REQUEST)
 
         return getPaginationQuery(
             model=SYSDictItem,
@@ -306,9 +306,9 @@ async def add_item_data(
         # 检查父字典
         parent_dict, is_valid = check_parent_dict(db, request.parent_code)
         if not parent_dict:
-            return Message.error(message="父字典不存在", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("NONDEV"), code=ErrorCode.BAD_REQUEST)
         if not is_valid:
-            return Message.error(message="父字典已禁用，无法添加字典项", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("PARNTERROR2"), code=ErrorCode.BAD_REQUEST)
 
         # 检查name和key是否与其他记录冲突（同一父字典下）
         existing = db.query(SYSDictItem).filter(
@@ -319,8 +319,8 @@ async def add_item_data(
         if existing:
             if existing.name == request.name:
                 return Message.error(message=f"同一父字典下已存在相同名称:{request.name}", code=ErrorCode.BAD_REQUEST)
-            else:
-                return Message.error(message=f"同一父字典下已存在相同key:{request.key}", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=f"同一父字典下已存在相同key:{request.key}", code=ErrorCode.BAD_REQUEST)
+
 
         # 生成字典项代码
         item_code = f"{request.parent_code}_{request.key}"
@@ -339,7 +339,7 @@ async def add_item_data(
         db.commit()
         db.refresh(dict_item)
 
-        return Message.success(data=dict_item.to_dict(), message="添加字典项成功")
+        return Message.success(data=dict_item.to_dict(), message=DICT_MESSAGE_MSG.get("SUCCESSMSG"))
     except SQLAlchemyError as e:
         db.rollback()
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
@@ -364,14 +364,14 @@ async def get_dict_by_item_code(
         ).first()
 
         if not dict_item:
-            return Message.error(message="字典项不存在", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("NONDEV"), code=ErrorCode.BAD_REQUEST)
             
         # 检查父字典状态
         parent_dict, is_valid = check_parent_dict(db, dict_item.parent_code)
         if not parent_dict:
-            return Message.error(message="父字典不存在", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("NONDEV"), code=ErrorCode.BAD_REQUEST)
         if not is_valid:
-            return Message.error(message="父字典已禁用", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("PARNTERROR"), code=ErrorCode.BAD_REQUEST)
 
         return Message.success(data=dict_item.to_dict())
     except Exception as e:
@@ -394,18 +394,18 @@ async def item_update_dict(
 
         dict_item = db.query(SYSDictItem).filter(SYSDictItem.item_code == request.code).first()
         if not dict_item:
-            return Message.error(message="字典项不存在", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("NONDEV"), code=ErrorCode.BAD_REQUEST)
             
         # 检查父字典状态
         parent_dict, is_valid = check_parent_dict(db, dict_item.parent_code)
         if not parent_dict:
-            return Message.error(message="父字典不存在", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("NONDEV"), code=ErrorCode.BAD_REQUEST)
         if not is_valid:
-            return Message.error(message="父字典已禁用，无法修改字典项", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("PARENT_DISABLED"), code=ErrorCode.BAD_REQUEST)
 
         # 如果字典项已禁用，不允许修改
         if dict_item.status == DictStatus.DISABLED.value:
-            return Message.error(message="禁用状态的字典项不允许修改", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("STATUS_DISABLED"), code=ErrorCode.BAD_REQUEST)
             
         # 检查name和key是否与其他记录冲突（同一父字典下）
         existing = db.query(SYSDictItem).filter(
@@ -417,8 +417,8 @@ async def item_update_dict(
         if existing:
             if existing.name == request.name:
                 return Message.error(message=f"同一父字典下已存在相同名称:{request.name}", code=ErrorCode.BAD_REQUEST)
-            else:
-                return Message.error(message=f"同一父字典下已存在相同key:{request.key}", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=f"同一父字典下已存在相同key:{request.key}", code=ErrorCode.BAD_REQUEST)
+
 
         # 更新字段
         dict_item.name = request.name
@@ -451,21 +451,21 @@ async def update_dict_item_status(
     """更新字典项状态"""
     try:
         if request.status not in [DictStatus.NORMAL.value, DictStatus.DISABLED.value]:
-            return Message.error(message="无效的状态值", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("MSG"), code=ErrorCode.BAD_REQUEST)
 
         dict_item = db.query(SYSDictItem).filter(SYSDictItem.item_code == request.code).first()
         if not dict_item:
-            return Message.error(message="字典项不存在", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("NONDEV"), code=ErrorCode.BAD_REQUEST)
             
         # 检查父字典状态
         parent_dict, is_valid = check_parent_dict(db, dict_item.parent_code)
         if not parent_dict:
-            return Message.error(message="父字典不存在", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("NONDEV"), code=ErrorCode.BAD_REQUEST)
         if not is_valid:
-            return Message.error(message="父字典已禁用，无法修改字典项状态", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("PARENT_DISABLED"), code=ErrorCode.BAD_REQUEST)
             
         if dict_item.status == request.status:
-            return Message.error(message=f"当前字典项状态未改变，无需更改", code=ErrorCode.BAD_REQUEST)
+            return Message.error(message=DICT_MESSAGE_MSG.get("PARNTERROR1"), code=ErrorCode.BAD_REQUEST)
             
         dict_item.status = request.status
         db.commit()

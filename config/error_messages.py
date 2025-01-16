@@ -274,5 +274,15 @@ AUTH_ERROR = {
     }
 }
 
+DICT_MESSAGE_MSG={
+    "MSG":"无效的状态值",
+    "NONDEV":"字典不存在",
+    "STATUSERROR":"禁用状态的字典项不允许修改",
+    "PARNTERROR":"父字典已禁用，无法修改字典项",
+    "PARNTERROR1":"当前字典状态未改变，无需更改",
+    "PARNTERROR2":"字典不存在或已禁用",
+    "PARNTERROR3":"字典编码不能为空",
+    "SUCCESSMSG":"添加字典成功"
+}
 # 导出所有错误信息
-__all__ = ["USER_ERROR", "SYSTEM_ERROR", "BUSINESS_ERROR", "AUTH_ERROR", "LOG_MESSAGES"]
+__all__ = ["USER_ERROR", "SYSTEM_ERROR", "BUSINESS_ERROR", "AUTH_ERROR", "LOG_MESSAGES","DICT_MESSAGE_MSG"]
