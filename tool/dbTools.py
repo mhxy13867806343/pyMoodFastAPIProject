@@ -1,3 +1,6 @@
+import string
+import uuid
+
 from sqlalchemy.orm import Session
 from typing import Optional, List, Dict, Any, Union, TypeVar, Type, Callable, cast
 import re
@@ -95,3 +98,8 @@ def httpStatus(code: int = status.HTTP_400_BAD_REQUEST, message: str = "获取�
         "message": message,
         "data": data
     }
+def sysHex4randCode(sdict:str="sys_dict_DICTITEM_")->str:
+    alphabet = string.ascii_letters
+    random_letters_with_duplicates = ''.join(random.choices(alphabet, k=4))
+    code = f"{sdict}{uuid.uuid4().hex}_{random_letters_with_duplicates}"
+    return code
