@@ -46,3 +46,6 @@ class DictBaseCode(DictBase,DictBaseModelCodes):
     pass
 class DictBaseModelCode(DictBaseModelCodes,DictBaseStatus):
    pass
+class DictBaseModelItem(DictBase):
+    """字典基础模型"""
+    dict_id:int= Field(..., description="字典id")

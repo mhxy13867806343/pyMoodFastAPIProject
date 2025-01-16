@@ -41,7 +41,7 @@ class SYSDictItem(Base):
     #code由系统生成，不可修改
     item_code=Column(String(50), nullable=False, unique=True,default="", comment="字典项code")
     #外键关联字典表
-    dict_id = Column(Integer, ForeignKey('sys_dict.id'), nullable=False, comment="字典id")
+    parent_code = Column(String(50), ForeignKey('sys_dict.code'), nullable=False, comment="字典id")
     name = Column(String(50), nullable=False, unique=True ,default="", comment="字典项名称")
     key = Column(String(50), nullable=False, unique=True, default="", comment="字典项key")
     value = Column(String(50), nullable=False, default="", comment="字典项value")

@@ -16,7 +16,7 @@ from models.dicts.model import SYSDict, SYSDictItem
 from tool.dbEnum import DictStatus
 from app.dicts.schemas import (
     DictBaseCode,
-    DictBaseListMore, DictCreate, DictBaseModelCode
+    DictBaseListMore, DictCreate, DictBaseModelCode, DictBaseModelItem
 )
 from tool.db import getDbSession
 from tool.dbTools import sysHex4randCode, get_pagination
@@ -220,6 +220,38 @@ async def update_dict_status(
         db.rollback()
         globalLogger.error(f"{SYSTEM_ERROR['DATABASE_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["DATABASE_ERROR"], code=ErrorCode.DATABASE_ERROR)
+    except Exception as e:
+        globalLogger.error(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
+        return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"], code=ErrorCode.SYSTEM_ERROR)
+@dictApp.post(
+    "/item/add",
+    summary=ApiDescriptions.DICT_STATUS_PUT_DESC["summary"],
+    description=ApiDescriptions.DICT_STATUS_PUT_DESC["description"]
+)
+async def add_item_data(
+        request: DictBaseModelItem,
+    db: Session = Depends(getDbSession)
+):
+    try:
+        if not  request.code:
+            return Message.error(message="父字典必要参数不能为空",code=ErrorCode.BAD_REQUEST)
+        if not request.name:
+            return Message.error(message="字典名称不能为空",code=ErrorCode.BAD_REQUEST)
+        if not request.key:
+            return Message.error(message="字典key不能为空",code=ErrorCode.BAD_REQUEST)
+        if not request.value:
+            return Message.error(message="字典value不能为空",code=ErrorCode.BAD_REQUEST)
+        dict_item = SYSDictItem(
+            dict_id=request.dict_id,
+            name=request.name,
+            key=request.key,
+            value=request.value,
+            type=request.type,
+            status=0
+        )
+        db.add(dict_item)
+        db.commit()
+        return Message.success(data=dict_item.to_dict(), message="添加字典成功")
     except Exception as e:
         globalLogger.error(f"{SYSTEM_ERROR['SYSTEM_ERROR']}: {str(e)}")
         return Message.error(message=SYSTEM_ERROR["SYSTEM_ERROR"], code=ErrorCode.SYSTEM_ERROR)
