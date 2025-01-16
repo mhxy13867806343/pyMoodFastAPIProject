@@ -46,3 +46,14 @@ class DictBaseCode(DictBase,DictBaseModelCodes):
     pass
 class DictBaseModelCode(DictBaseModelCodes,DictBaseStatus):
    pass
+
+class DictBaseModel(DictBase):
+    """字典项基础模型"""
+    parent_code: str = Field(..., description="父字典编码", max_length=50)
+    
+    @field_validator('parent_code')
+    @classmethod
+    def validate_parent_code(cls, v):
+        if not v:
+            raise ValueError('父字典编码不能为空')
+        return v
